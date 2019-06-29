@@ -13,7 +13,13 @@ bin-release/
 /env
 /.vscode
 /.idea
+/static/plugins
+/static/openssl
+/static/build
+
+
 app.yaml
+
 
 # Executables
 *.swf
