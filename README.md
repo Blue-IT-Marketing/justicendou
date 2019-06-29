@@ -1,1 +1,1 @@
-# justice ndou personal web application
+# justice ndou profile site
