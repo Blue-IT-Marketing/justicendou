@@ -1,6 +1,3 @@
-
-
-
 function my_quora_profile (){
     this.full_profile_url ="https://www.quora.com/profile/Justice-Ndou";
     this.profile_name = "Justice Ndou";
