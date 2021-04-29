@@ -1,5 +1,6 @@
 
 function Path(){
+
      this.mywidth =800;
      this.myheight = 600;
      this.speed = 100;
@@ -21,6 +22,7 @@ function Path(){
 
      
      this.removeCurrent = function (arr,elem) {
+
          for (let i = arr.length-1; i >=0; i--){
              if (arr[i] === elem){
                 arr.splice(i,1);

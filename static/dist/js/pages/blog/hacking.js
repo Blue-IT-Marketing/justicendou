@@ -3,6 +3,7 @@
 //window.addEventListener("load", e =>{
 //updateNews();
 //}); https://newsapi.org/v2/everything?q=bitcoin&apiKey=3b2be7ef781441f4bde537854ffff2bf
+
 let hacking_topics = function(){
     this.default_topics = "CyberAttacks" +  " OR " +  "Hacking Tools" +  " OR " +  "Linux" +  " OR " +  "Kali Linux" +  " OR " +  "Hacking" +  " OR " +  "Penetration Testing Algorithms" +  " OR " +  "Botnets" +  " OR " +  "Botnet Mining" +  " OR " +  "Hackers" +  " OR " +  "Penetration Testing" +  " OR " +  "DDOS" +  " OR " +  "Networking" +  " OR " +  "State Sponsored Hacking";
     this.topics = "";
