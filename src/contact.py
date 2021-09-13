@@ -77,13 +77,12 @@ class ContactMessages(ndb.Model):
         mess_len = len(self.message)
         self.message_excerpt = self.message[0:16] if mess_len > 16 else self.message
 
+    # noinspection PyUnusedLocal
+    @staticmethod
     def send_response(self):
-        try:
-            sender_address = ('support@justice-ndou.site')
-            # mail.send_mail(sender_address, self.email, self.subject, self.message)
-            return True
-        except:
-            return False
+        sender_address = 'support@justice-ndou.site'
+        # mail.send_mail(sender_address, self.email, self.subject, self.message)
+        return True
 
 
 class TicketUsers(ndb.Model):
@@ -112,8 +111,8 @@ class Tickets(ndb.Model):
     uid = ndb.StringProperty()
     subject = ndb.StringProperty()
     body = ndb.StringProperty()
-    date_created = ndb.DateProperty()
-    time_created = ndb.TimeProperty()
+    date_created = ndb.DateProperty(auto_now_add=True)
+    time_created = ndb.TimeProperty(auto_now_add=True)
     ticket_open = ndb.BooleanProperty(default=True)  # Ticket Open or Close
     ticket_preference = ndb.StringProperty(default="Normal")  # Normal / Urgent
     department = ndb.StringProperty(default="Sales")  # Programming, Hosting
@@ -167,197 +166,6 @@ class Comments(ndb.Model):
     comment_date = ndb.DateProperty()
     comment_time = ndb.TimeProperty()
     client_comment = ndb.BooleanProperty(default=True)
-
-
-class ThisContactHandler():
-    def get(self):
-        # TODO - its easier to get session id if it exists
-        # TODO- with the session then obtain userid
-        # TODO- with the user id retrive the user account from the datastore and use that to retrieve user records
-
-        template = template_env.get_template('templates/contact/contact.html')
-        context = {}
-        self.response.write(template.render(context))
-
-    def post(self):
-
-
-class ThisTicketHandler():
-    def get(self):
-
-        vstrUserID = request.args.get('vstrUserID')
-        vstrAccessToken = request.args.get('vstrAccessToken')
-        vstrEmail = request.args.get('vstrEmail')
-
-        URL = self.request.url
-        strURLlist = URL.split("/")
-        strTicketID = strURLlist[len(strURLlist) - 1]
-
-        findRequest = TicketUsers.query(TicketUsers.uid == vstrUserID)
-        thisTicketUserList = findRequest.fetch()
-
-        if len(thisTicketUserList) > 0:
-            thisTicketUser = thisTicketUserList[0]
-        else:
-            thisTicketUser = TicketUsers()
-
-        findRequest = Tickets.query(Tickets.uid == vstrUserID, Tickets.ticket_id == strTicketID)
-        thisTicketList = findRequest.fetch()
-
-        if len(thisTicketList) > 0:
-            thisTicket = thisTicketList[0]
-
-            findRequest = CommentThread.query(CommentThread.ticket_id == thisTicket.ticket_id).order(
-                +CommentThread.datetime_created)
-            thisCommentThreadsList = findRequest.fetch()
-            if len(thisCommentThreadsList) > 0:
-                thisThread = thisCommentThreadsList[0]
-
-                strComIDList = thisThread.retrieveCommentsList()
-                thisCommentList = []
-                for thisComID in strComIDList:
-                    findRequest = Comments.query(Comments.comment_id == thisComID,
-                                                 Comments.thread_id == thisThread.thread_id)
-                    commList = findRequest.fetch()
-                    if len(commList) > 0:
-                        thisCommentList.append(commList[0])
-                thisCommentList.reverse()
-
-            else:
-                thisThread = CommentThread()
-                thisThread.write_thread_id(strinput=thisThread.create_thread_id())
-                thisThread.write_ticket_id(ticket_id=thisTicket.ticket_id)
-                vstrThisDateTime = datetime.datetime.now()
-                strThisDate = datetime.date(year=vstrThisDateTime.year, month=vstrThisDateTime.month,
-                                            day=vstrThisDateTime.day)
-                strThisTime = datetime.time(hour=vstrThisDateTime.hour, minute=vstrThisDateTime.minute,
-                                            second=vstrThisDateTime.second)
-                thisComment = Comments()
-                thisComment.writeThreadID(strinput=thisThread.thread_id)
-                thisComment.writeCommentID(strinput=thisComment.CreateCommentID())
-                thisComment.writeAuthorID(strinput="000000")
-                thisComment.writeIsClientComment(strinput=False)
-                thisComment.writeCommentDate(strinput=strThisDate)
-                thisComment.writeCommentTime(strinput=strThisTime)
-                thisComment.writeComment(
-                    strinput="Welcome to our ticketing system a help desk staff member will attend to you soon")
-                thisComment.put()
-                thisCommentList = []
-                thisCommentList.append(thisComment)
-                thisThread.add_comment_id(comment_id=thisComment.comment_id)
-                thisThread.put()
-
-            template = template_env.get_template('templates/contact/sub/thisTicket.html')
-            context = {'thisTicketUser': thisTicketUser, 'thisTicket': thisTicket, 'thisCommentList': thisCommentList,
-                       'thisThread': thisThread}
-            self.response.write(template.render(context))
-
-    def post(self):
-
-        vstrChoice = request.args.get("vstrChoice")
-        if vstrChoice == "0":
-            # '&vstrUserID=' + vstrUserID + '$vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
-
-            vstrEmail = request.args.get('vstrEmail')
-            vstrAccessToken = request.args.get('vstrAccessToken')
-
-            vstrComment = request.args.get("vstrComment")
-            vstrTicketID = request.args.get("vstrTicketID")
-            vstrThreadID = request.args.get("vstrThreadID")
-            vstrUserID = request.args.get("vstrUserID")
-
-            findRequest = CommentThread.query(CommentThread.thread_id == vstrThreadID,
-                                              CommentThread.ticket_id == vstrTicketID)
-            thisCommentThreadList = findRequest.fetch()
-
-            vstrThisDateTime = datetime.datetime.now()
-            strThisDate = datetime.date(year=vstrThisDateTime.year, month=vstrThisDateTime.month,
-                                        day=vstrThisDateTime.day)
-            strThisTime = datetime.time(hour=vstrThisDateTime.hour, minute=vstrThisDateTime.minute,
-                                        second=vstrThisDateTime.second)
-
-            if len(thisCommentThreadList) > 0:
-                thisCommentThread = thisCommentThreadList[0]
-                thisComment = Comments()
-                thisComment.writeThreadID(strinput=thisCommentThread.thread_id)
-                thisComment.writeAuthorID(strinput=vstrUserID)
-                thisComment.writeIsClientComment(strinput=True)
-                thisComment.writeComment(strinput=vstrComment)
-                thisComment.writeCommentID(strinput=thisComment.CreateCommentID())
-                thisComment.writeCommentDate(strinput=strThisDate)
-                thisComment.writeCommentTime(strinput=strThisTime)
-                thisCommentThread.add_comment_id(comment_id=thisComment.comment_id)
-                thisCommentThread.put()
-                thisComment.put()
-
-                findRequest = Comments.query(Comments.thread_id == thisCommentThread.thread_id)
-                thisCommentList = findRequest.fetch()
-                thisCommentList.reverse()
-                template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
-                context = {'thisCommentList': thisCommentList}
-                self.response.write(template.render(context))
-
-        elif vstrChoice == "1":
-            # '&vstrUserID=' + vstrUserID + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken
-            vstrEmail = request.args.get('vstrEmail')
-            vstrAccessToken = request.args.get('vstrAccessToken')
-            vstrUserID = request.args.get("vstrUserID")
-
-            vstrTicketID = request.args.get("vstrTicketID")
-            findRequest = TicketUsers.query(TicketUsers.uid == vstrUserID)
-            thisTicketUserList = findRequest.fetch()
-
-            if len(thisTicketUserList) > 0:
-                thisTicketUser = thisTicketUserList[0]
-            else:
-                thisTicketUser = TicketUsers()
-
-            findRequest = Tickets.query(Tickets.uid == vstrUserID, Tickets.ticket_id == vstrTicketID)
-            thisTicketList = findRequest.fetch()
-
-            if len(thisTicketList) > 0:
-                thisTicket = thisTicketList[0]
-
-                findRequest = CommentThread.query(CommentThread.ticket_id == thisTicket.ticket_id).order(
-                    +CommentThread.datetime_created)
-                thisCommentThreadsList = findRequest.fetch()
-                if len(thisCommentThreadsList) > 0:
-                    thisThread = thisCommentThreadsList[0]
-
-                    strComIDList = thisThread.retrieveCommentsList()
-                    thisCommentList = []
-                    for thisComID in strComIDList:
-                        findRequest = Comments.query(Comments.comment_id == thisComID,
-                                                     Comments.thread_id == thisThread.thread_id)
-                        commList = findRequest.fetch()
-                        if len(commList) > 0:
-                            thisCommentList.append(commList[0])
-                    thisCommentList.reverse()
-
-                    template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
-                    context = {'thisTicketUser': thisTicketUser, 'thisTicket': thisTicket,
-                               'thisCommentList': thisCommentList, 'thisThread': thisThread}
-                    self.response.write(template.render(context))
-
-
-class readContactHandler():
-    def get(self):
-
-        URL = self.request.url
-        URLlist = URL.split("/")
-        strReference = URLlist[len(URLlist) - 1]
-
-        findRequest = ContactMessages.query(ContactMessages.message_reference == strReference)
-        thisContactMessagesList = findRequest.fetch()
-
-        if len(thisContactMessagesList) > 0:
-            thisContactMessage = thisContactMessagesList[0]
-        else:
-            thisContactMessage = ContactMessages()
-
-        template = template_env.get_template('templates/contact/readContact.html')
-        context = {'thisContactMessage': thisContactMessage}
-        self.response.write(template.render(context))
 
 
 @contact_handler_bp.route('/contact/tickets/<string:path>', methods=['POST', 'GET'])
@@ -458,23 +266,17 @@ def default_contact_handler(path: str):
                 ticket_user.writeEmail(strinput=email)
                 ticket_user.put()
 
-            vstrThisDateTime = datetime.datetime.now()
-            strThisDate = datetime.date(year=vstrThisDateTime.year, month=vstrThisDateTime.month,
-                                        day=vstrThisDateTime.day)
-            strThisTime = datetime.time(hour=vstrThisDateTime.hour, minute=vstrThisDateTime.minute,
-                                        second=vstrThisDateTime.second)
-
-            thisTicket = Tickets()
-            thisTicket.writeUserID(strinput=uid)
-            thisTicket.writeTicketID(strinput=thisTicket.CreateTicketID())
-            thisTicket.writeSubject(strinput=subject)
-            thisTicket.writeBody(strinput=body)
-            thisTicket.writeTicketPreferences(strinput=ticket_preference)
-            thisTicket.writeDepartment(strinput=department)
-            thisTicket.writeDateCreated(strinput=strThisDate)
-            thisTicket.writeTimeCreated(strinput=strThisTime)
-            thisTicket.put()
-            self.response.write("Ticket Successfully created")
+            _now = datetime.datetime.now()
+            this_date = datetime.date(year=_now.year, month=_now.month,
+                                      day=_now.day)
+            this_time = datetime.time(hour=_now.hour, minute=_now.minute,
+                                      second=_now.second)
+            ticket_id: str = "".join(
+                random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=32))
+            this_ticket = Tickets(uid=uid, ticket_id=ticket_id, subject=subject, body=body,
+                                  ticket_preference=ticket_preference, department=department)
+            this_ticket.put()
+            return "Ticket Successfully created", 200
 
             # TODO- finish this up once done resolving the account issues
 
@@ -486,13 +288,170 @@ def default_contact_handler(path: str):
 
             template = template_env.get_template('templates/contact/sub/address.html')
             context = {}
-            self.response.write(template.render(context))
+            return template.render(context), 200
 
 
-app = webapp2.WSGIApplication([
+@contact_handler_bp.route('/contact', methods=['POST', 'GET'])
+def return_contact():
+    return render_template('templates/contact/contact.html'), 200
 
-    ('/contact/tickets/.*', ThisTicketHandler),
-    ('/contact/read/.*', readContactHandler),
-    ('/contact', ThisContactHandler)
 
-], debug=True)
+@contact_handler_bp.route('/contact/read/<string:reference>', methods=['GET'])
+def contact_reader(reference: str):
+    query = ContactMessages.query(ContactMessages.message_reference == reference)
+    contact_mesages = query.fetch()
+
+    if contact_mesages:
+        contact_message = contact_mesages[0]
+    else:
+        contact_message = ContactMessages()
+
+    template = template_env.get_template('templates/contact/readContact.html')
+    context = {'contact_message': contact_message}
+    return template.render(context), 200
+
+
+@contact_handler_bp.route('/contact/tickets/<string:ticket_id>', methods=['POST', 'GET'])
+def tickets_handler(ticket_id: str):
+    if request.method == "GET":
+
+        uid = request.args.get('uid')
+        access_token = request.args.get('access_token')
+        email = request.args.get('email')
+
+        ticket_list, ticket_user = return_ticket_list(ticket_id, uid)
+
+        if ticket_list:
+            ticket_instance = ticket_list[0]
+
+            query = CommentThread.query(CommentThread.ticket_id == ticket_instance.ticket_id).order(
+                +CommentThread.datetime_created)
+            comment_threads_list = query.fetch()
+            if comment_threads_list:
+                comment_thread = comment_threads_list[0]
+
+                comment_threads_list = comment_thread.read_comments()
+                comments_list = []
+                for comm_id in comment_threads_list:
+                    query = Comments.query(Comments.comment_id == comm_id,
+                                           Comments.thread_id == comment_thread.thread_id)
+                    temp_list = query.fetch()
+                    comments_list = temp_list
+                comments_list.reverse()
+
+            else:
+                comment_thread = CommentThread()
+                comment_thread.write_thread_id(strinput=comment_thread.create_thread_id())
+                comment_thread.write_ticket_id(ticket_id=ticket_instance.ticket_id)
+                _this_date = datetime.datetime.now()
+                this_date: datetime.date = datetime.date(year=_this_date.year, month=_this_date.month,
+                                                         day=_this_date.day)
+
+                this_time: datetime.time = datetime.time(hour=_this_date.hour, minute=_this_date.minute,
+                                                         second=_this_date.second)
+
+                _comment_id: str = create_id()
+                _comment: str = "Welcome to our ticketing system a help desk staff member will attend to you soon"
+                comment_instance = Comments(thread_id=comment_thread.thread_id, author_id=uid, comment_id=_comment_id,
+                                            comment=_comment, comment_date=this_date, comment_time=this_time)
+                comment_instance.put()
+
+                comments_list = [comment_instance.to_dict()]
+                comment_thread.add_comment_id(comment_id=comment_instance.comment_id)
+                comment_thread.put()
+
+            template = template_env.get_template('templates/contact/sub/ticket_instance.html')
+            context = {'ticket_user': ticket_user, 'ticket_instance': ticket_instance, 'comments_list': comments_list,
+                       'comment_thread': comment_thread}
+            return template.render(context), 200
+
+    elif request.method == "POST":
+        choice = request.args.get("choice")
+        if choice == "0":
+            # '&uid=' + uid + '$email=' + email + '&access_token=' + accessToken;
+
+            email = request.args.get('email')
+            access_token = request.args.get('access_token')
+
+            comment = request.args.get("comment")
+            ticket_id = request.args.get("ticket_id")
+            thread_id = request.args.get("thread_id")
+            uid = request.args.get("uid")
+
+            query = CommentThread.query(CommentThread.thread_id == thread_id,
+                                        CommentThread.ticket_id == ticket_id)
+            comment_thread_list = query.fetch()
+
+            _this_date = datetime.datetime.now()
+            this_date = datetime.date(year=_this_date.year, month=_this_date.month,
+                                      day=_this_date.day)
+
+            this_time = datetime.time(hour=_this_date.hour, minute=_this_date.minute,
+                                      second=_this_date.second)
+
+            if comment_thread_list:
+                comment_thread = comment_thread_list[0]
+                _comment_id: str = create_id()
+
+                comment_instance = Comments(thread_id=comment_thread.thread_id, author_id=uid,
+                                            comment_id=create_id(), comment=comment, comment_date=this_date,
+                                            comment_time=this_time)
+                comment_thread.add_comment_id(comment_id=comment_instance.comment_id)
+                comment_thread.put()
+                comment_instance.put()
+
+                query = Comments.query(Comments.thread_id == comment_thread.thread_id)
+                comments_list = query.fetch()
+                comments_list.reverse()
+                template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
+                context = {'comments_list': comments_list}
+                return template.render(context), 200
+
+        elif choice == "1":
+            # '&uid=' + uid + '&email=' + email + '&access_token=' + accessToken
+            email = request.args.get('email')
+            access_token = request.args.get('access_token')
+            uid = request.args.get("uid")
+
+            ticket_id = request.args.get("ticket_id")
+            ticket_list, ticket_user = return_ticket_list(ticket_id, uid)
+
+            if ticket_list:
+                ticket_instance = ticket_list[0]
+                query = CommentThread.query(CommentThread.ticket_id == ticket_instance.ticket_id).order(
+                    +CommentThread.datetime_created)
+                comment_threads_list = query.fetch()
+                if comment_threads_list:
+                    comment_thread = comment_threads_list[0]
+
+                    comment_id_list = comment_thread.read_comments()
+                    comments_list = []
+                    for comm_id in comment_id_list:
+                        query = Comments.query(Comments.comment_id == comm_id,
+                                               Comments.thread_id == comment_thread.thread_id)
+                        comments_list = query.fetch()
+                        if comments_list:
+                            comments_list.append(comments_list[0])
+                    comments_list.reverse()
+
+                    template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
+                    context = {'ticket_user': ticket_user, 'ticket_instance': ticket_instance,
+                               'comments_list': comments_list, 'comment_thread': comment_thread}
+                    return template.render(context), 200
+
+
+def return_ticket_list(ticket_id, uid):
+    query = TicketUsers.query(TicketUsers.uid == uid)
+    users_list = query.fetch()
+    if users_list:
+        ticket_user = users_list[0]
+    else:
+        ticket_user = TicketUsers()
+    query = Tickets.query(Tickets.uid == uid, Tickets.ticket_id == ticket_id)
+    ticket_list = query.fetch()
+    return ticket_list, ticket_user
+
+
+def create_id():
+    return "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits,
+                                  k=64))

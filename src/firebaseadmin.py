@@ -1,5 +1,4 @@
-
-#!/usr/bin/env python
+# !/usr/bin/env python
 #
 # Copyright 2007 Google Inc.
 #
@@ -16,20 +15,22 @@
 # limitations under the License.
 #
 import logging
-def VerifyAndReturnAccount(strUserID, strAccessToken):
+
+
+def verify_account(uid, access_token) -> bool:
     """
  
     """
 
     from accounts import Accounts
-
-
-    findRequest = Accounts.query(Accounts.uid == strUserID)
-    thisAccountList = findRequest.fetch()
-    if len(thisAccountList) > 0:
-        thisAccount = thisAccountList[0]
-        return thisAccount
+    query = Accounts.query(Accounts.uid == uid)
+    accounts_list = query.fetch()
+    if accounts_list:
+        account = accounts_list[0]
+        return account if account.access_token == access_token else None
     else:
         return None
 
 
+def check_firebase(uid, access_token) -> bool:
+    pass
