@@ -1,38 +1,41 @@
-
 import os
+from typing import List
+
 import jinja2
 import logging
 import datetime
 import requests
 from google.cloud import ndb
 from src.accounts import Accounts
-from src.articles import Articles, this_topics
-
-template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
-#import firebase_admin
-#from firebase_admin import credentials
-#cred = credentials.Certificate('templates/firebase/service_account.json')
-#default_app = firebase_admin.initialize_app(cred)
-from flask import Blueprint, make_response, render_template, url_for
+from src.articles import Articles, this_topics, Interests
+from src.services import HireMe
+# import firebase_admin
+# from firebase_admin import credentials
+# cred = credentials.Certificate('templates/firebase/service_account.json')
+# default_app = firebase_admin.initialize_app(cred)
+from flask import Blueprint, make_response, render_template, url_for, request
 
 main_router_bp = Blueprint('main_router_handler', __name__)
 
+
 def route_sitemap(self):
-    #TODO- Consider creating a dynamic sitemap by actually crawling my site and then outputting the sitemap here
-    #TODO- i think i use to have a function to do this coupled with thoth
+    # TODO- Consider creating a dynamic sitemap by actually crawling my site and then outputting the sitemap here
+    # TODO- i think i use to have a function to do this coupled with thoth
     response = make_response(render_template('templates/sitemap/sitemap.xml'))
     response.headers["Content-Type"] = 'text/xml'
     return response, 200
 
-def route_robots(self):
-    response  = make_response(render_template('templates/sitemap/robots.txt'))
+
+def route_robots():
+    response = make_response(render_template('templates/sitemap/robots.txt'))
     response.headers["Content-Type"] = "text/plain"
     return response, 200
 
-def route_home(self):
+
+def route_home():
     import random
     this_articles = Articles()
-    #this_articles.save_topics()
+    # this_articles.save_topics()
 
     topic = random.choice(this_topics)
     articles = this_articles.fetch_topic(topic=topic)
@@ -41,32 +44,42 @@ def route_home(self):
         articles = articles['articles']
     return render_template('templates/index.html', articles=articles), 200
 
+
 def route_login():
     return render_template('templates/authentication/login.html'), 200
+
 
 def route_logout():
     return render_template('templates/authentication/logout.html'), 200
 
+
 def route_about():
     return render_template('templates/about.html'), 200
+
 
 def route_contact():
     return render_template('templates/contact/contact.html')
 
+
 def route_blog():
     return render_template("templates/blog/home.html")
+
 
 def route_algorithms():
     return render_template("templates/algorithms/algos.html")
 
+
 def route_strange():
     return render_template("templates/algorithms/strange/strange.html")
+
 
 def route_perlin():
     return render_template("templates/algorithms/perlin/perlin.html")
 
+
 def route_life():
     return render_template("templates/algorithms/gameoflife/life.html")
+
 
 def route_maze():
     return render_template("templates/algorithms/maze/maze.html")
@@ -79,6 +92,7 @@ def route_path():
 def route_matter():
     return render_template("templates/algorithms/matter/matter.html")
 
+
 def route_dashboard():
     """ get correct user details"""
     user = Accounts()
@@ -90,111 +104,203 @@ def route_dashboard():
         login_url = url_for('login_url')
         return render_template("templates/lockscreen.html", login_url=login_url)
 
-def route_games(self):
+
+def route_games():
     return render_template("templates/games/games.html")
 
-def route_tetris(self):
+
+def route_tetris():
     return render_template("templates/games/tetris/tetris.html")
 
-def route_pacman(self):
-    template = template_env.get_template("templates/games/pacman/pacman.html")
-    context = {}
-    self.response.write(template.render(context))
 
-def RouteChess(self):
-    template = template_env.get_template("templates/games/garbo/chess.html")
-    context = {}
-    self.response.write(template.render(context))
-
-def RouteCheckers(self):
-    template = template_env.get_template("templates/games/checkers/checkers.html")
-    context = {}
-    self.response.write(template.render(context))
-
-def RoutePingPong(self):
-    template = template_env.get_template("templates/games/pingpong/pingpong.html")
-    context = {}
-    self.response.write(template.render(context))
-
-def RouteMatrix(self):
-    template = template_env.get_template("templates/games/matrix/matrix.html")
-    context = {}
-    self.response.write(template.render(context))
-
-def RouteSnake(self):
-    template = template_env.get_template("templates/games/snake/snake.html")
-    context = {}
-    self.response.write(template.render(context))
-
-def RoutePlinko(self):
-    template = template_env.get_template("templates/algorithms/plinko/plinko.html")
-    context = {}
-    self.response.write(template.render(context))
-
-def RouteMazeSolver(self):
-    template = template_env.get_template("templates/algorithms/mazepath/mazepath.html")
-    context = {}
-    self.response.write(template.render(context))
+def route_pacman():
+    return render_template("templates/games/pacman/pacman.html")
 
 
-@main_router_bp.route('/', methods=['GET', 'POST', 'DELETE', 'PUT'])
-
-def main_router_handler():
-    pass
+def route_chess():
+    return render_template("templates/games/garbo/chess.html")
 
 
-        
-    def RouteDashboardPost(self,route):
-        from services import HireMe
+def route_checkers():
+    return render_template("templates/games/checkers/checkers.html")
 
-        if route == "hireme":
-            
-            find_hires = HireMe.query(HireMe.project_status <> "completed")
+
+def route_ping_pong():
+    return render_template("templates/games/pingpong/pingpong.html")
+
+
+def route_matrix():
+    return render_template("templates/games/matrix/matrix.html")
+
+
+def route_snake():
+    return render_template("templates/games/snake/snake.html")
+
+
+def route_plinko():
+    return render_template("templates/algorithms/plinko/plinko.html")
+
+
+def route_maze_solver():
+    return render_template("templates/algorithms/mazepath/mazepath.html")
+
+
+def route_404():
+    return render_template('templates/404.html')
+
+
+def route_500():
+    return render_template('templates/500.html')
+
+
+def date_string_datetime(date_string):
+    try:
+        date_string = str(date_string)
+        try:
+            date_list = date_string.split("\\")
+            my_year = int(date_list[0])
+            my_month = int(date_list[1])
+            my_day = int(date_list[2])
+        except:
+            date_list = date_string.split("-")
+
+            if len(date_list) == 3:
+                my_year = int(date_list[0])
+                my_month = int(date_list[1])
+                my_day = int(date_list[2])
+            else:
+                this_date = datetime.datetime.now()
+                this_date = this_date.date()
+                my_year = this_date.year
+                my_month = this_date.month
+                my_day = this_date.day
+
+        this_date = datetime.date(year=my_year, month=my_month, day=my_day)
+
+        return this_date
+
+
+    except Exception as e:
+        raise e
+
+
+def dashboard_handler():
+    return render_template('templates/dashboard/dashboard.html')
+
+
+def route_login_post(route):
+    # from firebase_admin import auth
+
+    if route == "email-not-verified":
+        return render_template('templates/authentication/loggedin.html')
+
+    elif route == "email-verified":
+        return render_template('templates/authentication/loggedin.html')
+
+    elif route == "user-not-loggedin":
+        return render_template('templates/authentication/loggedout.html')
+
+    elif route == "2":
+        vstrDisplayName = request.args.get('vstrDisplayName')
+        vstrEmail = request.args.get('vstrEmail')
+        vstremailVerified = request.args.get('vstremailVerified')
+        vstrUserID = request.args.get('vstrUserID')
+        vstrPhoneNumber = request.args.get('vstrPhoneNumber')
+        vstrProviderData = request.args.get('vstrProviderData')
+        vstrAccessToken = request.args.get('vstrAccessToken')
+
+        # decode_token = auth.verify_id_token(vstrAccessToken)
+        # uid = decode_token['uid']
+
+        findRequest = Accounts.query(Accounts.strUserID == vstrUserID)
+        thisAccountList = findRequest.fetch()
+
+        if len(thisAccountList) > 0:
+            thisAccount = thisAccountList[0]
+            thisAccount.writeEmail(strinput=vstrEmail)
+
+        else:
+            findRequest = Accounts.query(Accounts.strEmail == vstrEmail)
+            thisAccountList = findRequest.fetch()
+            if len(thisAccountList) > 0:
+                thisAccount = thisAccountList[0]
+                thisAccount.writeUserID(strinput=vstrUserID)
+            else:
+                thisAccount = Accounts()
+                thisAccount.writeUserID(strinput=vstrUserID)
+                thisAccount.writeNames(strinput=vstrDisplayName)
+                thisAccount.writeEmail(strinput=vstrEmail)
+                thisAccount.writeProviderData(strinput=vstrProviderData)
+
+        if vstremailVerified == "YES":
+            thisAccount.writeVerified(strinput=True)
+        else:
+            thisAccount.writeVerified(strinput=False)
+            thisAccount.writeUserID(strinput=vstrUserID)
+            thisAccount.writeCell(strinput=vstrPhoneNumber)
+            thisAccount.writeProviderData(strinput=vstrProviderData)
+
+        thisAccount.writeAccessToken(strinput=vstrAccessToken)
+        thisAccount.put()
+
+        # TODO - Refine this part
+
+
+def get_route_list(path: str) -> List[str]: return path.lower().split("/")
+
+
+def is_login_route(route: List[str]) -> bool:
+    """
+
+    :param route:
+    :return:
+    """
+    return "login" in route or "login.html" in route or "signin" in route or "signin.html" in route or "subscribe" \
+           in route or "subscribe.html" in route
+
+
+@main_router_bp.route('/<string:path>', methods=['GET', 'POST', 'DELETE', 'PUT'])
+def main_router_handler(path: str):
+    route_list: List[str] = get_route_list(path=path)
+    if request.method == 'POST':
+        if "hireme" in route_list:
+            find_hires = HireMe.query(HireMe.project_status != "completed")
             this_hires_list = find_hires.fetch()
-            
-            template = template_env.get_template('templates/dashboard/hireme.html')
-            context = {'this_hires_list':this_hires_list}
-            self.response.write(template.render(context))
+            return render_template('templates/dashboard/hireme.html', this_hires_list=this_hires_list)
 
-        elif route == "get-project": # dashboard project get
-            projectid = self.request.get('projectid')
-            find_hires = HireMe.query(HireMe.projectid == projectid)
+        elif "get-project" in route_list:  # dashboard project get
+            project_id = request.args.get('project_id')
+            find_hires = HireMe.query(HireMe.projectid == project_id)
             this_hires_list = find_hires.fetch()
-            if len(this_hires_list) > 0:
+            if this_hires_list:
                 this_hire = this_hires_list[0]
-                template = template_env.get_template('templates/dashboard/project.html')
-                context ={'this_hire':this_hire} 
-                self.response.write(template.render(context))
+                return render_template('templates/dashboard/project.html', this_hire=this_hire)
             else:
                 this_hire = HireMe()
-                template = template_env.get_template('templates/dashboard/project.html')
-                context ={'this_hire':this_hire} 
-                self.response.write(template.render(context))
-                
-        elif route == "update-project": #dashboard project updater
-            projectid = self.request.get('projectid')
-            names = self.request.get('names')
-            cell = self.request.get('cell')
-            email = self.request.get('email')
-            website = self.request.get('website')
-            facebook = self.request.get('facebook')
-            twitter = self.request.get('twitter')
-            company = self.request.get('company')
-            freelancing = self.request.get('freelancing')
-            project_type = self.request.get('project-type')
-            project_title = self.request.get('project-title')
-            project_description = self.request.get('project-description')
-            estimated_budget = self.request.get('estimated-budget')
-            start_date = self.request.get('start-date')
-            project_status = self.request.get('project-status')
+                return render_template('templates/dashboard/project.html', this_hire=this_hire)
 
-            start_date = convert_datestring_to_datetime(start_date)
+        elif "update-project" in route_list:  # dashboard project updater
+            project_id = request.args.get('project_id')
+            names = request.args.get('names')
+            cell = request.args.get('cell')
+            email = request.args.get('email')
+            website = request.args.get('website')
+            facebook = request.args.get('facebook')
+            twitter = request.args.get('twitter')
+            company = request.args.get('company')
+            freelancing = request.args.get('freelancing')
+            project_type = request.args.get('project-type')
+            project_title = request.args.get('project-title')
+            project_description = request.args.get('project-description')
+            estimated_budget = request.args.get('estimated-budget')
+            start_date = request.args.get('start-date')
+            project_status = request.args.get('project-status')
 
+            start_date = date_string_datetime(start_date)
 
-
-            find_project = HireMe.query(HireMe.projectid == projectid)
+            find_project = HireMe.query(HireMe.projectid == project_id)
             this_project_list = find_project.fetch()
-            if len(this_project_list) > 0:
+            if this_project_list:
                 this_project = this_project_list[0]
             else:
                 this_project = HireMe()
@@ -214,67 +320,56 @@ def main_router_handler():
             this_project.set_project_status(status=project_status)
             this_project.put()
 
-            self.response.write("project succesfully updated")
+            return "project successfully updated", 200
 
+        elif "messages" in route_list:
+            return render_template('templates/dashboard/messages.html')
 
-        elif route == "messages":
-            template = template_env.get_template('templates/dashboard/messages.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif route == "interests":
+        elif "interests" in route_list:
             find_topics = Interests.query()
             interests_list = find_topics.fetch()
-            template = template_env.get_template('templates/dashboard/interests.html')
-            context = {'interests_list':interests_list}
-            self.response.write(template.render(context))
+            context = {'interests_list': interests_list}
+            return render_template('templates/dashboard/interests.html', interests_list=interests_list)
 
+        elif "createpage" in route_list:
+            return render_template('templates/dashboard/createpage.html')
 
-        elif route == "createpage":
-            template = template_env.get_template('templates/dashboard/createpage.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif route == "createposts":
-            template = template_env.get_template('templates/dashboard/createposts.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif route == "subjectfromtopicid":
-            topicid = self.request.get('topicid')
+        elif "createposts" in route_list:
+            return render_template('templates/dashboard/createposts.html')
+        elif "subjectfromtopicid" in route_list:
+            topicid = request.args.get('topicid')
             find_subjects = Interests.query(Interests.topic_id == topicid)
             this_interests_list = find_subjects.fetch()
-            if len(this_interests_list) > 0:
-                
-                this_interest = this_interests_list[0] 
-                #this_subjects_list = this_interest.subjects.split(this_interest._sep)
-                #logging.info(this_subjects_list)
-                self.response.write(this_interest.subjects)
+            if this_interests_list:
+                this_interest = this_interests_list[0]
+                # this_subjects_list = this_interest.subjects.split(this_interest._sep)
+                # logging.info(this_subjects_list)
+                return this_interest.subjects, 200
 
-        elif route == "addsubjectstotopicid":
-            topicid = self.request.get('topicid')
-            subjects_list = self.request.get('subjects-list')
+        elif "addsubjectstotopicid" in route_list:
+            topicid = request.args.get('topicid')
+            subjects_list = request.args.get('subjects-list')
             find_subjects = Interests.query(Interests.topic_id == topicid)
             this_interests_list = find_subjects.fetch()
-            if len(this_interests_list) > 0:
+            if this_interests_list:
                 this_interest = this_interests_list[0]
             else:
                 this_interest = Interests()
 
-            this_interest.write_topic_id(id=topicid)            
+            this_interest.write_topic_id(id=topicid)
             subjects_list = subjects_list.split(this_interest._sep)
             for subject in subjects_list:
                 this_interest.write_subjects(subject=subject)
-            
-            this_interest.put()
-            self.response.write("completed adding subjects")
 
-        elif route == "removesubjectstopicid":
-            topicid = self.request.get('topicid')
-            subjects_list = self.request.get('subjects-list')
+            this_interest.put()
+            return "completed adding subjects", 200
+
+        elif "removesubjectstopicid" in route_list:
+            topicid = request.args.get('topicid')
+            subjects_list = request.args.get('subjects-list')
             find_subjects = Interests.query(Interests.topic_id == topicid)
             this_interests_list = find_subjects.fetch()
-            if len(this_interests_list) > 0:
+            if this_interests_list:
                 this_interest = this_interests_list[0]
                 temp_subjects_list = this_interest.subjects.split(this_interest._sep)
                 subjects_list = subjects_list.split(":")
@@ -287,241 +382,113 @@ def main_router_handler():
                         this_interest.subjects = subject
                     else:
                         this_interest.subjects += ':' + subject
-                
+
                 this_interest.put()
+                return "subjects removed", 200
 
-                self.response.write("subjects removed")
-
-        elif route == "createtopic":
-            topicid = self.request.get('topicid')
-            topiclabel = self.request.get('topiclabel')
-
+        elif "createtopic" in route_list:
+            topicid = request.args.get('topicid')
+            topiclabel = request.args.get('topiclabel')
             find_topic = Interests.query(Interests.topic == topiclabel)
             this_topics_list = find_topic.fetch()
 
             if len(this_topics_list) > 0:
-                self.response.write("This topic is already present")
+                return "This topic is already present", 200
             else:
                 this_interest = Interests()
                 this_interest.write_topic_id(id=topicid)
                 this_interest.write_topic(topic=topiclabel)
                 this_interest.put()
-                self.response.write("Topic successfully created")
-            
+                return "Topic successfully created", 200
 
-    def Route404(self):
-        template = template_env.get_template('templates/404.html')
-        context = {}
-        self.response.write(template.render(context))
+        elif is_login_route(route=route_list):
+            _route = request.args.get("route_list")
+            return route_login_post(route=_route)
+        elif "games" in route_list:
+            _route = request.args.get('route_list')
+            if route_list == "tetris":
+                return route_tetris()
+            elif route_list == "pacman":
+                return route_pacman()
+            elif route_list == "chess":
+                return route_chess()
+            elif route_list == "checkers":
+                return route_checkers()
+            elif route_list == "pingpong":
+                return route_ping_pong()
+            elif route_list == "matrix":
+                return route_matrix()
 
-    def Route500(self):
-        template = template_env.get_template('templates/500.html')
-        context = {}
-        self.response.write(template.render(context))
+        elif "dashboard" in route_list:
+            _route = request.args.get('route_list')
+            return route_dashboard()
 
+    elif request.method == 'GET':
+        if "index" in route_list or "index.html" in route_list:
+            return route_home()
+        elif is_login_route(route=route_list):
+            return route_login()
 
+        elif "logout" in route_list or "logout.html" in route_list or "signout" in route_list or \
+                "signout.html" in route_list:
+            return route_logout()
 
+        elif "sitemap.xml" in route_list:
+            return route_sitemap()
 
-    def RouteLoginPost(self,route):
-        from accounts import Accounts
-        #from firebase_admin import auth
+        elif "robots.txt" in route_list:
+            return route_robots()
 
-        if route == "email-not-verified":
-            template = template_env.get_template('templates/authentication/loggedin.html')
-            context = {}
-            self.response.write(template.render(context))
+        elif "about" in route_list or "about.html" in route_list:
+            return route_about()
 
-        elif route == "email-verified":
-            template = template_env.get_template('templates/authentication/loggedin.html')
-            context = {}
-            self.response.write(template.render(context))
+        elif "contact" in route_list or "contact.html" in route_list:
+            return route_contact()
 
-        elif route == "user-not-loggedin":
-            template = template_env.get_template('templates/authentication/loggedout.html')
-            context = {}
-            self.response.write(template.render(context))
+        elif "blog" in route_list or "blog.html" in route_list:
+            return route_blog()
 
-        elif route == "2":
-            vstrDisplayName = self.request.get('vstrDisplayName')
-            vstrEmail = self.request.get('vstrEmail')
-            vstremailVerified = self.request.get('vstremailVerified')
-            vstrUserID = self.request.get('vstrUserID')
-            vstrPhoneNumber = self.request.get('vstrPhoneNumber')
-            vstrProviderData = self.request.get('vstrProviderData')
-            vstrAccessToken = self.request.get('vstrAccessToken')
+        elif "strange" in route_list and "algorithms" in route_list:
+            return route_strange()
 
-            #decode_token = auth.verify_id_token(vstrAccessToken)
-            #uid = decode_token['uid']
+        elif "perlin" in route_list and "algorithms" in route_list:
+            return route_perlin()
 
-            findRequest = Accounts.query(Accounts.strUserID == vstrUserID)
-            thisAccountList = findRequest.fetch()
+        elif "matrix" in route_list and "algorithms" in route_list:
+            return route_matrix()
 
-            if len(thisAccountList) > 0:
-                thisAccount = thisAccountList[0]
-                thisAccount.writeEmail(strinput=vstrEmail)
+        elif "gameoflife" in route_list and "algorithms" in route_list:
+            return route_life()
 
-            else:
-                findRequest = Accounts.query(Accounts.strEmail == vstrEmail)
-                thisAccountList = findRequest.fetch()
-                if len(thisAccountList) > 0:
-                    thisAccount = thisAccountList[0]
-                    thisAccount.writeUserID(strinput=vstrUserID)
-                else:
-                    thisAccount = Accounts()
-                    thisAccount.writeUserID(strinput=vstrUserID)
-                    thisAccount.writeNames(strinput=vstrDisplayName)
-                    thisAccount.writeEmail(strinput=vstrEmail)
-                    thisAccount.writeProviderData(strinput=vstrProviderData)
+        elif "maze" in route_list and "algorithms" in route_list:
+            return route_maze()
 
+        elif "path" in route_list and "algorithms" in route_list:
+            return route_path()
 
-            if vstremailVerified == "YES":
-                thisAccount.writeVerified(strinput=True)
-            else:
-                thisAccount.writeVerified(strinput=False)
-                thisAccount.writeUserID(strinput=vstrUserID)
-                thisAccount.writeCell(strinput=vstrPhoneNumber)
-                thisAccount.writeProviderData(strinput=vstrProviderData)
+        elif "matter" in route_list and "algorithms" in route_list:
+            return route_matter()
 
-            thisAccount.writeAccessToken(strinput=vstrAccessToken)
-            thisAccount.put()
+        elif "plinko" in route_list and "algorithms" in route_list:
+            return route_plinko()
 
-            #TODO - Refine this part
+        elif "mazesolver" in route_list and "algorithms" in route_list:
+            return route_maze_solver()
 
+        elif "algorithms" in route_list or "algorithms.html" in route_list:
+            return route_algorithms()
 
-    def get(self):
-        """
-            The Main Get Router entry point
-        :return:
-        """
-        URL = self.request.url
-        URL = str(URL)
-        URL = URL.lower()
-        strURLlist = URL.split("/")
+        elif "dashboard" in route_list or "dashboard.html" in route_list:
+            return route_dashboard()
 
-        logging.info(str(len(strURLlist)))
+        elif "games" in route_list or "games.html" in route_list:
+            return route_games()
+        elif "matrix" in route_list:
+            return route_matrix()
+        elif "snake" in route_list:
+            return route_snake()
 
-        if len(strURLlist) >= 4:
-
-            if ("index" in strURLlist) or ("index.html" in strURLlist):
-                self.route_home()
-            elif ("login" in strURLlist) or ("login.html" in strURLlist) or ("signin" in strURLlist) or ("signin.html" in strURLlist) or ("subscribe" in strURLlist) or ("subscribe.html" in strURLlist):
-                self.RouteLogin()
-
-            elif ("logout" in strURLlist) or ("logout.html" in strURLlist) or ("signout" in strURLlist) or ("signout.html" in strURLlist):
-                self.route_logout()
-
-            elif "sitemap.xml" in strURLlist:
-                self.route_sitemap()
-
-            elif "robots.txt" in strURLlist:
-                self.route_robots()
-
-            elif ("about" in strURLlist) or ("about.html" in strURLlist):
-                self.route_about()
-
-            elif ("contact" in strURLlist) or ("contact.html" in strURLlist):
-                self.route_contact()
-
-            elif ("blog" in strURLlist) or ("blog.html" in strURLlist):
-                self.route_blog()
-
-            elif ("strange" in strURLlist) and ("algorithms" in strURLlist):
-                self.RouteStrange()
-
-            elif ("perlin" in strURLlist) and ("algorithms" in strURLlist):
-                self.RoutePerlin()
-
-            elif ("matrix" in strURLlist) and ("algorithms" in strURLlist):
-                self.RouteMatrix()
-
-            elif ("gameoflife" in strURLlist) and ("algorithms" in strURLlist):
-                self.RouteLife()
-
-            elif ("maze" in strURLlist) and ("algorithms" in strURLlist):
-                self.route_maze()
-
-            elif ("path" in strURLlist) and ("algorithms" in strURLlist):
-                self.route_path()
-
-
-            elif ("matter" in strURLlist) and ("algorithms" in strURLlist):
-                self.route_matter()
-
-            elif ("plinko" in strURLlist) and ("algorithms" in strURLlist):
-                self.RoutePlinko()
-
-            elif ("mazesolver" in strURLlist) and ("algorithms" in strURLlist):
-                self.RouteMazeSolver()
-
-
-            elif ("algorithms" in strURLlist) or ("algorithms.html" in strURLlist):
-                self.route_algorithms()
-
-            elif ("dashboard" in strURLlist) or("dashboard.html" in strURLlist):
-                self.route_dashboard()
-
-            elif ("games" in strURLlist) or ("games.html" in strURLlist):
-                self.route_games()
-            elif ("matrix" in strURLlist):
-                self.RouteMatrix()
-            elif ("snake" in strURLlist):
-                self.RouteSnake()
-
-            elif ("500" in strURLlist):
-                self.Route500()
-            else:
-                self.route_home()
+        elif "500" in route_list:
+            return route_500()
         else:
-            self.route_home()
-
-    def post(self):
-        """
-            The Main Post Router will also have sub routers for login and logout
-        :return:
-        """
-        URL = self.request.url
-        URL = str(URL)
-        URL = URL.lower()
-        strURLlist = URL.split("/")
-        if len(strURLlist) == 4:
-            if ("login" in strURLlist) or ("login.html" in strURLlist) or ("signin" in strURLlist) or ("signin.html" in strURLlist) or ("subscribe" in strURLlist) or ("subscribe.html" in strURLlist):
-                route = self.request.get("route")
-                self.RouteLoginPost(route=route)
-            elif ("games" in strURLlist):
-                route = self.request.get('route')
-                if route == "tetris":
-                    self.route_tetris()
-                elif route == "pacman":
-                    self.route_pacman()
-                elif route == "chess":
-                    self.RouteChess()
-                elif route == "checkers":
-                    self.RouteCheckers()
-                elif route == "pingpong":
-                    self.RoutePingPong()
-                elif route == "matrix":
-                    self.RouteMatrix()
-
-
-            elif ("dashboard" in strURLlist):
-                route = self.request.get('route')
-                self.RouteDashboardPost(route=route)
-                
-        else:
-            pass
-
-
-class DashboardHandler(webapp2.RequestHandler):
-    def get(self):
-        template = template_env.get_template('templates/dashboard/dashboard.html')
-        context = {}
-        self.response.write(template.render(context))
-
-
-
-app = webapp2.WSGIApplication([
-    
-    
-    ('.*', MainRouterHandler)
-
-], debug=True)
+            return route_home()

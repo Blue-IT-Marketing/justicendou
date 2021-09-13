@@ -21,36 +21,6 @@ this_page_size = 50
 apiKey = '41e896a0a1c94b61903408fae1a49471'
 
 
-def convert_datestring_to_datetime(date_string):
-    try:
-        date_string = str(date_string)
-        try:
-            date_list = date_string.split("\\")
-            my_year = int(date_list[0])
-            my_month = int(date_list[1])
-            my_day = int(date_list[2])
-        except:
-            date_list = date_string.split("-")
-
-            if len(date_list) == 3:
-                my_year = int(date_list[0])
-                my_month = int(date_list[1])
-                my_day = int(date_list[2])
-            else:
-                this_date = datetime.datetime.now()
-                this_date = this_date.date()
-                my_year = this_date.year
-                my_month = this_date.month
-                my_day = this_date.day
-
-        this_date = datetime.date(year=my_year, month=my_month, day=my_day)
-
-        return this_date
-
-
-    except Exception as e:
-        raise e
-
 
 class Interests(ndb.Expando):
     _sep = ":"
