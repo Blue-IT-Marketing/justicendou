@@ -9,9 +9,9 @@ thisCreateTicketButt.addEventListener("click", function(){
                 var vstrCell = document.getElementById('cell').value;
                 var vstrEmail = document.getElementById('email').value;
                 var vstrSubject = document.getElementById('subject').value;
-                var vstrBody = document.getElementById('strBody').value;
+                var vstrBody = document.getElementById('body').value;
 
-                var vstrTicketPreference = document.getElementById('strTicketPreference').value;
+                var vstrTicketPreference = document.getElementById('ticket_preference').value;
                 var vstrDepartment = document.getElementById('department').value;
                 var dataString = '&vstrChoice=' + vstrChoice + '&vstrSubject=' + vstrSubject + '&vstrBody=' + vstrBody +
                     '&vstrTicketPreference=' + vstrTicketPreference + '&vstrDepartment=' + vstrDepartment + '&vstrNames=' + vstrNames +

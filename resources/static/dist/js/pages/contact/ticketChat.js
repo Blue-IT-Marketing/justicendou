@@ -5,8 +5,8 @@ var thisSendMessageButt = document.getElementById("SendMessageButt");
 thisSendMessageButt.addEventListener("click", function () {
                 var vstrChoice = 0;
                 var vstrComment = document.getElementById("strComment").value;
-                var vstrTicketID = document.getElementById("strTicketID").value;
-                var vstrThreadID = document.getElementById("strThreadID").value;
+                var vstrTicketID = document.getElementById("ticket_id").value;
+                var vstrThreadID = document.getElementById("thread_id").value;
                 var vstrUserID = document.getElementById("uid").value;
                 var dataString = "&vstrChoice=" + vstrChoice + '&vstrComment=' + vstrComment + '&vstrTicketID=' + vstrTicketID +
                     '&vstrThreadID=' + vstrThreadID + '&vstrUserID=' + vstrUserID;
@@ -24,8 +24,8 @@ thisSendMessageButt.addEventListener("click", function () {
 
 function UpdateChat() {
                 var vstrChoice = 1;
-                var vstrTicketID = document.getElementById("strTicketID").value;
-                var vstrThreadID = document.getElementById("strThreadID").value;
+                var vstrTicketID = document.getElementById("ticket_id").value;
+                var vstrThreadID = document.getElementById("thread_id").value;
                 var vstrUserID = document.getElementById("uid").value;
 
                 var dataString = "&vstrChoice=" + vstrChoice + '&vstrTicketID=' + vstrTicketID +

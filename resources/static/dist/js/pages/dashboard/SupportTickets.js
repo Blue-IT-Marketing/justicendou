@@ -16,8 +16,8 @@ function ShowTicket(strUserID){
 thisSendMessageButt.addEventListener("click", function () {
     var vstrChoice = 1;
     var vstrComment = document.getElementById('strComment');
-    var vstrTicketID = document.getElementById('strTicketID');
-    var vstrThreadID = document.getElementById('strThreadID');
+    var vstrTicketID = document.getElementById('ticket_id');
+    var vstrThreadID = document.getElementById('thread_id');
     var vstrUserID = document.getElementById('uid');
     var dataString = '&vstrChoice=' + vstrChoice + '&vstrComment=' + vstrComment + '&vstrTicketID=' + vstrTicketID + '&vstrThreadID=' + vstrThreadID +
     '&vstrUserID=' + vstrUserID;

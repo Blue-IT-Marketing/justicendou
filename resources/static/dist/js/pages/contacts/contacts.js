@@ -42,7 +42,7 @@ thisUploadContactsButt.addEventListener("click", function () {
                 var vstrEmail = document.getElementById('email').value;
                 var vstrWebsite = document.getElementById('website').value;
                 var vstrTitle = document.getElementById('strTitle').value;
-                var vstrDateCreated = document.getElementById('strDateCreated').value;
+                var vstrDateCreated = document.getElementById('date_created').value;
 
                 var dataString = '&vstrChoice=' + vstrChoice + '&vstrNames=' + vstrNames + '&vstrSurname=' + vstrSurname + '&vstrSurname=' + vstrSurname +
                     '&vstrCell=' + vstrCell + '&vstrTel=' + vstrTel + '&vstrFax=' + vstrFax + '&vstrEmail=' + vstrEmail + '&vstrWebsite=' + vstrWebsite +

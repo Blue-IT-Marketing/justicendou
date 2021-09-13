@@ -1,4 +1,6 @@
 import os
+from typing import List
+
 import jinja2
 import datetime
 from google.cloud import ndb
@@ -99,245 +101,64 @@ class StaffMembers(ndb.Expando):
 
 
 class Tickets(ndb.Expando):
-    strTicketID = ndb.StringProperty()
-    strUserID = ndb.StringProperty()
-    strSubject = ndb.StringProperty()
-    strBody = ndb.StringProperty()
-    strDateCreated = ndb.DateProperty()
-    strTimeCreated = ndb.TimeProperty()
-    strTicketOpen = ndb.BooleanProperty(default=True)  # Ticket Open or Close
-    strTicketPreference = ndb.StringProperty(default="Normal")  # Normal / Urgent
-    strDepartment = ndb.StringProperty(default="Sales")  # Programming, Hosting
+    ticket_id = ndb.StringProperty()
+    uid = ndb.StringProperty()
+    subject = ndb.StringProperty()
+    body = ndb.StringProperty()
+    date_created = ndb.DateProperty()
+    time_created = ndb.TimeProperty()
+    ticket_open = ndb.BooleanProperty(default=True)  # Ticket Open or Close
+    ticket_preference = ndb.StringProperty(default="Normal")  # Normal / Urgent
+    department = ndb.StringProperty(default="Sales")  # Programming, Hosting
 
-    strTicketEscalated = ndb.BooleanProperty(default=False)
-    strAssignedTo = ndb.StringProperty()  # Assigned to Carries the ID of the Staff Member assigned the ticket
-    strEscalatedToID = ndb.StringProperty()  # Staff Member the Ticket is Escalated To
-
-    def writeEscalate(self, strinput):
-        try:
-            if strinput in [True, False]:
-                self.strEscalate = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeAssignedTo(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strAssignedTo = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeEscalatedTo(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strEscalatedToID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeTicketID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strTicketID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def CreateTicketID(self):
-        import random, string
-        try:
-            strTicketID = ""
-            for i in range(256):
-                strTicketID += random.SystemRandom().choice(string.digits + string.ascii_lowercase)
-            return strTicketID
-        except:
-            return None
-
-    def writeUserID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strUserID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeSubject(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strSubject = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeBody(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strBody = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeDateCreated(self, strinput):
-        try:
-
-            if isinstance(strinput, datetime.date):
-                self.strDateCreated = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeTimeCreated(self, strinput):
-        try:
-            if isinstance(strinput, datetime.time):
-                self.strTimeCreated = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeTicketOpen(self, strinput):
-        try:
-            if strinput in [True, False]:
-                self.strTicketOpen = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeTicketPreferences(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput in ["Normal", "Urgent"]:
-                self.strTicketPreference = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeDepartment(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput in ["Sales", "Programming", "Bulk SMS", "Advertising", "Surveys", "Affiliate", "Hosting"]:
-                self.strDepartment = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
+    ticket_escalated = ndb.BooleanProperty(default=False)
+    assigned_to = ndb.StringProperty()  # Assigned to Carries the ID of the Staff Member assigned the ticket
+    escalated_to_uid = ndb.StringProperty()  # Staff Member the Ticket is Escalated To
 
 
 class CommentThread(ndb.Expando):
-    strTicketID = ndb.StringProperty()
-    strThreadID = ndb.StringProperty()
-    strCommentsList = ndb.StringProperty()  # a Comma Separated String with IDS of the comments in order
-    strDateTimeCreated = ndb.DateTimeProperty(auto_now_add=True)
+    ticket_id = ndb.StringProperty()
+    thread_id = ndb.StringProperty()
+    comments_list = ndb.StringProperty()  # a Comma Separated String with IDS of the comments in order
+    datetime_created = ndb.DateTimeProperty(auto_now_add=True)
 
-    def AddCommentID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if len(strinput) == 16:
-                if self.strCommentsList == None:
-                    self.strCommentsList = strinput
-                    return True
-                else:
-                    self.strCommentsList = self.strCommentsList + "," + strinput
-                    return True
+    def add_comment_id(self, comment_id: str):
+        if len(comment_id) == 16:
+            if self.comments_list is None:
+                self.comments_list = comment_id
             else:
-                return False
-        except:
-            return False
+                self.comments_list += "," + comment_id
 
-    def retrieveCommentsList(self):
-        try:
-            if not (self.strCommentsList == None):
-                strTemplList = self.strCommentsList.split(",")
-                return strTemplList
-            else:
-                return []
-        except:
-            return []
+    def read_comments(self) -> List[str]:
+        return self.comments_list.split(",") if self.comments_list else []
 
-    def RemoveCommentID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if not (self.strCommentsList == None):
-                strTempList = self.strCommentsList.split(",")
-                if strinput in strTempList:
-                    strTempList.remove(strinput)
-                    if len(strTempList) > 0:
-                        self.strCommentsList = strTempList[0]
-                        strTempList = strTempList.remove(strTempList[0])
-                        for strinput in strTempList:
-                            self.strCommentsList = self.strCommentsList + "," + strinput
-                    else:
-                        self.strCommentsList = None
+    def remove_comment_id(self, comment_id):
+        if not self.comments_list:
+            return
 
-                    return True
-                else:
-                    return False
-            else:
-                return False
-        except:
-            return False
+        comment_list = self.read_comments()
+        if comment_id in comment_list:
+            comment_list.remove(comment_id)
+            self.comments_list = ",".join(comment_list)
 
-    def writeTicketID(self, strinput):
+    def write_ticket_id(self, ticket_id: str):
+        self.ticket_id = ticket_id
+
+    def write_thread_id(self, strinput):
         try:
             strinput = str(strinput)
             if strinput != None:
-                self.strTicketID = strinput
+                self.thread_id = strinput
                 return True
             else:
                 return False
         except:
             return False
 
-    def writeThreadID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strThreadID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def CreateThreadID(self):
+    @staticmethod
+    def create_thread_id():
         import random, string
-        try:
-            strThreadID = ""
-            for i in range(32):
-                strThreadID += random.SystemRandom().choice(string.digits + string.ascii_lowercase)
-            return strThreadID
-        except:
-            return None
+        return "".join(random.choices(string.digits + string.ascii_lowercase, k=32))
 
 
 class Comments(ndb.Expando):
@@ -502,7 +323,7 @@ class ThisContactHandler(webapp2.RequestHandler):
             else:
                 thisTicketUser = TicketUsers()
 
-            findRequest = Tickets.query(Tickets.strUserID == vstrUserID)
+            findRequest = Tickets.query(Tickets.uid == vstrUserID)
             thisTicketsList = findRequest.fetch()
 
             template = template_env.get_template('templates/contact/sub/tickets.html')
@@ -587,14 +408,14 @@ class ThisTicketHandler(webapp2.RequestHandler):
         else:
             thisTicketUser = TicketUsers()
 
-        findRequest = Tickets.query(Tickets.strUserID == vstrUserID, Tickets.strTicketID == strTicketID)
+        findRequest = Tickets.query(Tickets.uid == vstrUserID, Tickets.ticket_id == strTicketID)
         thisTicketList = findRequest.fetch()
 
         if len(thisTicketList) > 0:
             thisTicket = thisTicketList[0]
 
-            findRequest = CommentThread.query(CommentThread.strTicketID == thisTicket.strTicketID).order(
-                +CommentThread.strDateTimeCreated)
+            findRequest = CommentThread.query(CommentThread.ticket_id == thisTicket.ticket_id).order(
+                +CommentThread.datetime_created)
             thisCommentThreadsList = findRequest.fetch()
             if len(thisCommentThreadsList) > 0:
                 thisThread = thisCommentThreadsList[0]
@@ -603,7 +424,7 @@ class ThisTicketHandler(webapp2.RequestHandler):
                 thisCommentList = []
                 for thisComID in strComIDList:
                     findRequest = Comments.query(Comments.strCommentID == thisComID,
-                                                 Comments.strThreadID == thisThread.strThreadID)
+                                                 Comments.strThreadID == thisThread.thread_id)
                     commList = findRequest.fetch()
                     if len(commList) > 0:
                         thisCommentList.append(commList[0])
@@ -611,15 +432,15 @@ class ThisTicketHandler(webapp2.RequestHandler):
 
             else:
                 thisThread = CommentThread()
-                thisThread.writeThreadID(strinput=thisThread.CreateThreadID())
-                thisThread.writeTicketID(strinput=thisTicket.strTicketID)
+                thisThread.write_thread_id(strinput=thisThread.create_thread_id())
+                thisThread.write_ticket_id(ticket_id=thisTicket.ticket_id)
                 vstrThisDateTime = datetime.datetime.now()
                 strThisDate = datetime.date(year=vstrThisDateTime.year, month=vstrThisDateTime.month,
                                             day=vstrThisDateTime.day)
                 strThisTime = datetime.time(hour=vstrThisDateTime.hour, minute=vstrThisDateTime.minute,
                                             second=vstrThisDateTime.second)
                 thisComment = Comments()
-                thisComment.writeThreadID(strinput=thisThread.strThreadID)
+                thisComment.writeThreadID(strinput=thisThread.thread_id)
                 thisComment.writeCommentID(strinput=thisComment.CreateCommentID())
                 thisComment.writeAuthorID(strinput="000000")
                 thisComment.writeIsClientComment(strinput=False)
@@ -630,7 +451,7 @@ class ThisTicketHandler(webapp2.RequestHandler):
                 thisComment.put()
                 thisCommentList = []
                 thisCommentList.append(thisComment)
-                thisThread.AddCommentID(strinput=thisComment.strCommentID)
+                thisThread.add_comment_id(comment_id=thisComment.strCommentID)
                 thisThread.put()
 
             template = template_env.get_template('templates/contact/sub/thisTicket.html')
@@ -652,8 +473,8 @@ class ThisTicketHandler(webapp2.RequestHandler):
             vstrThreadID = self.request.get("vstrThreadID")
             vstrUserID = self.request.get("vstrUserID")
 
-            findRequest = CommentThread.query(CommentThread.strThreadID == vstrThreadID,
-                                              CommentThread.strTicketID == vstrTicketID)
+            findRequest = CommentThread.query(CommentThread.thread_id == vstrThreadID,
+                                              CommentThread.ticket_id == vstrTicketID)
             thisCommentThreadList = findRequest.fetch()
 
             vstrThisDateTime = datetime.datetime.now()
@@ -665,18 +486,18 @@ class ThisTicketHandler(webapp2.RequestHandler):
             if len(thisCommentThreadList) > 0:
                 thisCommentThread = thisCommentThreadList[0]
                 thisComment = Comments()
-                thisComment.writeThreadID(strinput=thisCommentThread.strThreadID)
+                thisComment.writeThreadID(strinput=thisCommentThread.thread_id)
                 thisComment.writeAuthorID(strinput=vstrUserID)
                 thisComment.writeIsClientComment(strinput=True)
                 thisComment.writeComment(strinput=vstrComment)
                 thisComment.writeCommentID(strinput=thisComment.CreateCommentID())
                 thisComment.writeCommentDate(strinput=strThisDate)
                 thisComment.writeCommentTime(strinput=strThisTime)
-                thisCommentThread.AddCommentID(strinput=thisComment.strCommentID)
+                thisCommentThread.add_comment_id(comment_id=thisComment.strCommentID)
                 thisCommentThread.put()
                 thisComment.put()
 
-                findRequest = Comments.query(Comments.strThreadID == thisCommentThread.strThreadID)
+                findRequest = Comments.query(Comments.strThreadID == thisCommentThread.thread_id)
                 thisCommentList = findRequest.fetch()
                 thisCommentList.reverse()
                 template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
@@ -698,14 +519,14 @@ class ThisTicketHandler(webapp2.RequestHandler):
             else:
                 thisTicketUser = TicketUsers()
 
-            findRequest = Tickets.query(Tickets.strUserID == vstrUserID, Tickets.strTicketID == vstrTicketID)
+            findRequest = Tickets.query(Tickets.uid == vstrUserID, Tickets.ticket_id == vstrTicketID)
             thisTicketList = findRequest.fetch()
 
             if len(thisTicketList) > 0:
                 thisTicket = thisTicketList[0]
 
-                findRequest = CommentThread.query(CommentThread.strTicketID == thisTicket.strTicketID).order(
-                    +CommentThread.strDateTimeCreated)
+                findRequest = CommentThread.query(CommentThread.ticket_id == thisTicket.ticket_id).order(
+                    +CommentThread.datetime_created)
                 thisCommentThreadsList = findRequest.fetch()
                 if len(thisCommentThreadsList) > 0:
                     thisThread = thisCommentThreadsList[0]
@@ -714,7 +535,7 @@ class ThisTicketHandler(webapp2.RequestHandler):
                     thisCommentList = []
                     for thisComID in strComIDList:
                         findRequest = Comments.query(Comments.strCommentID == thisComID,
-                                                     Comments.strThreadID == thisThread.strThreadID)
+                                                     Comments.strThreadID == thisThread.thread_id)
                         commList = findRequest.fetch()
                         if len(commList) > 0:
                             thisCommentList.append(commList[0])
