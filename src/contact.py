@@ -1,4 +1,6 @@
 import os
+import random
+import string
 from typing import List
 
 import jinja2
@@ -9,7 +11,7 @@ from google.cloud.ndb.exceptions import BadValueError
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 
-class ContactMessages(ndb.Expando):
+class ContactMessages(ndb.Model):
     message_reference = ndb.StringProperty()
     names = ndb.StringProperty()
     email = ndb.StringProperty()
@@ -79,7 +81,7 @@ class ContactMessages(ndb.Expando):
             return False
 
 
-class TicketUsers(ndb.Expando):
+class TicketUsers(ndb.Model):
     uid = ndb.StringProperty()
     names = ndb.StringProperty()
     surname = ndb.StringProperty()
@@ -88,7 +90,7 @@ class TicketUsers(ndb.Expando):
     website = ndb.StringProperty()
 
 
-class StaffMembers(ndb.Expando):
+class StaffMembers(ndb.Model):
     uid = ndb.StringProperty()
     present_ticket_id = ndb.StringProperty()
     name = ndb.StringProperty()
@@ -100,7 +102,7 @@ class StaffMembers(ndb.Expando):
     not_available = ndb.BooleanProperty(default=False)
 
 
-class Tickets(ndb.Expando):
+class Tickets(ndb.Model):
     ticket_id = ndb.StringProperty()
     uid = ndb.StringProperty()
     subject = ndb.StringProperty()
@@ -116,7 +118,7 @@ class Tickets(ndb.Expando):
     escalated_to_uid = ndb.StringProperty()  # Staff Member the Ticket is Escalated To
 
 
-class CommentThread(ndb.Expando):
+class CommentThread(ndb.Model):
     ticket_id = ndb.StringProperty()
     thread_id = ndb.StringProperty()
     comments_list = ndb.StringProperty()  # a Comma Separated String with IDS of the comments in order
@@ -145,115 +147,21 @@ class CommentThread(ndb.Expando):
         self.ticket_id = ticket_id
 
     def write_thread_id(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.thread_id = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
+        self.thread_id = strinput
 
     @staticmethod
     def create_thread_id():
-        import random, string
         return "".join(random.choices(string.digits + string.ascii_lowercase, k=32))
 
 
-class Comments(ndb.Expando):
-    strAuthorID = ndb.StringProperty()
-    strThreadID = ndb.StringProperty()
-    strCommentID = ndb.StringProperty()  # a Sixteen Character Long ID Identifying this comment
-    strComment = ndb.StringProperty()
-    strCommentDate = ndb.DateProperty()
-    strCommentTime = ndb.TimeProperty()
-    isClientComment = ndb.BooleanProperty(default=True)
-
-    def writeAuthorID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strAuthorID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeThreadID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strThreadID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeCommentID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if len(strinput) == 16:
-                self.strCommentID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def CreateCommentID(self):
-        import random, string
-        try:
-            strCommentID = ""
-            for i in range(16):
-                strCommentID += random.SystemRandom().choice(string.digits + string.ascii_lowercase)
-            return strCommentID
-        except:
-            return None
-
-    def writeComment(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strComment = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeIsClientComment(self, strinput):
-        try:
-            if strinput in [True, False]:
-                self.isClientComment = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeCommentDate(self, strinput):
-        try:
-            if isinstance(strinput, datetime.date):
-                self.strCommentDate = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeCommentTime(self, strinput):
-        try:
-            if isinstance(strinput, datetime.time):
-                self.strCommentTime = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
+class Comments(ndb.Model):
+    author_id = ndb.StringProperty()
+    thread_id = ndb.StringProperty()
+    comment_id = ndb.StringProperty()  # a Sixteen Character Long ID Identifying this comment
+    comment = ndb.StringProperty()
+    comment_date = ndb.DateProperty()
+    comment_time = ndb.TimeProperty()
+    client_comment = ndb.BooleanProperty(default=True)
 
 class ThisContactHandler(webapp2.RequestHandler):
     def get(self):
@@ -423,8 +331,8 @@ class ThisTicketHandler(webapp2.RequestHandler):
                 strComIDList = thisThread.retrieveCommentsList()
                 thisCommentList = []
                 for thisComID in strComIDList:
-                    findRequest = Comments.query(Comments.strCommentID == thisComID,
-                                                 Comments.strThreadID == thisThread.thread_id)
+                    findRequest = Comments.query(Comments.comment_id == thisComID,
+                                                 Comments.thread_id == thisThread.thread_id)
                     commList = findRequest.fetch()
                     if len(commList) > 0:
                         thisCommentList.append(commList[0])
@@ -451,7 +359,7 @@ class ThisTicketHandler(webapp2.RequestHandler):
                 thisComment.put()
                 thisCommentList = []
                 thisCommentList.append(thisComment)
-                thisThread.add_comment_id(comment_id=thisComment.strCommentID)
+                thisThread.add_comment_id(comment_id=thisComment.comment_id)
                 thisThread.put()
 
             template = template_env.get_template('templates/contact/sub/thisTicket.html')
@@ -493,11 +401,11 @@ class ThisTicketHandler(webapp2.RequestHandler):
                 thisComment.writeCommentID(strinput=thisComment.CreateCommentID())
                 thisComment.writeCommentDate(strinput=strThisDate)
                 thisComment.writeCommentTime(strinput=strThisTime)
-                thisCommentThread.add_comment_id(comment_id=thisComment.strCommentID)
+                thisCommentThread.add_comment_id(comment_id=thisComment.comment_id)
                 thisCommentThread.put()
                 thisComment.put()
 
-                findRequest = Comments.query(Comments.strThreadID == thisCommentThread.thread_id)
+                findRequest = Comments.query(Comments.thread_id == thisCommentThread.thread_id)
                 thisCommentList = findRequest.fetch()
                 thisCommentList.reverse()
                 template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
@@ -534,8 +442,8 @@ class ThisTicketHandler(webapp2.RequestHandler):
                     strComIDList = thisThread.retrieveCommentsList()
                     thisCommentList = []
                     for thisComID in strComIDList:
-                        findRequest = Comments.query(Comments.strCommentID == thisComID,
-                                                     Comments.strThreadID == thisThread.thread_id)
+                        findRequest = Comments.query(Comments.comment_id == thisComID,
+                                                     Comments.thread_id == thisThread.thread_id)
                         commList = findRequest.fetch()
                         if len(commList) > 0:
                             thisCommentList.append(commList[0])

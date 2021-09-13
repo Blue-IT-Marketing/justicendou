@@ -4,7 +4,7 @@ var thisSendMessageButt = document.getElementById("SendMessageButt");
 
 thisSendMessageButt.addEventListener("click", function () {
                 var vstrChoice = 0;
-                var vstrComment = document.getElementById("strComment").value;
+                var vstrComment = document.getElementById("comment").value;
                 var vstrTicketID = document.getElementById("ticket_id").value;
                 var vstrThreadID = document.getElementById("thread_id").value;
                 var vstrUserID = document.getElementById("uid").value;
@@ -17,7 +17,7 @@ thisSendMessageButt.addEventListener("click", function () {
                     cache: false,
                     success: function (data) {
                         $('#TicketSystemINFDIV').html(data);
-                        document.getElementById("strComment").value = "";
+                        document.getElementById("comment").value = "";
                     }
                 });
             });
