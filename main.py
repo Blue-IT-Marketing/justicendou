@@ -13,7 +13,7 @@ template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 #from firebase_admin import credentials
 #cred = credentials.Certificate('templates/firebase/service_account.json')
 #default_app = firebase_admin.initialize_app(cred)
-from flask import Blueprint, make_response, render_template
+from flask import Blueprint, make_response, render_template, url_for
 
 main_router_bp = Blueprint('main_router_handler', __name__)
 
@@ -41,46 +41,100 @@ def route_home(self):
         articles = articles['articles']
     return render_template('templates/index.html', articles=articles), 200
 
-def route_login(self):
+def route_login():
     return render_template('templates/authentication/login.html'), 200
 
-def route_logout(self):
+def route_logout():
     return render_template('templates/authentication/logout.html'), 200
 
-def route_about(self):
+def route_about():
     return render_template('templates/about.html'), 200
 
-def route_contact(self):
+def route_contact():
     return render_template('templates/contact/contact.html')
 
-def route_blog(self):
+def route_blog():
     return render_template("templates/blog/home.html")
 
-def route_algorithms(self):
+def route_algorithms():
     return render_template("templates/algorithms/algos.html")
 
-def route_strange(self):
+def route_strange():
     return render_template("templates/algorithms/strange/strange.html")
 
-def route_perlin(self):
+def route_perlin():
     return render_template("templates/algorithms/perlin/perlin.html")
 
-def route_life(self):
+def route_life():
     return render_template("templates/algorithms/gameoflife/life.html")
 
-def route_maze(self):
+def route_maze():
     return render_template("templates/algorithms/maze/maze.html")
 
 
-def route_path(self):
+def route_path():
     return render_template("templates/algorithms/pathfinder/path.html")
 
 
-def RouteMatter(self):
-    template = template_env.get_template("templates/algorithms/matter/matter.html")
+def route_matter():
+    return render_template("templates/algorithms/matter/matter.html")
+
+def route_dashboard():
+    """ get correct user details"""
+    user = Accounts()
+    if user.is_current_user_admin():
+        # Update this Note:
+        logout_url = url_for('user_logout')
+        return render_template("templates/dashboard/dashboard.html", logout_url=logout_url)
+    else:
+        login_url = url_for('login_url')
+        return render_template("templates/lockscreen.html", login_url=login_url)
+
+def route_games(self):
+    return render_template("templates/games/games.html")
+
+def route_tetris(self):
+    return render_template("templates/games/tetris/tetris.html")
+
+def route_pacman(self):
+    template = template_env.get_template("templates/games/pacman/pacman.html")
     context = {}
     self.response.write(template.render(context))
 
+def RouteChess(self):
+    template = template_env.get_template("templates/games/garbo/chess.html")
+    context = {}
+    self.response.write(template.render(context))
+
+def RouteCheckers(self):
+    template = template_env.get_template("templates/games/checkers/checkers.html")
+    context = {}
+    self.response.write(template.render(context))
+
+def RoutePingPong(self):
+    template = template_env.get_template("templates/games/pingpong/pingpong.html")
+    context = {}
+    self.response.write(template.render(context))
+
+def RouteMatrix(self):
+    template = template_env.get_template("templates/games/matrix/matrix.html")
+    context = {}
+    self.response.write(template.render(context))
+
+def RouteSnake(self):
+    template = template_env.get_template("templates/games/snake/snake.html")
+    context = {}
+    self.response.write(template.render(context))
+
+def RoutePlinko(self):
+    template = template_env.get_template("templates/algorithms/plinko/plinko.html")
+    context = {}
+    self.response.write(template.render(context))
+
+def RouteMazeSolver(self):
+    template = template_env.get_template("templates/algorithms/mazepath/mazepath.html")
+    context = {}
+    self.response.write(template.render(context))
 
 
 @main_router_bp.route('/', methods=['GET', 'POST', 'DELETE', 'PUT'])
@@ -89,75 +143,6 @@ def main_router_handler():
     pass
 
 
-
-
-    def RouteDashboard(self):
-
-        if users.is_current_user_admin():
-            logout_url = users.create_logout_url(dest_url='/')
-            # logout_url = ''
-            template = template_env.get_template("templates/dashboard/dashboard.html")
-            context = {'logout_url':logout_url}
-            self.response.write(template.render(context))
-        else:
-            login_url = users.create_login_url(dest_url='/dashboard')
-            template = template_env.get_template("templates/lockscreen.html")
-            context = {'login_url':login_url}
-            self.response.write(template.render(context))
-
-    def RouteGames(self):
-        template = template_env.get_template("templates/games/games.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteTetris(self):
-        template = template_env.get_template("templates/games/tetris/tetris.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RoutePacman(self):
-        template = template_env.get_template("templates/games/pacman/pacman.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteChess(self):
-        template = template_env.get_template("templates/games/garbo/chess.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteCheckers(self):
-        template = template_env.get_template("templates/games/checkers/checkers.html")
-        context = {}
-        self.response.write(template.render(context))
-
-
-    def RoutePingPong(self):
-        template = template_env.get_template("templates/games/pingpong/pingpong.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteMatrix(self):
-        template = template_env.get_template("templates/games/matrix/matrix.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteSnake(self):
-        template = template_env.get_template("templates/games/snake/snake.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RoutePlinko(self):
-        template = template_env.get_template("templates/algorithms/plinko/plinko.html")
-        context = {}
-        self.response.write(template.render(context))
-
-        
-    def RouteMazeSolver(self):
-        template = template_env.get_template("templates/algorithms/mazepath/mazepath.html")
-        context = {}
-        self.response.write(template.render(context))
-        
-        
         
     def RouteDashboardPost(self,route):
         from services import HireMe
@@ -460,7 +445,7 @@ def main_router_handler():
 
 
             elif ("matter" in strURLlist) and ("algorithms" in strURLlist):
-                self.RouteMatter()
+                self.route_matter()
 
             elif ("plinko" in strURLlist) and ("algorithms" in strURLlist):
                 self.RoutePlinko()
@@ -473,10 +458,10 @@ def main_router_handler():
                 self.route_algorithms()
 
             elif ("dashboard" in strURLlist) or("dashboard.html" in strURLlist):
-                self.RouteDashboard()
+                self.route_dashboard()
 
             elif ("games" in strURLlist) or ("games.html" in strURLlist):
-                self.RouteGames()
+                self.route_games()
             elif ("matrix" in strURLlist):
                 self.RouteMatrix()
             elif ("snake" in strURLlist):
@@ -505,9 +490,9 @@ def main_router_handler():
             elif ("games" in strURLlist):
                 route = self.request.get('route')
                 if route == "tetris":
-                    self.RouteTetris()
+                    self.route_tetris()
                 elif route == "pacman":
-                    self.RoutePacman()
+                    self.route_pacman()
                 elif route == "chess":
                     self.RouteChess()
                 elif route == "checkers":
