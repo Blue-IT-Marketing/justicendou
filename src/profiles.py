@@ -1,42 +1,27 @@
 import logging
 import os
-import webapp2
 import jinja2
-from google.appengine.ext import ndb
-from google.appengine.api import users
-from google.appengine.api import mail
+from flask import Blueprint
 import datetime
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
-
-class ProfilesHandler(webapp2.RequestHandler):
-
-    def get(self):
-
-        request_url = self.request.uri
-        request_url = request_url.split('?')
-        request_url = request_url[0]
-        request_url_list = request_url.split("/")
-        this_url = request_url_list[len(request_url_list) - 1]
-        logging.info(this_url)
-
-        if this_url == "software-projects":
-            template = template_env.get_template('templates/justice-ndou/personal-profile/software-projects/software-projects.html')
-            context = {}
-            self.response.write(template.render(context))
-        elif this_url == "linkedin":
-            template = template_env.get_template('templates/justice-ndou/personal-profile/linkedin-profile/linkedin.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif this_url == "services":
-            template = template_env.get_template('templates/justice-ndou/personal-profile/services/services.html')
-            context = {}
-            self.response.write(template.render(context))
-            
+profiles_bp = Blueprint('profiles', __name__)
 
 
-app = webapp2.WSGIApplication([
-    ('/profiles/.*', ProfilesHandler),
+@profiles_bp.route('/profiles/<string:path>', methods=['GET'])
+def profiles(path: str):
+    if path == "software-projects":
+        template = template_env.get_template(
+            'templates/justice-ndou/personal-profile/software-projects/software-projects.html')
+        context = {}
+    elif path == "linkedin":
+        template = template_env.get_template('templates/justice-ndou/personal-profile/linkedin-profile/linkedin.html')
+        context = {}
 
-], debug=True)
+    elif path == "services":
+        template = template_env.get_template('templates/justice-ndou/personal-profile/services/services.html')
+        context = {}
+    else:
+        return
+
+    return template.render(context), 200
