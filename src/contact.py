@@ -185,9 +185,9 @@ class ThisContactHandler():
 class ThisTicketHandler():
     def get(self):
 
-        vstrUserID = self.request.get('vstrUserID')
-        vstrAccessToken = self.request.get('vstrAccessToken')
-        vstrEmail = self.request.get('vstrEmail')
+        vstrUserID = request.args.get('vstrUserID')
+        vstrAccessToken = request.args.get('vstrAccessToken')
+        vstrEmail = request.args.get('vstrEmail')
 
         URL = self.request.url
         strURLlist = URL.split("/")
@@ -254,17 +254,17 @@ class ThisTicketHandler():
 
     def post(self):
 
-        vstrChoice = self.request.get("vstrChoice")
+        vstrChoice = request.args.get("vstrChoice")
         if vstrChoice == "0":
             # '&vstrUserID=' + vstrUserID + '$vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
 
-            vstrEmail = self.request.get('vstrEmail')
-            vstrAccessToken = self.request.get('vstrAccessToken')
+            vstrEmail = request.args.get('vstrEmail')
+            vstrAccessToken = request.args.get('vstrAccessToken')
 
-            vstrComment = self.request.get("vstrComment")
-            vstrTicketID = self.request.get("vstrTicketID")
-            vstrThreadID = self.request.get("vstrThreadID")
-            vstrUserID = self.request.get("vstrUserID")
+            vstrComment = request.args.get("vstrComment")
+            vstrTicketID = request.args.get("vstrTicketID")
+            vstrThreadID = request.args.get("vstrThreadID")
+            vstrUserID = request.args.get("vstrUserID")
 
             findRequest = CommentThread.query(CommentThread.thread_id == vstrThreadID,
                                               CommentThread.ticket_id == vstrTicketID)
@@ -299,11 +299,11 @@ class ThisTicketHandler():
 
         elif vstrChoice == "1":
             # '&vstrUserID=' + vstrUserID + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken
-            vstrEmail = self.request.get('vstrEmail')
-            vstrAccessToken = self.request.get('vstrAccessToken')
-            vstrUserID = self.request.get("vstrUserID")
+            vstrEmail = request.args.get('vstrEmail')
+            vstrAccessToken = request.args.get('vstrAccessToken')
+            vstrUserID = request.args.get("vstrUserID")
 
-            vstrTicketID = self.request.get("vstrTicketID")
+            vstrTicketID = request.args.get("vstrTicketID")
             findRequest = TicketUsers.query(TicketUsers.uid == vstrUserID)
             thisTicketUserList = findRequest.fetch()
 
@@ -432,17 +432,17 @@ def default_contact_handler(path: str):
 
         elif choice == "3":
             # '&email=' + email + '&uid=' + struid + '&access_token=' + accessToken;
-            uid = self.request.get('uid')
-            access_token = self.request.get('access_token')
+            uid = request.args.get('uid')
+            access_token = request.args.get('access_token')
 
-            vstrSubject = self.request.get("vstrSubject")
-            vstrBody = self.request.get("vstrBody")
-            vstrTicketPreference = self.request.get("vstrTicketPreference")
-            vstrDepartment = self.request.get("vstrDepartment")
-            vstrNames = self.request.get("vstrNames")
-            vstrSurname = self.request.get("vstrSurname")
-            vstrCell = self.request.get("vstrCell")
-            email = self.request.get("email")
+            subject = request.args.get("subject")
+            body = request.args.get("body")
+            ticket_preference = request.args.get("ticket_preference")
+            department = request.args.get("department")
+            names = request.args.get("names")
+            surname = request.args.get("surname")
+            cell = request.args.get("cell")
+            email = request.args.get("email")
 
             query = TicketUsers.query(TicketUsers.uid == uid)
             ticket_user_list = query.fetch()
@@ -452,9 +452,9 @@ def default_contact_handler(path: str):
             else:
                 ticket_user = TicketUsers()
                 ticket_user.writeUserID(strinput=uid)
-                ticket_user.writeNames(strinput=vstrNames)
-                ticket_user.writeSurname(strinput=vstrSurname)
-                ticket_user.writeCell(strinput=vstrCell)
+                ticket_user.writeNames(strinput=names)
+                ticket_user.writeSurname(strinput=surname)
+                ticket_user.writeCell(strinput=cell)
                 ticket_user.writeEmail(strinput=email)
                 ticket_user.put()
 
@@ -467,10 +467,10 @@ def default_contact_handler(path: str):
             thisTicket = Tickets()
             thisTicket.writeUserID(strinput=uid)
             thisTicket.writeTicketID(strinput=thisTicket.CreateTicketID())
-            thisTicket.writeSubject(strinput=vstrSubject)
-            thisTicket.writeBody(strinput=vstrBody)
-            thisTicket.writeTicketPreferences(strinput=vstrTicketPreference)
-            thisTicket.writeDepartment(strinput=vstrDepartment)
+            thisTicket.writeSubject(strinput=subject)
+            thisTicket.writeBody(strinput=body)
+            thisTicket.writeTicketPreferences(strinput=ticket_preference)
+            thisTicket.writeDepartment(strinput=department)
             thisTicket.writeDateCreated(strinput=strThisDate)
             thisTicket.writeTimeCreated(strinput=strThisTime)
             thisTicket.put()
@@ -480,9 +480,9 @@ def default_contact_handler(path: str):
 
         elif choice == "4":
             # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
-            uid = self.request.get('uid')
-            email = self.request.get('email')
-            access_token = self.request.get('access_token')
+            uid = request.args.get('uid')
+            email = request.args.get('email')
+            access_token = request.args.get('access_token')
 
             template = template_env.get_template('templates/contact/sub/address.html')
             context = {}
