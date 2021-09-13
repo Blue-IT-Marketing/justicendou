@@ -7,8 +7,13 @@ import jinja2
 import datetime
 from google.cloud import ndb
 from google.cloud.ndb.exceptions import BadValueError
+from flask import Blueprint
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
+
+contact_handler_bp = Blueprint('contact_handler', __name__)
+
+ticket_handler_bp = Blueprint('ticket_handler_bp', __name__)
 
 
 class ContactMessages(ndb.Model):
@@ -162,6 +167,7 @@ class Comments(ndb.Model):
     comment_date = ndb.DateProperty()
     comment_time = ndb.TimeProperty()
     client_comment = ndb.BooleanProperty(default=True)
+
 
 class ThisContactHandler(webapp2.RequestHandler):
     def get(self):
