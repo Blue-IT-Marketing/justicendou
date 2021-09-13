@@ -80,184 +80,22 @@ class ContactMessages(ndb.Expando):
 class TicketUsers(ndb.Expando):
     uid = ndb.StringProperty()
     names = ndb.StringProperty()
-    strSurname = ndb.StringProperty()
-    strCell = ndb.StringProperty()
-    strEmail = ndb.StringProperty()
-    strWebsite = ndb.StringProperty()
-
-    def writeUserID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.uid = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeNames(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.names = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeSurname(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strSurname = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeCell(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strCell = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeEmail(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strEmail = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeWebsite(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strWebsite = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
+    surname = ndb.StringProperty()
+    cell = ndb.StringProperty()
+    email = ndb.StringProperty()
+    website = ndb.StringProperty()
 
 
 class StaffMembers(ndb.Expando):
-    strUserID = ndb.StringProperty()
-    strPresentTicketID = ndb.StringProperty()
-    strName = ndb.StringProperty()
-    strSurname = ndb.StringProperty()
-    strDepartment = ndb.StringProperty()
-    strSkillLevel = ndb.StringProperty(default="Beginner")  # Intermediate, Expert
-    strUserAssigned = ndb.BooleanProperty(default=False)
-    strUserOnline = ndb.BooleanProperty(default=False)
-    strNotAvailable = ndb.BooleanProperty(default=False)
-
-    def writeUserID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strUserID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writePresentTicketID(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strPresentTicketID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeName(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strName = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeSurname(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strSurname = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeDepartment(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strDepartment = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeSkillLevel(self, strinput):
-        try:
-            strinput = str(strinput)
-            if strinput in ["Beginner", "Intermediate", "Expert"]:
-                self.strSkillLevel = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeUserAssigned(self, strinput):
-        try:
-            if strinput in [True, False]:
-                self.strUserAssigned = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeUserOnline(self, strinput):
-        try:
-            if strinput in [True, False]:
-                self.strUserOnline = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeNotAvailable(self, strinput):
-        try:
-            if strinput in [True, False]:
-                self.strNotAvailable = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
+    uid = ndb.StringProperty()
+    present_ticket_id = ndb.StringProperty()
+    name = ndb.StringProperty()
+    surname = ndb.StringProperty()
+    department = ndb.StringProperty()
+    skill_level = ndb.StringProperty(default="Beginner")  # Intermediate, Expert
+    user_assigned = ndb.BooleanProperty(default=False)
+    user_online = ndb.BooleanProperty(default=False)
+    not_available = ndb.BooleanProperty(default=False)
 
 
 class Tickets(ndb.Expando):
