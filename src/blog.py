@@ -21,31 +21,31 @@ def blog_handler(path: str):
     this_url = request_url_list[len(request_url_list) - 1]
     if request.method == 'GET':
         if this_url == "programming":
-            template = template_env.get_template('templates/justice-ndou/blog/categories/programming/programming.html')
+            template = template_env.get_template('justice-ndou/blog/categories/programming/programming.html')
             return render_template(template)
 
         elif this_url == "science":
-            template = template_env.get_template('templates/justice-ndou/blog/categories/science/science.html')
+            template = template_env.get_template('justice-ndou/blog/categories/science/science.html')
             return render_template(template)
 
         elif this_url == "philosophy":
-            template = template_env.get_template('templates/justice-ndou/blog/categories/philosophy/philosophy.html')
+            template = template_env.get_template('justice-ndou/blog/categories/philosophy/philosophy.html')
             return render_template(template)
 
         elif this_url == "mathematics":
-            template = template_env.get_template('templates/justice-ndou/blog/categories/mathematics/mathematics.html')
+            template = template_env.get_template('justice-ndou/blog/categories/mathematics/mathematics.html')
             return render_template(template)
 
         elif this_url == "hacking":
-            template = template_env.get_template('templates/justice-ndou/blog/categories/hacking/hacking.html')
+            template = template_env.get_template('justice-ndou/blog/categories/hacking/hacking.html')
             return render_template(template)
 
         elif this_url == "networking":
-            template = template_env.get_template('templates/justice-ndou/blog/categories/networking/networking.html')
+            template = template_env.get_template('justice-ndou/blog/categories/networking/networking.html')
             return render_template(template)
 
         elif this_url == "ai":
-            template = template_env.get_template('templates/justice-ndou/blog/categories/ai/ai.html')
+            template = template_env.get_template('justice-ndou/blog/categories/ai/ai.html')
             return render_template(template)
 
 

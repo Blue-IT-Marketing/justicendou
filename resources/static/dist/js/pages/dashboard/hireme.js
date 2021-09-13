@@ -10,7 +10,7 @@ for (i = 0; i < hiremes.length; i++){
 function hiremeClickHandler(id){
     const route = 'get-project';
     const projectid = id;
-    const my_data = '&route=' + route + '&projectid=' + projectid;
+    const my_data = '&route=' + route + '&project_id=' + projectid;
     $.ajax({
         type: "post",
         url: "/dashboard",

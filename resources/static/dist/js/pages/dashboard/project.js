@@ -3,7 +3,7 @@
 
 //hiremeinf
 document.getElementById('hiremesend').addEventListener("click", function(){
-    const projectid = document.getElementById('projectid').value;
+    const projectid = document.getElementById('project_id').value;
     const names = document.getElementById('namesid').value;
     const cell = document.getElementById('cellid').value;
     const email = document.getElementById('emailid').value;
@@ -20,7 +20,7 @@ document.getElementById('hiremesend').addEventListener("click", function(){
     const project_status = document.getElementById('projectstatusid').value;
     //test for validity
     const route = "update-project";
-    const my_data = '&route=' + route + '&projectid=' + projectid + '&names=' + names + '&cell=' + cell + '&email=' + email +
+    const my_data = '&route=' + route + '&project_id=' + projectid + '&names=' + names + '&cell=' + cell + '&email=' + email +
     '&website=' + website + '&facebook=' + facebook + '&twitter=' + twitter + '&company=' + company + 
     '&freelancing=' + freelancing + '&project-type=' + project_type + '&project-title=' + project_title + 
     '&project-description=' + project_description + '&estimated-budget='+ estimated_budget + 

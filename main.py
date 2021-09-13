@@ -1,9 +1,9 @@
 import datetime
 from typing import List
-
+import jinja2
 # import firebase_admin
 # from firebase_admin import credentials
-# cred = credentials.Certificate('templates/firebase/service_account.json')
+# cred = credentials.Certificate('firebase/service_account.json')
 # default_app = firebase_admin.initialize_app(cred)
 from flask import Blueprint, make_response, render_template, url_for, request
 
@@ -17,13 +17,13 @@ main_router_bp = Blueprint('main_router_handler', __name__)
 def route_sitemap():
     # TODO- Consider creating a dynamic sitemap by actually crawling my site and then outputting the sitemap here
     # TODO- i think i use to have a function to do this coupled with thoth
-    response = make_response(render_template('templates/sitemap/sitemap.xml'))
+    response = make_response(render_template('sitemap/sitemap.xml'))
     response.headers["Content-Type"] = 'text/xml'
     return response, 200
 
 
 def route_robots():
-    response = make_response(render_template('templates/sitemap/robots.txt'))
+    response = make_response(render_template('sitemap/robots.txt'))
     response.headers["Content-Type"] = "text/plain"
     return response, 200
 
@@ -35,58 +35,60 @@ def route_home():
 
     topic = random.choice(this_topics)
     articles = this_articles.fetch_topic(topic=topic)
-
-    if articles != "":
+    print(f'articles : {articles}')
+    if articles is not None:
         articles = articles['articles']
-    return render_template('templates/index.html', articles=articles), 200
+        return render_template('index.html', articles=articles), 200
+
+    return render_template('index.html'), 200
 
 
 def route_login():
-    return render_template('templates/authentication/login.html'), 200
+    return render_template('authentication/login.html'), 200
 
 
 def route_logout():
-    return render_template('templates/authentication/logout.html'), 200
+    return render_template('authentication/logout.html'), 200
 
 
 def route_about():
-    return render_template('templates/about.html'), 200
+    return render_template('about.html'), 200
 
 
 def route_contact():
-    return render_template('templates/contact/contact.html')
+    return render_template('contact/contact.html')
 
 
 def route_blog():
-    return render_template("templates/blog/home.html")
+    return render_template("blog/home.html")
 
 
 def route_algorithms():
-    return render_template("templates/algorithms/algos.html")
+    return render_template("algorithms/algos.html")
 
 
 def route_strange():
-    return render_template("templates/algorithms/strange/strange.html")
+    return render_template("algorithms/strange/strange.html")
 
 
 def route_perlin():
-    return render_template("templates/algorithms/perlin/perlin.html")
+    return render_template("algorithms/perlin/perlin.html")
 
 
 def route_life():
-    return render_template("templates/algorithms/gameoflife/life.html")
+    return render_template("algorithms/gameoflife/life.html")
 
 
 def route_maze():
-    return render_template("templates/algorithms/maze/maze.html")
+    return render_template("algorithms/maze/maze.html")
 
 
 def route_path():
-    return render_template("templates/algorithms/pathfinder/path.html")
+    return render_template("algorithms/pathfinder/path.html")
 
 
 def route_matter():
-    return render_template("templates/algorithms/matter/matter.html")
+    return render_template("algorithms/matter/matter.html")
 
 
 def route_dashboard():
@@ -95,58 +97,58 @@ def route_dashboard():
     if user.is_current_user_admin():
         # Update this Note:
         logout_url = url_for('user_logout')
-        return render_template("templates/dashboard/dashboard.html", logout_url=logout_url)
+        return render_template("dashboard/dashboard.html", logout_url=logout_url)
     else:
         login_url = url_for('login_url')
-        return render_template("templates/lockscreen.html", login_url=login_url)
+        return render_template("lockscreen.html", login_url=login_url)
 
 
 def route_games():
-    return render_template("templates/games/games.html")
+    return render_template("games/games.html")
 
 
 def route_tetris():
-    return render_template("templates/games/tetris/tetris.html")
+    return render_template("games/tetris/tetris.html")
 
 
 def route_pacman():
-    return render_template("templates/games/pacman/pacman.html")
+    return render_template("games/pacman/pacman.html")
 
 
 def route_chess():
-    return render_template("templates/games/garbo/chess.html")
+    return render_template("games/garbo/chess.html")
 
 
 def route_checkers():
-    return render_template("templates/games/checkers/checkers.html")
+    return render_template("games/checkers/checkers.html")
 
 
 def route_ping_pong():
-    return render_template("templates/games/pingpong/pingpong.html")
+    return render_template("games/pingpong/pingpong.html")
 
 
 def route_matrix():
-    return render_template("templates/games/matrix/matrix.html")
+    return render_template("games/matrix/matrix.html")
 
 
 def route_snake():
-    return render_template("templates/games/snake/snake.html")
+    return render_template("games/snake/snake.html")
 
 
 def route_plinko():
-    return render_template("templates/algorithms/plinko/plinko.html")
+    return render_template("algorithms/plinko/plinko.html")
 
 
 def route_maze_solver():
-    return render_template("templates/algorithms/mazepath/mazepath.html")
+    return render_template("algorithms/mazepath/mazepath.html")
 
 
 def route_404():
-    return render_template('templates/404.html')
+    return render_template('404.html')
 
 
 def route_500():
-    return render_template('templates/500.html')
+    return render_template('500.html')
 
 
 def date_string_datetime(date_string):
@@ -181,20 +183,20 @@ def date_string_datetime(date_string):
 
 
 def dashboard_handler():
-    return render_template('templates/dashboard/dashboard.html')
+    return render_template('dashboard/dashboard.html')
 
 
 def route_login_post(route):
     # from firebase_admin import auth
 
     if route == "email-not-verified":
-        return render_template('templates/authentication/loggedin.html')
+        return render_template('authentication/loggedin.html')
 
     elif route == "email-verified":
-        return render_template('templates/authentication/loggedin.html')
+        return render_template('authentication/loggedin.html')
 
     elif route == "user-not-loggedin":
-        return render_template('templates/authentication/loggedout.html')
+        return render_template('authentication/loggedout.html')
 
     elif route == "2":
         display_name = request.args.get('display_name')
@@ -262,18 +264,18 @@ def main_router_handler(path: str):
         if "hireme" in route_list:
             find_hires = HireMe.query(HireMe.project_status != "completed")
             this_hires_list = find_hires.fetch()
-            return render_template('templates/dashboard/hireme.html', this_hires_list=this_hires_list)
+            return render_template('dashboard/hireme.html', this_hires_list=this_hires_list)
 
         elif "get-project" in route_list:  # dashboard project get
             project_id = request.args.get('project_id')
-            find_hires = HireMe.query(HireMe.projectid == project_id)
+            find_hires = HireMe.query(HireMe.project_id == project_id)
             this_hires_list = find_hires.fetch()
             if this_hires_list:
                 this_hire = this_hires_list[0]
-                return render_template('templates/dashboard/project.html', this_hire=this_hire)
+                return render_template('dashboard/project.html', this_hire=this_hire)
             else:
                 this_hire = HireMe()
-                return render_template('templates/dashboard/project.html', this_hire=this_hire)
+                return render_template('dashboard/project.html', this_hire=this_hire)
 
         elif "update-project" in route_list:  # dashboard project updater
             project_id = request.args.get('project_id')
@@ -294,7 +296,7 @@ def main_router_handler(path: str):
 
             start_date = date_string_datetime(start_date)
 
-            find_project = HireMe.query(HireMe.projectid == project_id)
+            find_project = HireMe.query(HireMe.project_id == project_id)
             this_project_list = find_project.fetch()
             if this_project_list:
                 this_project = this_project_list[0]
@@ -319,18 +321,18 @@ def main_router_handler(path: str):
             return "project successfully updated", 200
 
         elif "messages" in route_list:
-            return render_template('templates/dashboard/messages.html')
+            return render_template('dashboard/messages.html')
 
         elif "interests" in route_list:
             find_topics = Interests.query()
             interests_list = find_topics.fetch()
-            return render_template('templates/dashboard/interests.html', interests_list=interests_list)
+            return render_template('dashboard/interests.html', interests_list=interests_list)
 
         elif "createpage" in route_list:
-            return render_template('templates/dashboard/createpage.html')
+            return render_template('dashboard/createpage.html')
 
         elif "createposts" in route_list:
-            return render_template('templates/dashboard/createposts.html')
+            return render_template('dashboard/createposts.html')
         elif "subjectfromtopicid" in route_list:
             topicid = request.args.get('topicid')
             find_subjects = Interests.query(Interests.topic_id == topicid)

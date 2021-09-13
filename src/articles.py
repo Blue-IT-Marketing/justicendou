@@ -204,7 +204,7 @@ class Articles(ndb.Expando):
             my_articles_url = articles_url + topic + "&language=en" + "&from=" + this_date + "&apiKey=" + apiKey
 
             headers = {'Content-Type': 'application/json'}
-            result = requests.get(url=my_articles_url, headers=headers, validate_certificate=True)
+            result = requests.get(url=my_articles_url, headers=headers)
 
             try:
                 if result.status_code == 200:

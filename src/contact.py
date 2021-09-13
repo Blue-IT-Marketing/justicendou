@@ -171,7 +171,7 @@ class Comments(ndb.Model):
 @contact_handler_bp.route('/contact/tickets/<string:path>', methods=['POST', 'GET'])
 def default_contact_handler(path: str):
     if request.method == "GET":
-        return render_template('templates/contact/contact.html'), 200
+        return render_template('contact/contact.html'), 200
 
     elif request.method == "POST":
 
@@ -213,7 +213,7 @@ def default_contact_handler(path: str):
             else:
                 ticket_user = TicketUsers()
 
-            template = template_env.get_template('templates/contact/sub/subcontact.html')
+            template = template_env.get_template('contact/sub/subcontact.html')
             context = {'ticket_user': ticket_user}
             return template.render(context), 200
 
@@ -234,7 +234,7 @@ def default_contact_handler(path: str):
             query = Tickets.query(Tickets.uid == uid)
             tickets_list = query.fetch()
 
-            template = template_env.get_template('templates/contact/sub/tickets.html')
+            template = template_env.get_template('contact/sub/tickets.html')
             context = {'ticket_user': ticket_user, 'tickets_list': tickets_list}
             return template.render(context), 200
 
@@ -286,14 +286,14 @@ def default_contact_handler(path: str):
             email = request.args.get('email')
             access_token = request.args.get('access_token')
 
-            template = template_env.get_template('templates/contact/sub/address.html')
+            template = template_env.get_template('contact/sub/address.html')
             context = {}
             return template.render(context), 200
 
 
 @contact_handler_bp.route('/contact', methods=['POST', 'GET'])
 def return_contact():
-    return render_template('templates/contact/contact.html'), 200
+    return render_template('contact/contact.html'), 200
 
 
 @contact_handler_bp.route('/contact/read/<string:reference>', methods=['GET'])
@@ -306,7 +306,7 @@ def contact_reader(reference: str):
     else:
         contact_message = ContactMessages()
 
-    template = template_env.get_template('templates/contact/readContact.html')
+    template = template_env.get_template('contact/readContact.html')
     context = {'contact_message': contact_message}
     return template.render(context), 200
 
@@ -360,7 +360,7 @@ def tickets_handler(ticket_id: str):
                 comment_thread.add_comment_id(comment_id=comment_instance.comment_id)
                 comment_thread.put()
 
-            template = template_env.get_template('templates/contact/sub/ticket_instance.html')
+            template = template_env.get_template('contact/sub/ticket_instance.html')
             context = {'ticket_user': ticket_user, 'ticket_instance': ticket_instance, 'comments_list': comments_list,
                        'comment_thread': comment_thread}
             return template.render(context), 200
@@ -403,7 +403,7 @@ def tickets_handler(ticket_id: str):
                 query = Comments.query(Comments.thread_id == comment_thread.thread_id)
                 comments_list = query.fetch()
                 comments_list.reverse()
-                template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
+                template = template_env.get_template('contact/sub/AutoUpdate.html')
                 context = {'comments_list': comments_list}
                 return template.render(context), 200
 
@@ -434,7 +434,7 @@ def tickets_handler(ticket_id: str):
                             comments_list.append(comments_list[0])
                     comments_list.reverse()
 
-                    template = template_env.get_template('templates/contact/sub/AutoUpdate.html')
+                    template = template_env.get_template('contact/sub/AutoUpdate.html')
                     context = {'ticket_user': ticket_user, 'ticket_instance': ticket_instance,
                                'comments_list': comments_list, 'comment_thread': comment_thread}
                     return template.render(context), 200

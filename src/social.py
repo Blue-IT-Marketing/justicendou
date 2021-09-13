@@ -1,52 +1,36 @@
-import logging
 import os
-import webapp2
+
 import jinja2
-from google.appengine.ext import ndb
-from google.appengine.api import users
-from google.appengine.api import mail
-import datetime
+from flask import Blueprint
+
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
-class SocialHandler(webapp2.RequestHandler):
-
-    def get(self):
-        request_url = self.request.uri
-        request_url = request_url.split('?')
-        request_url = request_url[0]
-
-        request_url_list = request_url.split("/")
-        this_url = request_url_list[len(request_url_list) - 1]
-
-        if this_url == "facebook":
-            template = template_env.get_template('templates/justice-ndou/social/facebook.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif this_url == "google":
-            template = template_env.get_template('templates/justice-ndou/social/google.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif this_url == "twitter":
-            template = template_env.get_template('templates/justice-ndou/social/twitter.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif this_url == "youtube":
-            template = template_env.get_template('templates/justice-ndou/social/youtube.html')
-            context = {}
-            self.response.write(template.render(context))
-
-        elif this_url == "quora":
-            template = template_env.get_template('templates/justice-ndou/social/quora.html')
-            context = {}
-            self.response.write(template.render(context))
+social_handler_bp = Blueprint('social_handler', __name__)
 
 
-app = webapp2.WSGIApplication([
-    ('/social/.*', SocialHandler),
+@social_handler_bp.route('/social/<string:path>', methods=['POST', 'GET'])
+def social_handler(path: str):
+    if path == "facebook":
+        template = template_env.get_template('justice-ndou/social/facebook.html')
+        context = {}
+        return template.render(context), 200
 
+    elif path == "google":
+        template = template_env.get_template('justice-ndou/social/google.html')
+        context = {}
+        return template.render(context), 200
 
+    elif path == "twitter":
+        template = template_env.get_template('justice-ndou/social/twitter.html')
+        context = {}
+        return template.render(context), 200
 
-], debug=True)
+    elif path == "youtube":
+        template = template_env.get_template('justice-ndou/social/youtube.html')
+        context = {}
+        return template.render(context), 200
+
+    elif path == "quora":
+        template = template_env.get_template('justice-ndou/social/quora.html')
+        context = {}
+        return template.render(context), 200

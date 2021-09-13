@@ -531,7 +531,7 @@ function get_status(){
     const route = "request-this-status";
     if (!isEmpty(projectid)){
 
-    const mydata = '&route=' + route + '&projectid=' + projectid;
+    const mydata = '&route=' + route + '&project_id=' + projectid;
     $.ajax({
         type: "post",
         url: "/services/request-status",

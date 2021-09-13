@@ -12,14 +12,14 @@ profiles_bp = Blueprint('profiles', __name__)
 def profiles(path: str):
     if path == "software-projects":
         template = template_env.get_template(
-            'templates/justice-ndou/personal-profile/software-projects/software-projects.html')
+            'justice-ndou/personal-profile/software-projects/software-projects.html')
         context = {}
     elif path == "linkedin":
-        template = template_env.get_template('templates/justice-ndou/personal-profile/linkedin-profile/linkedin.html')
+        template = template_env.get_template('justice-ndou/personal-profile/linkedin-profile/linkedin.html')
         context = {}
 
     elif path == "services":
-        template = template_env.get_template('templates/justice-ndou/personal-profile/services/services.html')
+        template = template_env.get_template('justice-ndou/personal-profile/services/services.html')
         context = {}
     else:
         return

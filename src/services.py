@@ -1,129 +1,79 @@
 import logging
 import os
-import webapp2
+import random
+import string
 
 import jinja2
-
-from google.appengine.ext import ndb
-from google.appengine.api import users
-from google.appengine.api import mail
 import datetime
+
+from flask import Blueprint, request
+from google.cloud import ndb
+from google.cloud.ndb.exceptions import BadValueError
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
-class ProjectMessages(ndb.Expando):
-    
-    projectid = ndb.StringProperty()
+services_handler_bp = Blueprint('services_handler', __name__)
+
+
+class ProjectMessages(ndb.Model):
+    project_id = ndb.StringProperty()
     subject = ndb.StringProperty()
     message = ndb.StringProperty()
-    message_type = ndb.StringProperty(default="email") # sms
+    message_type = ndb.StringProperty(default="email")  # sms
     date_sent = ndb.DateProperty(auto_now_add=True)
     time_sent = ndb.TimeProperty(auto_now_add=True)
     response = ndb.StringProperty()
     date_responded = ndb.DateProperty()
     time_responded = ndb.TimeProperty()
 
-    def write_projectid(self,projectid):
-        try:
-            projectid = str(projectid)
-            if projectid != None:
-                self.projectid = projectid
-                return True
-            else:
-                return False
+    def write_project_id(self, projectid):
+        self.project_id = projectid
 
-        except Exception as e:
-            raise e 
+    def write_subject(self, subject):
+        self.subject = subject
 
-    def write_subject(self,subject):
-        try:
-            subject = str(subject)
-            if subject != None:
-                self.subject = subject
-                return True
-            else:
-                return False         
-        except Exception as e:
-            raise e  
+    def write_message(self, message):
+        self.message = message
 
-    def write_message(self,message):
+    def write_message_type(self, message_type):
         try:
-            message = str(message)
-            if message != None:
-                self.message = message
-                return True 
-            else:
-                return False         
-        except Exception as e:
-            raise e
-
-    def write_message_type(self,message_type):
-        try:
-            message_type = str(message_type)
-            if message_type in ['sms','email']:
+            if message_type in ['sms', 'email']:
                 self.message_type = message_type
-                return True 
-            else:
-                return False 
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
-    def write_date_sent(self,date_sent):
-        try:
-            if isinstance(datetime.date,date_sent):
-                self.date_sent = date_sent
-                return True 
-            else:
-                return False
-        except Exception as e:
-            raise e 
+    def write_date_sent(self, date_sent):
+        if isinstance(date_sent, datetime.date):
+            self.date_sent = date_sent
+        else:
+            raise BadValueError()
 
-    def write_time_sent(self,time_sent):
-        try:
-            if isinstance(datetime.time,time_sent):
-                self.time_sent = time_sent
-                return True 
-            else:
-                 return False 
-        except Exception as e:
-            raise e
+    def write_time_sent(self, time_sent):
+        if isinstance(time_sent, datetime.time):
+            self.time_sent = time_sent
+        else:
+            raise BadValueError()
 
-    def write_response(self,response):
-        try:
-            response = str(response)
-            if response != None:
-                self.response = response 
-                return True 
-            else:
-                return False 
-        except Exception as e:
-            raise e
+    def write_response(self, response):
+        self.response = response
 
-    def write_date_response_sent(self,date_response):
-        try:
-            if isinstance(datetime.date,date_response):
-                self.date_responded = date_response
-                return True 
-            else:
-                return False  
-            
-        except Exception as e:
-            raise e
+    def write_date_response_sent(self, date_response):
+        if isinstance(datetime.date, date_response):
+            self.date_responded = date_response
+        else:
+            raise BadValueError()
 
-    def write_time_response_sent(self,time_response):
-        try:
-            if isinstance(datetime.time,time_response):
-                self.time_responded = time_response
-                return True 
-            else:
-                return False                
-        except Exception as e:
-            raise e
+    def write_time_response_sent(self, time_response):
+        if isinstance(datetime.time, time_response):
+            self.time_responded = time_response
+            return True
+        else:
+            raise BadValueError()
 
-class HireMe(ndb.Expando):
-    
-    userid = ndb.StringProperty()
-    projectid = ndb.StringProperty()
+
+class HireMe(ndb.Model):
+    uid = ndb.StringProperty()
+    project_id = ndb.StringProperty()
     names = ndb.StringProperty()
     cell = ndb.StringProperty()
     email = ndb.StringProperty()
@@ -137,350 +87,180 @@ class HireMe(ndb.Expando):
     project_description = ndb.StringProperty()
     estimated_budget = ndb.IntegerProperty(default=50)
     start_date = ndb.DateProperty(auto_now_add=True)
-    project_status = ndb.StringProperty(default="created") # read, started, milestone, completed
+    project_status = ndb.StringProperty(default="created")  # read, started, milestone, completed
 
-
-    def send_email(self,message):
+    def send_email(self, message):
         """
             given an email message send to project owner
         """
-        try:
-            pass
-        except Exception as e:
-            raise e
+        pass
 
-    def send_sms(self,sms):
+    def send_sms(self, sms):
         """
          give an sms message send to project owner
         """
-        try:
-            pass
-        except Exception as e:
-            raise e
+        pass
+
+    def write_estimated_budget(self, estimated_budget):
+        estimated_budget = str(estimated_budget)
+        if estimated_budget.isdigit() and int(estimated_budget) > 0:
+            self.estimated_budget = int(estimated_budget)
+        else:
+            raise BadValueError()
+
+    def write_start_date(self, start_date):
+        if isinstance(start_date, datetime.date):
+            self.start_date = start_date
+            return True
+        else:
+            raise BadValueError()
+
+    def set_project_status(self, status):
+        status = str(status)
+        if status in ["created", "read", "started", "milestone", "completed"]:
+            self.project_status = status
+            return True
+        else:
+            return False
+
+    def write_project_id(self, project_id):
+        self.project_id = project_id
+
+    @staticmethod
+    def create_id():
+        return "".join(random.choices(string.digits + string.ascii_uppercase, k=64))
+
+    def write_userid(self, uid: str):
+        self.uid = uid
+
+    def write_names(self, names):
+        self.names = names.strip().lower()
+
+    def write_cell(self, cell):
+        self.cell = cell
+
+    def write_email(self, email):
+        self.email = email
+
+    def write_website(self, website):
+        self.website = website
+
+    def write_facebook(self, facebook):
+        self.facebook = facebook
+
+    def write_twitter(self, twitter):
+        self.twitter = twitter
+
+    def write_company(self, company):
+        self.company = company
+
+    def write_freelancing(self, freelancing):
+        self.freelancing = freelancing
+
+    def write_project_type(self, project_type):
+        self.project_type = project_type
+
+    def write_project_title(self, project_title):
+        self.project_title = project_title
+
+    def write_project_description(self, project_description):
+        self.project_description = project_description
 
 
-    def write_estimated_budget(self,estimated_budget):
-        try:
-            estimated_budget = str(estimated_budget)
-            if estimated_budget.isdigit() and int(estimated_budget) > 0:
-                self.estimated_budget = int(estimated_budget) 
-                return True 
-            else:
-                return False
-        except Exception as e:
-            raise e 
+@services_handler_bp.route('/services', methods=['GET', 'POST'])
+def services_handler():
+    route = request.args.get('route')
+    if route == "hireme":
+        names = request.args.get('names')
+        cell = request.args.get('cell')
+        email = request.args.get('email')
+        website = request.args.get('website')
+        facebook = request.args.get('myfacebook')
+        twitter = request.args.get('mytwitter')
+        company = request.args.get('company')
+        freelancing = request.args.get('freelancing')
+        project_type = request.args.get('projecttype')
+        project_title = request.args.get('projecttitle')
+        project_description = request.args.get('projectdescription')
 
-    def write_start_date(self,start_date):
-        try:
-            if isinstance(start_date,datetime.date):
-                self.start_date = start_date
-                return True 
-            else:
-                return False          
-        except Exception as e:
-            raise e
-    
-    def set_project_status(self,status):
-        try:
-            status = str(status)
-            if status in ["created","read","started","milestone","completed"]:
-                self.project_status = status
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
+        logging.info("services handler received all variables")
 
-    def write_projectid(self,projectid):
-        try:
-            projectid = str(projectid)
-            if projectid != None:
-                self.projectid = projectid
-                return True
-            else:
-                return False
+        # //TODO- please do error corrections within the browser using javascript
 
-        except Exception as e:
-            raise e 
+        this_hire_me = HireMe()
 
-    def create_projectid(self):
-        
-        import random,string
-        try:
-            projectid = ""
-            for i in range(12):
-                projectid += random.SystemRandom().choice(string.digits + string.ascii_uppercase)
-            return projectid
-        except Exception as e:
-            raise e
-        
+        if not this_hire_me.write_names(names=names):
+            return "Please enter correct Names"
+        elif not this_hire_me.write_cell(cell=cell):
+            return "Please enter a valid cell phone Number"
+        elif not this_hire_me.write_email(email=email):
+            return "Please enter a valid email address"
+        elif not this_hire_me.write_website(website=website):
+            return "Please enter a valid website address"
+        elif not this_hire_me.write_company(company=company):
+            return "Please enter a valid company name"
+        elif not this_hire_me.write_project_type(project_type=project_type):
+            return "Please enter a valid project type"
+        elif not this_hire_me.write_project_title(project_title=project_title):
+            return "Please enter a valid project title"
+        elif not this_hire_me.write_project_description(project_description=project_description):
+            return "Please enter a valid project description"
 
-    def write_userid(self,userid):
-        try:
-            userid = str(userid)
-            if userid != None:
-                self.userid = userid
-                return True
-            else:
-                return False
+        else:
+            this_hire_me.write_facebook(facebook=facebook)
+            this_hire_me.write_twitter(twitter=twitter)
+            this_hire_me.write_freelancing(freelancing=freelancing)
+            this_hire_me.write_project_id(project_id=this_hire_me.create_id())
+            this_hire_me.put()
 
-        except Exception as e:
-            raise e 
+            return "Successfully created your project with project code : " + this_hire_me.project_id
 
-    
-    def write_names(self,names):
-        try:
-            names = str(names)
-            names = names.strip().lower()
-            if names != None:
-                self.names = names.strip().lower()
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
+    elif route == "get-hireme-requests":
 
-    def write_cell(self,cell):
-        try:
+        this_find_requests = HireMe.query(HireMe.project_status != "completed")
+        this_hireme_list = this_find_requests.fetch()
 
-            cell = str(cell)
-            cell = cell.strip()
-            cell = cell.lower()
-
-            if cell != None:
-                self.cell = cell
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_email(self,email):
-        try:
-            email = str(email)
-            email = email.strip()
-            email = email.lower()
-            if email != None:
-                self.email = email
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_website(self,website):
-        try:
-            website = str(website)
-            website = website.strip()
-            website = website.lower()
-            if website != None:
-                self.website = website
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_facebook(self,facebook):
-        try:
-            facebook = str(facebook)
-            facebook = facebook.strip()
-            facebook = facebook.lower()
-            if facebook != None:
-                self.facebook = facebook
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_twitter(self,twitter):
-        try:
-            twitter = str(twitter)
-            twitter = twitter.strip()
-            twitter = twitter.lower()
-            if twitter != None:
-                self.twitter = twitter
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_company(self,company):
-        try:
-            company = str(company)
-            company = company.strip()
-            company = company.lower()
-            if company != None:
-                self.company = company
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_freelancing(self,freelancing):
-        try:
-            freelancing = str(freelancing)
-            freelancing = freelancing.strip()
-            freelancing = freelancing.lower()
-            if freelancing != None:
-                self.freelancing = freelancing
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_project_type(self,project_type):
-        try:
-            project_type = str(project_type)
-            if project_type != None:
-                self.project_type = project_type
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-    def write_project_title(self,project_title):
-        try:
-            project_title = str(project_title)
-            project_title = project_title.strip()
-            if (project_title != None):
-                self.project_title = project_title
-                return True
-            else:
-                return False
-            
-        except Exception as e:
-            raise e 
-                    
-
-    def write_project_description(self,project_description):
-        try:
-            project_description = str(project_description)
-            project_description = project_description.strip()
-            if project_description != None:
-                self.project_description = project_description
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
+        template = template_env.get_template(
+            "justice-ndou/personal-profile/services/hireme-list.html")
+        context = {'thishiremelist': this_hireme_list}
+        return template.render(context)
 
 
-
-class ServicesHandler(webapp2.RequestHandler):
-
-    def post(self):
-        try:
-            route = self.request.get('route')
-            if route == "hireme":
-                names = self.request.get('names')
-                cell = self.request.get('cell')
-                email = self.request.get('email')
-                website = self.request.get('website')
-                facebook = self.request.get('myfacebook')
-                twitter = self.request.get('mytwitter')
-                company = self.request.get('company')
-                freelancing = self.request.get('freelancing')
-                project_type = self.request.get('projecttype')
-                project_title = self.request.get('projecttitle')
-                project_description = self.request.get('projectdescription')
-
-                logging.info("services handler received all variables")
-
-                #//TODO- please do error corrections within the browser using javascript
-
-                this_hireme = HireMe()
-
-                if this_hireme.write_names(names=names) == False:
-                    self.response.write("Please enter correct Names")
-                elif this_hireme.write_cell(cell=cell) == False:
-                    self.response.write("Please enter a valid cell phone Number")
-                elif this_hireme.write_email(email=email) == False:
-                    self.response.write("Please enter a valid email address")
-                elif this_hireme.write_website(website=website) == False:
-                    self.response.write("Please enter a valid website address")
-                elif this_hireme.write_company(company=company) == False:
-                    self.response.write("Please enter a valid company name")
-                elif this_hireme.write_project_type(project_type=project_type) == False:
-                    self.response.write("Please enter a valid project type")
-                elif this_hireme.write_project_title(project_title=project_title) == False:
-                    self.response.write("Please enter a valid project title")
-                elif this_hireme.write_project_description(project_description=project_description) == False:
-                    self.response.write("Please enter a valid project description")
-
-                else:
-                    this_hireme.write_facebook(facebook=facebook)
-                    this_hireme.write_twitter(twitter=twitter)
-                    this_hireme.write_freelancing(freelancing=freelancing)
-                    this_hireme.write_projectid(projectid=this_hireme.create_projectid())
-                    this_hireme.put()
-                    self.response.write("Successfully created your project with project code : " + this_hireme.projectid)
-                    self.response.write("""<br><blockquote>Please keep your project id safe as its usefull when requesting your project status later, your project code is also sent to your email for safe keeping</blockquote>""")
-
-            elif route == "get-hireme-requests":
-                
-                this_find_requests = HireMe.query(HireMe.project_status != "completed")
-                this_hireme_list = this_find_requests.fetch()
-
-                template = template_env.get_template("templates/justice-ndou/personal-profile/services/hireme-list.html")
-                context = {'thishiremelist': this_hireme_list}
-                self.response.write(template.render(context))
-                    
-        except:
-            self.response.write("an error occured creating a hireme request")
-
-class ThisServicesHandler(webapp2.RequestHandler):
-    def get(self):
+@services_handler_bp.route('/services/<string:path>', methods=['POST', 'GET'])
+def this_services_handler(path: str):
+    if request.method == "GET":
         """
-            Note get the userid from the firebase script on the user end and then use that as a userid
+            Note get the uid from the firebase script on the user end and then use that as a uid
         """
-        #TODO- just show the hireme form
-
-        route_url = self.request.uri 
-        route_url = route_url.split("?")
-        route_url = route_url[0]
-        route_url = route_url.split("/")
-        route_url = route_url[len(route_url) - 1]
-
-        if route_url == "dohire":
-            template = template_env.get_template("templates/justice-ndou/personal-profile/services/dohire.html")
+        # TODO- just show the hireme form
+        if path == "dohire":
+            template = template_env.get_template("justice-ndou/personal-profile/services/dohire.html")
             context = {}
-            self.response.write(template.render(context))
+            return template.render(context), 200
 
-        elif route_url == "request-status":
-            template = template_env.get_template("templates/justice-ndou/personal-profile/services/status.html")
+        elif path == "request-status":
+            template = template_env.get_template("justice-ndou/personal-profile/services/status.html")
             context = {}
-            self.response.write(template.render(context))
-            
-    def post(self):
-        
-        route = self.request.get('route')
+            return template.render(context), 200
+
+    elif request.method == "POST":
+        route = request.args.get('route')
 
         if route == "request-this-status":
-            projectid = self.request.get('projectid')
-            this_project_query = HireMe.query(HireMe.projectid == projectid)
+            project_id = request.args.get('project_id')
+            this_project_query = HireMe.query(HireMe.project_id == project_id)
             this_project_list = this_project_query.fetch()
 
-            if len(this_project_list) > 0:
+            if this_project_list:
                 this_project = this_project_list[0]
 
-                template = template_env.get_template('templates/justice-ndou/personal-profile/services/status-response.html')
+                template = template_env.get_template(
+                    'justice-ndou/personal-profile/services/status-response.html')
                 context = {'thisproject': this_project}
-                self.response.write(template.render(context))
+                return template.render(context), 200
             else:
                 this_project = HireMe()
-                template = template_env.get_template('templates/justice-ndou/personal-profile/services/status-response.html')
+                template = template_env.get_template(
+                    'justice-ndou/personal-profile/services/status-response.html')
                 context = {'thisproject': this_project}
-                self.response.write(template.render(context))
-                
-
-
-app = webapp2.WSGIApplication([
-    ('/services', ServicesHandler),
-    ('/services/.*', ThisServicesHandler)
-], debug=True)
+                return template.render(context), 200
