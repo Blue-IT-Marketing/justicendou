@@ -42,7 +42,7 @@ thisSendMessageButt.addEventListener("click", function () {
                 var vstrChoice = 5;
                 var vstrContactID = document.getElementById('strContactID').value;
                 var vstrMessage = document.getElementById('strMessage').value;
-                var vstrCell = document.getElementById('strCell').value;
+                var vstrCell = document.getElementById('cell').value;
                 var dataString = '&vstrChoice=' + vstrChoice + '&vstrMessage=' + vstrMessage +
                     '&vstrContactID=' + vstrContactID + '&vstrCell=' + vstrCell +
                 '&vstrUserID=' + struid + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken;

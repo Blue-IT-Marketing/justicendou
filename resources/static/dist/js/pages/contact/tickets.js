@@ -4,10 +4,10 @@ var thisCreateTicketButt = document.getElementById("CreateTicketButt");
 thisCreateTicketButt.addEventListener("click", function(){
 
                 var vstrChoice = 3;
-                var vstrNames = document.getElementById('strNames').value;
-                var vstrSurname = document.getElementById('strSurname').value;
-                var vstrCell = document.getElementById('strCell').value;
-                var vstrEmail = document.getElementById('strEmail').value;
+                var vstrNames = document.getElementById('names').value;
+                var vstrSurname = document.getElementById('surname').value;
+                var vstrCell = document.getElementById('cell').value;
+                var vstrEmail = document.getElementById('email').value;
                 var vstrSubject = document.getElementById('strSubject').value;
                 var vstrBody = document.getElementById('strBody').value;
 

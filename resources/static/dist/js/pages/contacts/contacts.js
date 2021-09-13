@@ -34,13 +34,13 @@ thisUploadContactsButt.addEventListener("click", function () {
 
 
                 var vstrChoice = 0;
-                var vstrNames = document.getElementById('strNames').value;
-                var vstrSurname = document.getElementById('strSurname').value;
-                var vstrCell = document.getElementById('strCell').value;
-                var vstrTel = document.getElementById('strTel').value;
+                var vstrNames = document.getElementById('names').value;
+                var vstrSurname = document.getElementById('surname').value;
+                var vstrCell = document.getElementById('cell').value;
+                var vstrTel = document.getElementById('tel').value;
                 var vstrFax = document.getElementById('strFax').value;
-                var vstrEmail = document.getElementById('strEmail').value;
-                var vstrWebsite = document.getElementById('strWebsite').value;
+                var vstrEmail = document.getElementById('email').value;
+                var vstrWebsite = document.getElementById('website').value;
                 var vstrTitle = document.getElementById('strTitle').value;
                 var vstrDateCreated = document.getElementById('strDateCreated').value;
 

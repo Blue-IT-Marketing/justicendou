@@ -2,7 +2,7 @@ function UpdateChat() {
     var vstrChoice = 2;
     var vstrTicketID = document.getElementById("strTicketID").value;
     var vstrThreadID = document.getElementById("strThreadID").value;
-    var vstrUserID = document.getElementById("strUserID").value;
+    var vstrUserID = document.getElementById("uid").value;
 
 
     var dataString = "&vstrChoice=" + vstrChoice + '&vstrTicketID=' + vstrTicketID +

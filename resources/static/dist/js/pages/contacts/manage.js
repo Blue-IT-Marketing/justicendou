@@ -69,7 +69,7 @@ thisUploadPostalAddressButt.addEventListener("click", function () {
                 var vstrCountry = document.getElementById('strCountry').value;
                 var vstrPostalCode = document.getElementById('strPostalCode').value;
                 var vstrContactID = document.getElementById('strContactID').value;
-                var vstrCell = document.getElementById('strCell').value;
+                var vstrCell = document.getElementById('cell').value;
                 var dataString = '&vstrChoice=' + vstrChoice + '&vstrBox=' + vstrBox + '&vstrCityTown=' + vstrCityTown +
                     '&vstrProvince=' + vstrProvince + '&vstrCountry=' + vstrCountry + '&vstrPostalCode=' + vstrPostalCode +
                     '&vstrContactID=' + vstrContactID + '&vstrCell=' + vstrCell + '&vstrUserID=' + struid + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
@@ -101,7 +101,7 @@ thisUploadNotesButt.addEventListener("click", function () {
 
 
                 var vstrChoice = 2;
-                var vstrCell = document.getElementById('strCell').value;
+                var vstrCell = document.getElementById('cell').value;
                 var vstrSubject = document.getElementById('strSubject').value;
                 var vstrNotes = tinyMCE.activeEditor.getContent();
                 var vstrContactID = document.getElementById('strContactID').value;

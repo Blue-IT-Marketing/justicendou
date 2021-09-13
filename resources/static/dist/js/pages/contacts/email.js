@@ -36,7 +36,7 @@ thisMessageButt.addEventListener("click", function () {
                 var vstrChoice = 7;
                 var vstrSubject = document.getElementById('strSubject').value;
                 var vstrMessage = tinyMCE.activeEditor.getContent();
-                var vstrCell = document.getElementById('strCell').value;
+                var vstrCell = document.getElementById('cell').value;
                 var dataString = '&vstrChoice=' + vstrChoice + '&vstrSubject=' + vstrSubject + '&vstrMessage=' + vstrMessage + '&vstrCell=' + vstrCell + '&vstrUserID=' + struid + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
                 $.ajax({
                     type: "post",

@@ -24,7 +24,7 @@ def VerifyAndReturnAccount(strUserID, strAccessToken):
     from accounts import Accounts
 
 
-    findRequest = Accounts.query(Accounts.strUserID == strUserID)
+    findRequest = Accounts.query(Accounts.uid == strUserID)
     thisAccountList = findRequest.fetch()
     if len(thisAccountList) > 0:
         thisAccount = thisAccountList[0]

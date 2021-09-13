@@ -1,110 +1,108 @@
-import logging
 import os
-import webapp2
 import jinja2
-from google.appengine.ext import ndb
-from google.appengine.api import users
-from google.appengine.api import mail
+from google.cloud import ndb
 import datetime
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
+
 class Accounts(ndb.Expando):
+    uid = ndb.StringProperty()
+    organization_id = ndb.StringProperty()
+    names = ndb.StringProperty()
+    surname = ndb.StringProperty()
+    cell = ndb.StringProperty()
+    tel = ndb.StringProperty()
+    email = ndb.StringProperty()
+    website = ndb.StringProperty()
+    verified = ndb.BooleanProperty(default=False)
+    verification_code = ndb.StringProperty()
+    suspended = ndb.BooleanProperty(default=False)
 
-    strUserID = ndb.StringProperty()
-    strOrganizationID = ndb.StringProperty()
-    strNames = ndb.StringProperty()
-    strSurname = ndb.StringProperty()
-    strCell = ndb.StringProperty()
-    strTel = ndb.StringProperty()
-    strEmail = ndb.StringProperty()
-    strWebsite = ndb.StringProperty()
-    strVerified = ndb.BooleanProperty(default=False)
-    strVerificationCode = ndb.StringProperty()
-    strSuspended = ndb.BooleanProperty(default=False)
+    photo_url = ndb.StringProperty()
+    provider_data = ndb.StringProperty()
+    access_token = ndb.StringProperty()
 
-    strPhotoURL = ndb.StringProperty()
-    strProviderData = ndb.StringProperty()
-    strAccessToken = ndb.StringProperty()
+    last_sign_in_date = ndb.DateProperty()
+    last_sign_in_time = ndb.TimeProperty()
+    timestamp = ndb.DateTimeProperty()
 
-    strLastSignInDate = ndb.DateProperty()
-    strLastSignInTime = ndb.TimeProperty()
-    strTimeStamp = ndb.DateTimeProperty()
-
-    def writeLastSignInDate(self,strinput):
+    def write_last_sign_in_date(self, strinput):
         try:
-            if isinstance(strinput,datetime.date):
-                self.strLastSignInDate = strinput
+            if isinstance(strinput, datetime.date):
+                self.last_sign_in_date = strinput
                 return True
             else:
                 return False
         except:
             return False
 
-    def writeLastSignInTime(self,strinput):
+    def write_last_sign_in_time(self, strinput):
         try:
-            if isinstance(strinput,datetime.time):
-                self.strLastSignInTime = strinput
+            if isinstance(strinput, datetime.time):
+                self.last_sign_in_time = strinput
                 return True
             else:
                 return False
         except:
             return False
 
-    def writePhotoURL(self,strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strPhotoURL = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def writeProviderData(self,strinput):
+    def write_photo_url(self, strinput):
         try:
             strinput = str(strinput)
             if strinput != None:
-                self.strProviderData = strinput
+                self.photo_url = strinput
                 return True
             else:
                 return False
         except:
             return False
 
-    def writeAccessToken(self,strinput):
+    def write_provider_data(self, strinput):
         try:
             strinput = str(strinput)
             if strinput != None:
-                self.strAccessToken = strinput
+                self.provider_data = strinput
                 return True
             else:
                 return False
         except:
             return False
 
-    def writeVerified(self,strinput):
-        try:
-            if strinput in [True,False]:
-                self.strVerified = strinput
-                return True
-            else:
-                return False
-
-        except:
-            return False
-    def writeVerificationCode(self,strinput):
+    def write_access_token(self, strinput):
         try:
             strinput = str(strinput)
             if strinput != None:
-                self.strVerificationCode = strinput
+                self.access_token = strinput
                 return True
             else:
                 return False
         except:
             return False
-    def CreateVerificationCode(self):
+
+    def write_verified(self, strinput):
+        try:
+            if strinput in [True, False]:
+                self.verified = strinput
+                return True
+            else:
+                return False
+
+        except:
+            return False
+
+    def write_verification_code(self, strinput):
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.verification_code = strinput
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def create_verification_code(self):
         import random, string
         try:
             strVerificationCode = ""
@@ -113,85 +111,92 @@ class Accounts(ndb.Expando):
             return strVerificationCode
         except:
             return None
-    def writeUserID(self,strinput):
+
+    def write_user_id(self, strinput):
         try:
             strinput = str(strinput)
             if strinput != None:
-                self.strUserID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-    def writeOrganizationID(self,strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strOrganizationID = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-    def writeNames(self,strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strNames = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-    def writeSurname(self,strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strSurname = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-    def writeCell(self,strinput):
-        # this is just to test git
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strCell = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-    def writeTel(self,strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strTel = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-    def writeEmail(self,strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strEmail = strinput
-                return True
-            else:
-                return False
-        except:
-            return False
-    def writeWebsite(self,strinput):
-        try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.strWebsite = strinput
+                self.uid = strinput
                 return True
             else:
                 return False
         except:
             return False
 
+    def writeOrganizationID(self, strinput):
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.organization_id = strinput
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def writeNames(self, strinput):
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.names = strinput
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def writeSurname(self, strinput):
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.surname = strinput
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def writeCell(self, strinput):
+        # this is just to test git
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.cell = strinput
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def writeTel(self, strinput):
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.tel = strinput
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def writeEmail(self, strinput):
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.email = strinput
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def writeWebsite(self, strinput):
+        try:
+            strinput = str(strinput)
+            if strinput != None:
+                self.website = strinput
+                return True
+            else:
+                return False
+        except:
+            return False

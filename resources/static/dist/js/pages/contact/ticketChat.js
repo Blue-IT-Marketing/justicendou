@@ -7,7 +7,7 @@ thisSendMessageButt.addEventListener("click", function () {
                 var vstrComment = document.getElementById("strComment").value;
                 var vstrTicketID = document.getElementById("strTicketID").value;
                 var vstrThreadID = document.getElementById("strThreadID").value;
-                var vstrUserID = document.getElementById("strUserID").value;
+                var vstrUserID = document.getElementById("uid").value;
                 var dataString = "&vstrChoice=" + vstrChoice + '&vstrComment=' + vstrComment + '&vstrTicketID=' + vstrTicketID +
                     '&vstrThreadID=' + vstrThreadID + '&vstrUserID=' + vstrUserID;
                 $.ajax({
@@ -26,7 +26,7 @@ function UpdateChat() {
                 var vstrChoice = 1;
                 var vstrTicketID = document.getElementById("strTicketID").value;
                 var vstrThreadID = document.getElementById("strThreadID").value;
-                var vstrUserID = document.getElementById("strUserID").value;
+                var vstrUserID = document.getElementById("uid").value;
 
                 var dataString = "&vstrChoice=" + vstrChoice + '&vstrTicketID=' + vstrTicketID +
                     '&vstrThreadID=' + vstrThreadID;

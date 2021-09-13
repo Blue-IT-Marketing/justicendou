@@ -14,10 +14,10 @@ var thisUploadPartnerButt = document.getElementById("UploadPartnerButt");
 var thisUploadEndPointButt = document.getElementById("UploadEndPointButt");
 thisUploadContactButt.addEventListener("click", function () {
 var vstrChoice = 0;
-var vstrNames = document.getElementById('strNames').value;
-var vstrSurname = document.getElementById('strSurname').value;
+var vstrNames = document.getElementById('names').value;
+var vstrSurname = document.getElementById('surname').value;
 var vstrCellNumber = document.getElementById('strCellNumber').value;
-var vstrEmail = document.getElementById('strEmail').value;
+var vstrEmail = document.getElementById('email').value;
 var thisURL = "/dashboard/advertise";
 var dataString = '&vstrChoice='+ vstrChoice + '&vstrNames=' + vstrNames + '&vstrSurname=' + vstrSurname +
         '&vstrCellNumber=' + vstrCellNumber +'&vstrEmail=' + vstrEmail;

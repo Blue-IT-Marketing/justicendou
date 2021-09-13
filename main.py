@@ -1,19 +1,15 @@
-import os
+import datetime
 from typing import List
 
-import jinja2
-import logging
-import datetime
-import requests
-from google.cloud import ndb
-from src.accounts import Accounts
-from src.articles import Articles, this_topics, Interests
-from src.services import HireMe
 # import firebase_admin
 # from firebase_admin import credentials
 # cred = credentials.Certificate('templates/firebase/service_account.json')
 # default_app = firebase_admin.initialize_app(cred)
 from flask import Blueprint, make_response, render_template, url_for, request
+
+from src.accounts import Accounts
+from src.articles import Articles, this_topics, Interests
+from src.services import HireMe
 
 main_router_bp = Blueprint('main_router_handler', __name__)
 
@@ -212,7 +208,7 @@ def route_login_post(route):
         # decode_token = auth.verify_id_token(vstrAccessToken)
         # uid = decode_token['uid']
 
-        findRequest = Accounts.query(Accounts.strUserID == vstrUserID)
+        findRequest = Accounts.query(Accounts.uid == vstrUserID)
         thisAccountList = findRequest.fetch()
 
         if len(thisAccountList) > 0:
@@ -220,7 +216,7 @@ def route_login_post(route):
             thisAccount.writeEmail(strinput=vstrEmail)
 
         else:
-            findRequest = Accounts.query(Accounts.strEmail == vstrEmail)
+            findRequest = Accounts.query(Accounts.email == vstrEmail)
             thisAccountList = findRequest.fetch()
             if len(thisAccountList) > 0:
                 thisAccount = thisAccountList[0]
