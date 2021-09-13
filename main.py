@@ -489,3 +489,8 @@ def main_router_handler(path: str):
             return route_500()
         else:
             return route_home()
+
+
+@main_router_bp.route('/', methods=['GET'])
+def home_router():
+    return route_home()
