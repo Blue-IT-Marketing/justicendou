@@ -213,7 +213,7 @@ def route_login_post(route):
 
         if account_list:
             account = account_list[0]
-            account.writeEmail(email)
+            account.write_email(email)
 
         else:
             query = Accounts.query(Accounts.email == email)
