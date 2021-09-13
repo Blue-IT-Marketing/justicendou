@@ -1,543 +1,94 @@
-#!/usr/bin/env python
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import os
-from google.appengine.ext import blobstore
-from google.appengine.ext.webapp import blobstore_handlers
-import webapp2
 import jinja2
-from google.appengine.ext import ndb
-from google.appengine.api import users
-from google.appengine.api import urlfetch
 import logging
 import datetime
+import requests
+from google.cloud import ndb
+from src.accounts import Accounts
+from src.articles import Articles, this_topics
+
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 #import firebase_admin
 #from firebase_admin import credentials
 #cred = credentials.Certificate('templates/firebase/service_account.json')
 #default_app = firebase_admin.initialize_app(cred)
+from flask import Blueprint, make_response, render_template
 
-from accounts import Accounts
-
-this_topics = ["CyberAttacks","Hacking Tools","Linux","Kali Linux","Hacking","Hackers","Penetration Testing","Algorithms","Botnets",
-               "Crypto Mining","New Crypto Coins","Crypto Coins","DDOS","Networking","State Sponsored Hacking","State Sponsored Malware",
-               "Mathematics","Mathematics in Programing","Numerical Algorithms","Graph Theory","Cryptography",
-               "Numerical Analysis","Signal Processing","Fourier Transforms","Laplace Transforms","Combinatorials",
-               "Theory of Everything", "Quantum Mechanics", "Python", "Programming", "Algorithms", "Google App Engine","Javascript", "Angular", "React", "Typescript","HTML5",
-               "CSS3","Jquery","Server Side Rendering","NODEJS","NODE","NPM","Jinja2","Jinja Templating",
-               "Physics","Nanotechnolodgy","Space Exploration","SpaceX","Advanced Physics","Moon","Mars","Astronomy",
-               "Astrophysics","Chemical Engineering"]
-
-this_page_size = 50
-
-apiKey = '41e896a0a1c94b61903408fae1a49471'
-import json
-
-
-def convert_datestring_to_datetime(date_string):
-    try:
-        date_string = str(date_string)
-        try:
-            date_list =  date_string.split("\\")            
-            my_year = int(date_list[0])
-            my_month = int(date_list[1])
-            my_day = int(date_list[2])
-        except:
-            date_list = date_string.split("-")
-
-            if len(date_list) == 3:
-                my_year = int(date_list[0])
-                my_month = int(date_list[1])
-                my_day = int(date_list[2])
-            else:
-                this_date = datetime.datetime.now()
-                this_date = this_date.date()
-                my_year = this_date.year
-                my_month = this_date.month
-                my_day = this_date.day 
-        
-        this_date = datetime.date(year=my_year,month=my_month,day=my_day)
-
-        return this_date
-                
-
-    except Exception as e:
-        raise e
-
-class Interests(ndb.Expando):
-    _sep = ":"
-    topic_id = ndb.StringProperty()
-    topic = ndb.StringProperty()
-    subjects = ndb.StringProperty()
-
-    topic_active = ndb.BooleanProperty(default=True)
-
-
-    def write_topic_id(self,id):
-        try:
-            id = str(id)
-            if id != None:
-                self.topic_id = id
-                return True
-            else:
-                return False
-
-        except Exception as e:
-            raise e
-
-    
-    def write_topic(self,topic):
-        try:
-            topic = str(topic)
-            if topic != None:
-                self.topic = topic
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e
-
-
-    def write_subjects(self,subject):
-        try:
-            subject = str(subject)
-            logging.info(subject)
-            if subject != None:                
-                if(self.subjects != None) and len(self.subjects) != 0:
-                    self.subjects += self._sep + subject 
-                else:
-                    self.subjects = subject 
-                return True
-            else:
-                return False
-        except Exception as e:
-            logging.warning(subject)
-            
-            raise e
-
-    def set_topic_active(self,value):
-        try:
-            if value in [True,False]:
-                self.topic_active = value
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e 
-
-class Articles (ndb.Expando):
-
-    article_reference = ndb.StringProperty()
-    topic = ndb.StringProperty()
-    url = ndb.StringProperty()
-    title = ndb.StringProperty()
-    urlToImage = ndb.StringProperty()
-    description = ndb.StringProperty()
-    this_date = ndb.DateProperty(auto_now_add=True)
-
-
-
-    def write_topic(self,topic):
-        try:
-            if topic != None:
-                self.topic = topic
-                return True
-            else:
-                return False
-
-        except:
-            return False
-
-    def create_reference(self):
-        import random,string
-        try:
-            reference = ""
-            for i in range(256):
-                reference += random.SystemRandom().choice(string.digits + string.ascii_lowercase)
-            return reference
-        except:
-            return ""
-
-    def write_reference(self,ref):
-        try:
-            if ref != "":
-                self.article_reference = ref
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    def write_url(self,url):
-        try:
-            url = str(url)
-            if url != None:
-                self.url = url
-                return url
-        except Exception as e:
-            raise e
-
-    def write_title(self,title):
-        try:
-            title = str(title)
-            title = title.strip()
-            if title != None:
-                self.title = title
-                return True
-            else:
-                return False
-
-        except Exception as e:
-            raise e
-
-    def write_urlToImage(self,urlToImage):
-        try:
-            urlToImage = str(urlToImage)
-            if urlToImage != None:
-                self.urlToImage = urlToImage
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e
-    
-    def write_description(self,description):
-        try:
-            description = str(description)
-            description = description.strip()
-            if description != None:
-                self.description = description
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e
-
-    def fetch_articles(self,total):
-        """
-        
-        """
-        try:
-            import random
-
-            articles_url = 'https://newsapi.org/v2/everything?q='
-
-            mydate = datetime.datetime.now()
-
-            this_date = str(mydate.year) + "-" + str(mydate.month) + "-" + str(mydate.day)
-
-
-
-            myarticles_url = articles_url + random.choice(this_topics) + '&language=en' +  '&from=' + this_date + '&apiKey=' + apiKey
-
-            headers = {'Content-Type': 'text/html'}
-            result = urlfetch.fetch(url=myarticles_url, method=urlfetch.GET, headers=headers, validate_certificate=True)
-
-            try:
-                if result.status_code == 200:
-                    myjson = json.loads(result.content)
-                    logging.info("ARE WE THERE YET")
-                    logging.info(myjson)
-                    logging.info("WE ARE THERE")
-                    return myjson
-                else:
-                    return "{STATUS : " + str(result.status_code) + "}"
-            except Exception as e:
-                logging.info(e)
-                raise e
-                
-        except Exception as e:
-            logging.info(e)
-            return {"Message": "There was an error accessing NEWS API"}
-
-    def fetch_topic(self, topic):
-        """
-        """
-        try:
-            articles_url = 'https://newsapi.org/v2/everything?q='
-            mydate = datetime.datetime.now()
-            this_date = str(mydate.year) + "-" + str(mydate.month) + "-" + str(mydate.day)
-
-            myarticles_url = articles_url + topic + "&language=en" + "&from=" + this_date + "&apiKey=" + apiKey
-
-            headers = {'Content-Type': 'text/html'}
-            result = urlfetch.fetch(url=myarticles_url, method=urlfetch.GET, headers=headers, validate_certificate=True)
-
-            try:
-                if result.status_code == 200:
-                    myjson = json.loads(result.content)
-                    logging.info("ARE WE THERE YET")
-                    logging.info(myjson)
-                    logging.info("WE ARE THERE")
-                    return myjson
-                else:
-                    return ""
-            except Exception as e:
-                logging.info(e.message)
-                pass
-
-        except Exception as e:
-            logging.info(e)
-            return ""
-
-    def save_topics(self):
-        try:
-
-            for topic in this_topics:
-                json_results = self.fetch_topic(topic=topic)
-                if json_results != "":
-                    articles = json_results['articles']
-
-                    this_date = datetime.datetime.now()
-                    this_date = this_date.date()
-
-                    for article in articles:
-                        self.write_url(url=article['url'])
-                        self.write_title(title=article['title'])
-                        self.write_urlToImage(urlToImage=article['urlToImage'])
-                        self.write_description(description=article['description'])
-                        self.write_reference(ref=self.create_reference())
-                        self.put()
-
-                    logging.info("SAVED TOPIC : " + topic)
-                else:
-                    pass
-        except Exception as e:
-            raise e
-
-
-class Posts(ndb.Expando):
-    """
-        this is for the blog
-    """
-    
-    post_url = ndb.StringProperty()
-    post_title = ndb.StringProperty()
-    post_description = ndb.StringProperty()
-    post_body = ndb.StringProperty()
-    
-    post_date = ndb.DateProperty()
-    post_time = ndb.TimeProperty()
-
-    post_category = ndb.StringProperty()
-
-    post_seo_description = ndb.StringProperty()
-    
-
-    def write_post_url(self,post_url):
-        try:
-            post_url = str(post_url)
-            post_url = post_url.strip()
-
-            if post_url != None:
-                self.post_url = post_url
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e
-
-
-    def write_post_title(self,post_title):
-        try:
-            post_title = str(post_title)
-            post_title = post_title.strip()
-            if post_title != None:
-                self.post_title = post_title
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e
-
-    def write_post_description(self,post_description):        
-        try:
-            post_description = str(post_description)
-            post_description = post_description.strip()
-            if post_description != None:
-                self.post_description = post_description
-                return True
-            else:
-                return False
-
-        except Exception as e:
-            raise e
-
-    def write_post_body(self,post_body):
-        try:
-            post_body = str(post_body)
-            post_body = post_body.strip()
-
-            if post_body != None:
-                self.post_body = post_body
-                return True
-            else:
-                return False
-        except Exception as e:
-            raise e
-
-    def write_post_date(self,post_date):
-        try:
-
-            if isinstance(post_date,datetime.date):
-                self.post_date = post_date
-                return True
-            else:
-                return False
-
-        except Exception as e:
-            raise e
-
-    def write_post_time(self,post_time):
-        try:
-            
-            if isinstance(post_time,datetime):
-                self.post_time = post_time
-                return True
-            else:
-                return False
-
-        except Exception as e:
-            raise e
-
-    
-    def write_post_category(self,post_category):
-        try:
-
-            post_category = str(post_category)        
-            if post_category != None:
-                self.post_category = post_category
-                return True
-            else:
-                return False
-
-        except Exception as e:
-            raise e
-
-    def write_post_seo_description(self,post_seo_description):
-        try:
-
-            post_seo_description = str(post_seo_description)
-            post_seo_description = post_seo_description.strip()
-
-            if post_seo_description != None:
-                self.post_seo_description = post_seo_description
-                return True
-            else:
-                return False
-
-        except Exception as e:
-            raise e
-
-
-
-
-class MainRouterHandler(webapp2.RequestHandler):
-
-    def RouteSitemap(self):
-        #TODO- Consider creating a dynamic sitemap by actually crawling my site and then outputting the sitemap here
-        #TODO- i think i use to have a function to do this coupled with thoth
-
-        template = template_env.get_template('templates/sitemap/sitemap.xml')
-        context = {}
-        self.response.headers["Content-Type"] = 'text/xml'
-        self.response.write(template.render(context))
-
-    def RouteRobots(self):
-        template = template_env.get_template('templates/sitemap/robots.txt')
-        context = {}
-        self.response.headers["Content-Type"] = "text/plain"
-        self.response.write(template.render(context))
-
-    def RouteHome(self):
-        import random
-        this_articles = Articles()
-        #this_articles.save_topics()
-
-        topic = random.choice(this_topics)
-        articles = this_articles.fetch_topic(topic=topic)
-
-        if articles != "":
-            articles = articles['articles']
-
-        template = template_env.get_template('templates/index.html')
-        context = {'articles':articles}
-        self.response.write(template.render(context))
-
-    def RouteLogin(self):
-        template = template_env.get_template('templates/authentication/login.html')
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteLogout(self):
-        template = template_env.get_template('templates/authentication/logout.html')
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteAbout(self):
-        template = template_env.get_template('templates/about.html')
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteContact(self):
-        template = template_env.get_template('templates/contact/contact.html')
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteBlog(self):
-        template = template_env.get_template("templates/blog/home.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteAlgorithms(self):
-        template = template_env.get_template("templates/algorithms/algos.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteStrange(self):
-        template = template_env.get_template("templates/algorithms/strange/strange.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RoutePerlin(self):
-        template = template_env.get_template("templates/algorithms/perlin/perlin.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteLife(self):
-        template = template_env.get_template("templates/algorithms/gameoflife/life.html")
-        context = {}
-        self.response.write(template.render(context))
-
-    def RouteMaze(self):
-        template = template_env.get_template("templates/algorithms/maze/maze.html")
-        context = {}
-        self.response.write(template.render(context))
-
-
-    def RoutePath(self):
-        template = template_env.get_template("templates/algorithms/pathfinder/path.html")
-        context = {}
-        self.response.write(template.render(context))
-
-
-    def RouteMatter(self):
-        template = template_env.get_template("templates/algorithms/matter/matter.html")
-        context = {}
-        self.response.write(template.render(context))
+main_router_bp = Blueprint('main_router_handler', __name__)
+
+def route_sitemap(self):
+    #TODO- Consider creating a dynamic sitemap by actually crawling my site and then outputting the sitemap here
+    #TODO- i think i use to have a function to do this coupled with thoth
+    response = make_response(render_template('templates/sitemap/sitemap.xml'))
+    response.headers["Content-Type"] = 'text/xml'
+    return response, 200
+
+def route_robots(self):
+    response  = make_response(render_template('templates/sitemap/robots.txt'))
+    response.headers["Content-Type"] = "text/plain"
+    return response, 200
+
+def route_home(self):
+    import random
+    this_articles = Articles()
+    #this_articles.save_topics()
+
+    topic = random.choice(this_topics)
+    articles = this_articles.fetch_topic(topic=topic)
+
+    if articles != "":
+        articles = articles['articles']
+    return render_template('templates/index.html', articles=articles), 200
+
+def route_login(self):
+    return render_template('templates/authentication/login.html'), 200
+
+def route_logout(self):
+    return render_template('templates/authentication/logout.html'), 200
+
+def route_about(self):
+    return render_template('templates/about.html'), 200
+
+def route_contact(self):
+    return render_template('templates/contact/contact.html')
+
+def route_blog(self):
+    return render_template("templates/blog/home.html")
+
+def route_algorithms(self):
+    return render_template("templates/algorithms/algos.html")
+
+def route_strange(self):
+    return render_template("templates/algorithms/strange/strange.html")
+
+def route_perlin(self):
+    return render_template("templates/algorithms/perlin/perlin.html")
+
+def route_life(self):
+    return render_template("templates/algorithms/gameoflife/life.html")
+
+def route_maze(self):
+    return render_template("templates/algorithms/maze/maze.html")
+
+
+def route_path(self):
+    return render_template("templates/algorithms/pathfinder/path.html")
+
+
+def RouteMatter(self):
+    template = template_env.get_template("templates/algorithms/matter/matter.html")
+    context = {}
+    self.response.write(template.render(context))
+
+
+
+@main_router_bp.route('/', methods=['GET', 'POST', 'DELETE', 'PUT'])
+
+def main_router_handler():
+    pass
+
+
 
 
     def RouteDashboard(self):
@@ -867,27 +418,27 @@ class MainRouterHandler(webapp2.RequestHandler):
         if len(strURLlist) >= 4:
 
             if ("index" in strURLlist) or ("index.html" in strURLlist):
-                self.RouteHome()
+                self.route_home()
             elif ("login" in strURLlist) or ("login.html" in strURLlist) or ("signin" in strURLlist) or ("signin.html" in strURLlist) or ("subscribe" in strURLlist) or ("subscribe.html" in strURLlist):
                 self.RouteLogin()
 
             elif ("logout" in strURLlist) or ("logout.html" in strURLlist) or ("signout" in strURLlist) or ("signout.html" in strURLlist):
-                self.RouteLogout()
+                self.route_logout()
 
             elif "sitemap.xml" in strURLlist:
-                self.RouteSitemap()
+                self.route_sitemap()
 
             elif "robots.txt" in strURLlist:
-                self.RouteRobots()
+                self.route_robots()
 
             elif ("about" in strURLlist) or ("about.html" in strURLlist):
-                self.RouteAbout()
+                self.route_about()
 
             elif ("contact" in strURLlist) or ("contact.html" in strURLlist):
-                self.RouteContact()
+                self.route_contact()
 
             elif ("blog" in strURLlist) or ("blog.html" in strURLlist):
-                self.RouteBlog()
+                self.route_blog()
 
             elif ("strange" in strURLlist) and ("algorithms" in strURLlist):
                 self.RouteStrange()
@@ -902,10 +453,10 @@ class MainRouterHandler(webapp2.RequestHandler):
                 self.RouteLife()
 
             elif ("maze" in strURLlist) and ("algorithms" in strURLlist):
-                self.RouteMaze()
+                self.route_maze()
 
             elif ("path" in strURLlist) and ("algorithms" in strURLlist):
-                self.RoutePath()
+                self.route_path()
 
 
             elif ("matter" in strURLlist) and ("algorithms" in strURLlist):
@@ -919,7 +470,7 @@ class MainRouterHandler(webapp2.RequestHandler):
 
 
             elif ("algorithms" in strURLlist) or ("algorithms.html" in strURLlist):
-                self.RouteAlgorithms()
+                self.route_algorithms()
 
             elif ("dashboard" in strURLlist) or("dashboard.html" in strURLlist):
                 self.RouteDashboard()
@@ -934,9 +485,9 @@ class MainRouterHandler(webapp2.RequestHandler):
             elif ("500" in strURLlist):
                 self.Route500()
             else:
-                self.RouteHome()
+                self.route_home()
         else:
-            self.RouteHome()
+            self.route_home()
 
     def post(self):
         """
