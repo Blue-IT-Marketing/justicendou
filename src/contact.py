@@ -1,31 +1,28 @@
 
 import os
-import webapp2
 import jinja2
-from google.appengine.ext import ndb
-from google.appengine.api import users
-from google.appengine.api import mail
 import datetime
+from google.cloud import ndb
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 
 class ContactMessages(ndb.Expando):
-    strMessageReference = ndb.StringProperty()
-    strNames = ndb.StringProperty()
-    strEmail = ndb.StringProperty()
-    strCell = ndb.StringProperty()
-    strSubject = ndb.StringProperty()
-    strMessage = ndb.StringProperty()
-    strMessageExcerpt = ndb.StringProperty()
+    message_reference = ndb.StringProperty()
+    names = ndb.StringProperty()
+    email = ndb.StringProperty()
+    cell = ndb.StringProperty()
+    subject = ndb.StringProperty()
+    message = ndb.StringProperty()
+    message_excerpt = ndb.StringProperty()
 
-    strDateSubmitted = ndb.DateProperty(auto_now_add=True)
-    strTimeSubmitted = ndb.TimeProperty(auto_now_add=True)
+    date_submitted = ndb.DateProperty(auto_now_add=True)
+    time_submitted = ndb.TimeProperty(auto_now_add=True)
 
-    strResponseSent = ndb.BooleanProperty(default=False)
+    response_sent = ndb.BooleanProperty(default=False)
 
     def readDateSubmitted(self):
         try:
-            strTemp = str(self.strDateSubmitted)
+            strTemp = str(self.date_submitted)
             strTemp = strTemp.strip()
 
             return strTemp
@@ -33,7 +30,7 @@ class ContactMessages(ndb.Expando):
             return None
     def readTimeSubmitted(self):
         try:
-            strTemp = str(self.strTimeSubmitted)
+            strTemp = str(self.time_submitted)
             strTemp = strTemp.strip()
 
             return strTemp
@@ -41,14 +38,14 @@ class ContactMessages(ndb.Expando):
             return None
     def readResposeSent(self):
         try:
-            return self.strResponseSent
+            return self.response_sent
         except:
             return False
     def writeResponseSent(self,strinput):
         try:
 
             if strinput in [True,False]:
-                self.strResponseSent = strinput
+                self.response_sent = strinput
                 return True
             else:
                 return False
@@ -57,7 +54,7 @@ class ContactMessages(ndb.Expando):
 
     def readNames(self):
         try:
-            strTemp = str(self.strNames)
+            strTemp = str(self.names)
             strTemp = strTemp.strip()
 
             if strTemp != None:
@@ -72,7 +69,7 @@ class ContactMessages(ndb.Expando):
             strinput = strinput.strip()
 
             if strinput != None:
-                self.strNames = strinput
+                self.names = strinput
                 return True
             else:
                 return False
@@ -80,7 +77,7 @@ class ContactMessages(ndb.Expando):
             return False
     def readEmail(self):
         try:
-            strTemp = str(self.strEmail)
+            strTemp = str(self.email)
             strTemp = strTemp.strip()
 
             if strTemp != None:
@@ -95,7 +92,7 @@ class ContactMessages(ndb.Expando):
             strinput = strinput.strip()
 
             if strinput != None:
-                self.strEmail = strinput
+                self.email = strinput
                 return True
             else:
                 return False
@@ -103,7 +100,7 @@ class ContactMessages(ndb.Expando):
             return False
     def readCell(self):
         try:
-            strTemp = str(self.strCell)
+            strTemp = str(self.cell)
             strTemp = strTemp.strip()
 
             if strTemp != None:
@@ -119,7 +116,7 @@ class ContactMessages(ndb.Expando):
             strinput = strinput.strip()
 
             if strinput != None:
-                self.strCell = strinput
+                self.cell = strinput
                 return True
             else:
                 return False
@@ -127,7 +124,7 @@ class ContactMessages(ndb.Expando):
             return False
     def readSubject(self):
         try:
-            strTemp = str(self.strSubject)
+            strTemp = str(self.subject)
             strTemp = strTemp.strip()
 
             if strTemp != None:
@@ -143,7 +140,7 @@ class ContactMessages(ndb.Expando):
             strinput = strinput.strip()
 
             if strinput != None:
-                self.strSubject = strinput
+                self.subject = strinput
                 return True
             else:
                 return False
@@ -153,7 +150,7 @@ class ContactMessages(ndb.Expando):
     def readMessage(self):
 
         try:
-            strTemp = str(self.strMessage)
+            strTemp = str(self.message)
             strTemp = strTemp.strip()
 
             if strTemp != None:
@@ -170,13 +167,13 @@ class ContactMessages(ndb.Expando):
             strinput = strinput.strip()
 
             if strinput != None:
-                self.strMessage = strinput
-                MessageLen = len(self.strMessage)
+                self.message = strinput
+                MessageLen = len(self.message)
 
                 if MessageLen > 16:
-                    self.strMessageExcerpt = self.strMessage[0:16]
+                    self.message_excerpt = self.message[0:16]
                 else:
-                    self.strMessageExcerpt = self.strMessage
+                    self.message_excerpt = self.message
 
                 return True
             else:
@@ -187,7 +184,7 @@ class ContactMessages(ndb.Expando):
     def sendResponse(self):
         try:
             sender_address = ('support@justicendou.site')
-            mail.send_mail(sender_address, self.strEmail, self.strSubject, self.strMessage)
+            mail.send_mail(sender_address, self.email, self.subject, self.message)
             return True
         except:
             return False
@@ -701,7 +698,7 @@ class ThisContactHandler(webapp2.RequestHandler):
             strmessage = self.request.get('vstrMessage')
 
             ContactMessage = ContactMessages()
-            ContactMessage.strMessageReference = vstrUserID
+            ContactMessage.message_reference = vstrUserID
             ContactMessage.writeNames(strinput=strnames)
             ContactMessage.writeEmail(strinput=strEmail)
             ContactMessage.writeCell(strinput=strcell)
@@ -962,7 +959,7 @@ class readContactHandler(webapp2.RequestHandler):
         URLlist = URL.split("/")
         strReference = URLlist[len(URLlist) - 1]
 
-        findRequest = ContactMessages.query(ContactMessages.strMessageReference == strReference)
+        findRequest = ContactMessages.query(ContactMessages.message_reference == strReference)
         thisContactMessagesList = findRequest.fetch()
 
         if len(thisContactMessagesList) > 0:

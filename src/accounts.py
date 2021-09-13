@@ -6,6 +6,8 @@ import jinja2
 from google.cloud import ndb
 import datetime
 
+from google.cloud.ndb.exceptions import BadValueError
+
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 
@@ -37,7 +39,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_last_sign_in_time(self, in_time: datetime.time):
@@ -47,7 +49,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_photo_url(self, photo_url: str):
@@ -58,7 +60,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_provider_data(self, provider_data: str):
@@ -68,7 +70,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_access_token(self, access_token: str):
@@ -78,7 +80,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_verified(self, is_verified: bool):
@@ -88,7 +90,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_verification_code(self, verification_code: str):
@@ -98,7 +100,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     @staticmethod
@@ -112,7 +114,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_organization_id(self, organization_id: str):
@@ -122,7 +124,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_names(self, names: str):
@@ -132,7 +134,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_surname(self, surname: str):
@@ -142,7 +144,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_cell(self, cell: str):
@@ -153,7 +155,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_tel(self, tel: str):
@@ -163,7 +165,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_email(self, email: str):
@@ -173,7 +175,7 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False
 
     def write_website(self, website: str):
@@ -183,5 +185,5 @@ class Accounts(ndb.Expando):
                 return True
             else:
                 return False
-        except ValueError:
+        except BadValueError:
             return False

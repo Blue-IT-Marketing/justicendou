@@ -102,7 +102,7 @@ thisUploadNotesButt.addEventListener("click", function () {
 
                 var vstrChoice = 2;
                 var vstrCell = document.getElementById('cell').value;
-                var vstrSubject = document.getElementById('strSubject').value;
+                var vstrSubject = document.getElementById('subject').value;
                 var vstrNotes = tinyMCE.activeEditor.getContent();
                 var vstrContactID = document.getElementById('strContactID').value;
                 var dataString = '&vstrChoice=' + vstrChoice + '&vstrSubject=' + vstrSubject + '&vstrNotes=' + vstrNotes + '&vstrContactID=' + vstrContactID +

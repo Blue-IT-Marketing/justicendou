@@ -34,7 +34,7 @@ thisMessageButt.addEventListener("click", function () {
 
 
                 var vstrChoice = 7;
-                var vstrSubject = document.getElementById('strSubject').value;
+                var vstrSubject = document.getElementById('subject').value;
                 var vstrMessage = tinyMCE.activeEditor.getContent();
                 var vstrCell = document.getElementById('cell').value;
                 var dataString = '&vstrChoice=' + vstrChoice + '&vstrSubject=' + vstrSubject + '&vstrMessage=' + vstrMessage + '&vstrCell=' + vstrCell + '&vstrUserID=' + struid + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
@@ -57,7 +57,7 @@ thisMessageButt.addEventListener("click", function () {
 
 
 tinymce.init({
-  selector: '#strMessage',
+  selector: '#message',
   height: 710,
   theme: 'modern',
   plugins: [

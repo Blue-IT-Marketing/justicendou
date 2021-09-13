@@ -1,7 +1,7 @@
 var thisAddFacebookMessageButt = document.getElementById("AddFacebookMessageButt");
 thisAddFacebookMessageButt.addEventListener("click", function () {
     var vstrChoice = 0;
-    var vstrMessage = document.getElementById("strMessage").value;
+    var vstrMessage = document.getElementById("message").value;
     var dataString = '&vstrChoice=' + vstrChoice + '&vstrMessage=' + vstrMessage;
     $.ajax({
         type: "post",

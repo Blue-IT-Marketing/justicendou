@@ -8,7 +8,7 @@ thisCreateTicketButt.addEventListener("click", function(){
                 var vstrSurname = document.getElementById('surname').value;
                 var vstrCell = document.getElementById('cell').value;
                 var vstrEmail = document.getElementById('email').value;
-                var vstrSubject = document.getElementById('strSubject').value;
+                var vstrSubject = document.getElementById('subject').value;
                 var vstrBody = document.getElementById('strBody').value;
 
                 var vstrTicketPreference = document.getElementById('strTicketPreference').value;

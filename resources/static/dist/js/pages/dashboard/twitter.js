@@ -2,7 +2,7 @@ var thisAddTwitterMessageButt = document.getElementById("AddTwitterMessageButt")
 var thisAddTwitterSettingsButt = document.getElementById("AddTwitterSettingsButt");
 thisAddTwitterMessageButt.addEventListener("click", function () {
     var vstrChoice = 2;
-    var vstrMessage = document.getElementById("strMessage").value;
+    var vstrMessage = document.getElementById("message").value;
     var dataString = '&vstrChoice=' + vstrChoice + '&vstrMessage=' + vstrMessage;
     $.ajax({
         type: "post",

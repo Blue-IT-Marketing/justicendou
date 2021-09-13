@@ -14,7 +14,7 @@ from src.services import HireMe
 main_router_bp = Blueprint('main_router_handler', __name__)
 
 
-def route_sitemap(self):
+def route_sitemap():
     # TODO- Consider creating a dynamic sitemap by actually crawling my site and then outputting the sitemap here
     # TODO- i think i use to have a function to do this coupled with thoth
     response = make_response(render_template('templates/sitemap/sitemap.xml'))
@@ -351,7 +351,7 @@ def main_router_handler(path: str):
             else:
                 this_interest = Interests()
 
-            this_interest.write_topic_id(id=topicid)
+            this_interest.write_topic_id()
             subjects_list = subjects_list.split(this_interest._sep)
             for subject in subjects_list:
                 this_interest.write_subjects(subject=subject)
@@ -391,7 +391,7 @@ def main_router_handler(path: str):
                 return "This topic is already present", 200
             else:
                 this_interest = Interests()
-                this_interest.write_topic_id(id=topicid)
+                this_interest.write_topic_id()
                 this_interest.write_topic(topic=topiclabel)
                 this_interest.put()
                 return "Topic successfully created", 200

@@ -1,25 +1,30 @@
-import os
-import jinja2
-import logging
 import datetime
 import json
+import logging
+import random
+import string
+from typing import Optional
+
 import requests
 from google.cloud import ndb
+from google.cloud.ndb.exceptions import BadValueError
 
-
-this_topics = ["CyberAttacks","Hacking Tools","Linux","Kali Linux","Hacking","Hackers","Penetration Testing","Algorithms","Botnets",
-               "Crypto Mining","New Crypto Coins","Crypto Coins","DDOS","Networking","State Sponsored Hacking","State Sponsored Malware",
-               "Mathematics","Mathematics in Programing","Numerical Algorithms","Graph Theory","Cryptography",
-               "Numerical Analysis","Signal Processing","Fourier Transforms","Laplace Transforms","Combinatorials",
-               "Theory of Everything", "Quantum Mechanics", "Python", "Programming", "Algorithms", "Google App Engine","Javascript", "Angular", "React", "Typescript","HTML5",
-               "CSS3","Jquery","Server Side Rendering","NODEJS","NODE","NPM","Jinja2","Jinja Templating",
-               "Physics","Nanotechnolodgy","Space Exploration","SpaceX","Advanced Physics","Moon","Mars","Astronomy",
-               "Astrophysics","Chemical Engineering"]
+this_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking", "Hackers", "Penetration Testing",
+               "Algorithms", "Botnets",
+               "Crypto Mining", "New Crypto Coins", "Crypto Coins", "DDOS", "Networking", "State Sponsored Hacking",
+               "State Sponsored Malware",
+               "Mathematics", "Mathematics in Programing", "Numerical Algorithms", "Graph Theory", "Cryptography",
+               "Numerical Analysis", "Signal Processing", "Fourier Transforms", "Laplace Transforms", "Combinatorial",
+               "Theory of Everything", "Quantum Mechanics", "Python", "Programming", "Algorithms", "Google App Engine",
+               "Javascript", "Angular", "React", "Typescript", "HTML5",
+               "CSS3", "Jquery", "Server Side Rendering", "NODEJS", "NODE", "NPM", "Jinja2", "Jinja Templating",
+               "Physics", "Nano Technology", "Space Exploration", "SpaceX", "Advanced Physics", "Moon", "Mars",
+               "Astronomy",
+               "Astrophysics", "Chemical Engineering"]
 
 this_page_size = 50
 
 apiKey = '41e896a0a1c94b61903408fae1a49471'
-
 
 
 class Interests(ndb.Expando):
@@ -30,16 +35,15 @@ class Interests(ndb.Expando):
 
     topic_active = ndb.BooleanProperty(default=True)
 
-    def write_topic_id(self, id):
+    def write_topic_id(self, topic_id: str):
         try:
-            id = str(id)
-            if id is not None:
-                self.topic_id = id
+            if topic_id is not None:
+                self.topic_id = topic_id
                 return True
             else:
                 return False
 
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_topic(self, topic):
@@ -50,7 +54,7 @@ class Interests(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_subjects(self, subject):
@@ -65,7 +69,7 @@ class Interests(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             logging.warning(subject)
 
             raise e
@@ -77,7 +81,7 @@ class Interests(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
 
@@ -98,37 +102,27 @@ class Articles(ndb.Expando):
             else:
                 return False
 
-        except:
+        except BadValueError:
             return False
 
     @staticmethod
-    def create_reference():
-        import random, string
-        try:
-            reference = ""
-            for i in range(256):
-                reference += random.SystemRandom().choice(string.digits + string.ascii_lowercase)
-            return reference
-        except:
-            return ""
+    def create_reference() -> str:
+        return "".join(random.choices(string.digits + string.ascii_lowercase, k=64))
 
-    def write_reference(self, ref):
+    def write_reference(self, ref: str):
         try:
-            if ref != "":
+            if ref is not "":
                 self.article_reference = ref
                 return True
             else:
                 return False
-        except:
+        except BadValueError:
             return False
 
-    def write_url(self, url):
+    def write_url(self, url: str):
         try:
-            url = str(url)
-            if url is not None:
-                self.url = url
-                return url
-        except Exception as e:
+            self.url = url
+        except BadValueError as e:
             raise e
 
     def write_title(self, title):
@@ -141,7 +135,7 @@ class Articles(ndb.Expando):
             else:
                 return False
 
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_url_to_image(self, url_to_image):
@@ -152,7 +146,7 @@ class Articles(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_description(self, description):
@@ -164,11 +158,11 @@ class Articles(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     @staticmethod
-    def fetch_articles(total):
+    def fetch_articles():
         """
 
         """
@@ -190,16 +184,16 @@ class Articles(ndb.Expando):
                     return my_json
                 else:
                     return "{STATUS : " + str(result.status_code) + "}"
-            except Exception as e:
-                logging.info(e)
+            except BadValueError as e:
                 raise e
 
-        except Exception as e:
-            logging.info(e)
+        except requests.ConnectionError:
+            return {"Message": "There was an error accessing NEWS API"}
+        except requests.Timeout:
             return {"Message": "There was an error accessing NEWS API"}
 
     @staticmethod
-    def fetch_topic(topic):
+    def fetch_topic(topic: str) -> Optional[dict]:
         """
         """
         try:
@@ -209,41 +203,40 @@ class Articles(ndb.Expando):
 
             my_articles_url = articles_url + topic + "&language=en" + "&from=" + this_date + "&apiKey=" + apiKey
 
-            headers = {'Content-Type': 'text/html'}
+            headers = {'Content-Type': 'application/json'}
             result = requests.get(url=my_articles_url, headers=headers, validate_certificate=True)
 
             try:
                 if result.status_code == 200:
                     return json.loads(result.content)
                 else:
-                    return ""
-            except Exception:
+                    return
+            except BadValueError:
                 pass
 
-        except Exception:
-            return ""
+        except requests.ConnectionError:
+            return
+        except requests.Timeout:
+            return
 
     def save_topics(self):
         try:
 
             for topic in this_topics:
-                json_results = self.fetch_topic(topic=topic)
+                json_results: Optional[dict] = self.fetch_topic(topic=topic)
                 if json_results != "":
-                    articles = json_results['articles']
-
-                    this_date = datetime.datetime.now()
-                    this_date = this_date.date()
+                    articles: dict = json_results['articles']
 
                     for article in articles:
-                        self.write_url(url=article['url'])
-                        self.write_title(title=article['title'])
-                        self.write_url_to_image(url_to_image=article['urlToImage'])
-                        self.write_description(description=article['description'])
+                        self.write_url(url=article.get('url'))
+                        self.write_title(title=article.get('title'))
+                        self.write_url_to_image(url_to_image=article.get('urlToImage'))
+                        self.write_description(description=article.get('description'))
                         self.write_reference(ref=self.create_reference())
                         self.put()
                 else:
                     pass
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
 
@@ -261,7 +254,6 @@ class Posts(ndb.Expando):
     post_time = ndb.TimeProperty()
 
     post_category = ndb.StringProperty()
-
     post_seo_description = ndb.StringProperty()
 
     def write_post_url(self, post_url):
@@ -274,7 +266,7 @@ class Posts(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_post_title(self, post_title):
@@ -286,7 +278,7 @@ class Posts(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_post_description(self, post_description):
@@ -299,7 +291,7 @@ class Posts(ndb.Expando):
             else:
                 return False
 
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_post_body(self, post_body):
@@ -312,7 +304,7 @@ class Posts(ndb.Expando):
                 return True
             else:
                 return False
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
     def write_post_date(self, post_date):
@@ -324,35 +316,33 @@ class Posts(ndb.Expando):
             else:
                 return False
 
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
-    def write_post_time(self, post_time):
+    def write_post_time(self, post_time: datetime.time):
         try:
 
-            if isinstance(post_time, datetime):
+            if isinstance(post_time, datetime.time):
                 self.post_time = post_time
                 return True
             else:
                 return False
 
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
-    def write_post_category(self, post_category):
+    def write_post_category(self, post_category: str):
         try:
-
-            post_category = str(post_category)
             if post_category is not None:
                 self.post_category = post_category
                 return True
             else:
                 return False
 
-        except Exception as e:
+        except BadValueError as e:
             raise e
 
-    def write_post_seo_description(self, post_seo_description):
+    def write_post_seo_description(self, post_seo_description: str):
         try:
 
             post_seo_description = str(post_seo_description)
@@ -364,5 +354,5 @@ class Posts(ndb.Expando):
             else:
                 return False
 
-        except Exception as e:
+        except BadValueError as e:
             raise e
