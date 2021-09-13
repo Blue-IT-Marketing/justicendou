@@ -7,7 +7,7 @@ import jinja2
 import datetime
 from google.cloud import ndb
 from google.cloud.ndb.exceptions import BadValueError
-from flask import Blueprint
+from flask import Blueprint, request, render_template
 
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
@@ -169,7 +169,7 @@ class Comments(ndb.Model):
     client_comment = ndb.BooleanProperty(default=True)
 
 
-class ThisContactHandler(webapp2.RequestHandler):
+class ThisContactHandler():
     def get(self):
         # TODO - its easier to get session id if it exists
         # TODO- with the session then obtain userid
@@ -181,129 +181,8 @@ class ThisContactHandler(webapp2.RequestHandler):
 
     def post(self):
 
-        vstrChoice = self.request.get('vstrChoice')
 
-        if vstrChoice == "0":
-            # '&vstrUserID=' + struid + '&vstrAccessToken=' + accessToken;
-            vstrUserID = self.request.get('vstrUserID')
-            vstrAccessToken = self.request.get('vstrAccessToken')
-
-            strnames = self.request.get('vstrNames')
-            strEmail = self.request.get('vstrEmail')
-            strcell = self.request.get('vstrCell')
-            strsubject = self.request.get('vstrSubject')
-            strmessage = self.request.get('vstrMessage')
-
-            ContactMessage = ContactMessages()
-            ContactMessage.message_reference = vstrUserID
-            ContactMessage.write_names(names=strnames)
-            ContactMessage.write_email(strinput=strEmail)
-            ContactMessage.write_cell(cell=strcell)
-            ContactMessage.write_subject(subject=strsubject)
-            ContactMessage.writeMessage(strinput=strmessage)
-
-            ContactMessage.put()
-            self.response.write("""
-            Contact Message Submitted Successfully One of our Representatives will get back to you as soon as possible
-            """)
-        elif vstrChoice == "1":
-            # '&vstrUserID=' + struid + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
-            vstrUserID = self.request.get('vstrUserID')
-            vstrEmail = self.request.get('vstrEmail')
-            vstrAccessToken = self.request.get('vstrAccessToken')
-
-            findRequest = TicketUsers.query(TicketUsers.uid == vstrUserID)
-            thisTicketUserList = findRequest.fetch()
-            if len(thisTicketUserList) > 0:
-                thisTicketUser = thisTicketUserList[0]
-            else:
-                thisTicketUser = TicketUsers()
-
-            template = template_env.get_template('templates/contact/sub/subcontact.html')
-            context = {'thisTicketUser': thisTicketUser}
-            self.response.write(template.render(context))
-
-        elif vstrChoice == "2":
-            # TODO- need to pre load tickets for the current user
-            # '&vstrUserID=' + struid + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
-            vstrUserID = self.request.get('vstrUserID')
-            vstrEmail = self.request.get('vstrEmail')
-            vstrAccessToken = self.request.get('vstrAccessToken')
-
-            findRequest = TicketUsers.query(TicketUsers.uid == vstrUserID)
-            thisTicketUserList = findRequest.fetch()
-            if len(thisTicketUserList) > 0:
-                thisTicketUser = thisTicketUserList[0]
-            else:
-                thisTicketUser = TicketUsers()
-
-            findRequest = Tickets.query(Tickets.uid == vstrUserID)
-            thisTicketsList = findRequest.fetch()
-
-            template = template_env.get_template('templates/contact/sub/tickets.html')
-            context = {'thisTicketUser': thisTicketUser, 'thisTicketsList': thisTicketsList}
-            self.response.write(template.render(context))
-
-        elif vstrChoice == "3":
-            # '&vstrEmail=' + email + '&vstrUserID=' + struid + '&vstrAccessToken=' + accessToken;
-            vstrUserID = self.request.get('vstrUserID')
-            vstrAccessToken = self.request.get('vstrAccessToken')
-
-            vstrSubject = self.request.get("vstrSubject")
-            vstrBody = self.request.get("vstrBody")
-            vstrTicketPreference = self.request.get("vstrTicketPreference")
-            vstrDepartment = self.request.get("vstrDepartment")
-            vstrNames = self.request.get("vstrNames")
-            vstrSurname = self.request.get("vstrSurname")
-            vstrCell = self.request.get("vstrCell")
-            vstrEmail = self.request.get("vstrEmail")
-
-            findRequest = TicketUsers.query(TicketUsers.uid == vstrUserID)
-            thisTicketUserList = findRequest.fetch()
-
-            if len(thisTicketUserList) > 0:
-                thisTicketUser = thisTicketUserList[0]
-            else:
-                thisTicketUser = TicketUsers()
-                thisTicketUser.writeUserID(strinput=vstrUserID)
-                thisTicketUser.writeNames(strinput=vstrNames)
-                thisTicketUser.writeSurname(strinput=vstrSurname)
-                thisTicketUser.writeCell(strinput=vstrCell)
-                thisTicketUser.writeEmail(strinput=vstrEmail)
-                thisTicketUser.put()
-
-            vstrThisDateTime = datetime.datetime.now()
-            strThisDate = datetime.date(year=vstrThisDateTime.year, month=vstrThisDateTime.month,
-                                        day=vstrThisDateTime.day)
-            strThisTime = datetime.time(hour=vstrThisDateTime.hour, minute=vstrThisDateTime.minute,
-                                        second=vstrThisDateTime.second)
-
-            thisTicket = Tickets()
-            thisTicket.writeUserID(strinput=vstrUserID)
-            thisTicket.writeTicketID(strinput=thisTicket.CreateTicketID())
-            thisTicket.writeSubject(strinput=vstrSubject)
-            thisTicket.writeBody(strinput=vstrBody)
-            thisTicket.writeTicketPreferences(strinput=vstrTicketPreference)
-            thisTicket.writeDepartment(strinput=vstrDepartment)
-            thisTicket.writeDateCreated(strinput=strThisDate)
-            thisTicket.writeTimeCreated(strinput=strThisTime)
-            thisTicket.put()
-            self.response.write("Ticket Successfully created")
-
-            # TODO- finish this up once done resolving the account issues
-
-        elif vstrChoice == "4":
-            # '&vstrUserID=' + struid + '&vstrEmail=' + email + '&vstrAccessToken=' + accessToken;
-            vstrUserID = self.request.get('vstrUserID')
-            vstrEmail = self.request.get('vstrEmail')
-            vstrAccessToken = self.request.get('vstrAccessToken')
-
-            template = template_env.get_template('templates/contact/sub/address.html')
-            context = {}
-            self.response.write(template.render(context))
-
-
-class ThisTicketHandler(webapp2.RequestHandler):
+class ThisTicketHandler():
     def get(self):
 
         vstrUserID = self.request.get('vstrUserID')
@@ -461,7 +340,7 @@ class ThisTicketHandler(webapp2.RequestHandler):
                     self.response.write(template.render(context))
 
 
-class readContactHandler(webapp2.RequestHandler):
+class readContactHandler():
     def get(self):
 
         URL = self.request.url
@@ -479,6 +358,135 @@ class readContactHandler(webapp2.RequestHandler):
         template = template_env.get_template('templates/contact/readContact.html')
         context = {'thisContactMessage': thisContactMessage}
         self.response.write(template.render(context))
+
+
+@contact_handler_bp.route('/contact/tickets/<string:path>', methods=['POST', 'GET'])
+def default_contact_handler(path: str):
+    if request.method == "GET":
+        return render_template('templates/contact/contact.html'), 200
+
+    elif request.method == "POST":
+
+        choice = request.args.get('choice')
+
+        if choice == "0":
+            # '&uid=' + struid + '&access_token=' + accessToken;
+            uid = request.args.get('uid')
+            access_token = request.args.get('access_token')
+
+            names = request.args.get('names')
+            email = request.args.get('email')
+            cell = request.args.get('cell')
+            subject = request.args.get('subject')
+            message = request.args.get('message')
+
+            contact_message = ContactMessages()
+            contact_message.message_reference = uid
+            contact_message.write_names(names=names)
+            contact_message.write_email(email=email)
+            contact_message.write_cell(cell=cell)
+            contact_message.write_subject(subject=subject)
+            contact_message.writeMessage(strinput=message)
+
+            contact_message.put()
+            return """ Contact Message Submitted Successfully One of our Representatives will get back to you 
+            as soon as possible """, 200
+
+        elif choice == "1":
+            # '&uid=' + struid + '&vstrEmail=' + email + '&access_token=' + accessToken;
+            uid = self.request.get('uid')
+            vstrEmail = self.request.get('vstrEmail')
+            access_token = self.request.get('access_token')
+
+            findRequest = TicketUsers.query(TicketUsers.uid == uid)
+            thisTicketUserList = findRequest.fetch()
+            if len(thisTicketUserList) > 0:
+                thisTicketUser = thisTicketUserList[0]
+            else:
+                thisTicketUser = TicketUsers()
+
+            template = template_env.get_template('templates/contact/sub/subcontact.html')
+            context = {'thisTicketUser': thisTicketUser}
+            self.response.write(template.render(context))
+
+        elif choice == "2":
+            # TODO- need to pre load tickets for the current user
+            # '&uid=' + struid + '&vstrEmail=' + email + '&access_token=' + accessToken;
+            uid = self.request.get('uid')
+            vstrEmail = self.request.get('vstrEmail')
+            access_token = self.request.get('access_token')
+
+            findRequest = TicketUsers.query(TicketUsers.uid == uid)
+            thisTicketUserList = findRequest.fetch()
+            if len(thisTicketUserList) > 0:
+                thisTicketUser = thisTicketUserList[0]
+            else:
+                thisTicketUser = TicketUsers()
+
+            findRequest = Tickets.query(Tickets.uid == uid)
+            thisTicketsList = findRequest.fetch()
+
+            template = template_env.get_template('templates/contact/sub/tickets.html')
+            context = {'thisTicketUser': thisTicketUser, 'thisTicketsList': thisTicketsList}
+            self.response.write(template.render(context))
+
+        elif choice == "3":
+            # '&vstrEmail=' + email + '&uid=' + struid + '&access_token=' + accessToken;
+            uid = self.request.get('uid')
+            access_token = self.request.get('access_token')
+
+            vstrSubject = self.request.get("vstrSubject")
+            vstrBody = self.request.get("vstrBody")
+            vstrTicketPreference = self.request.get("vstrTicketPreference")
+            vstrDepartment = self.request.get("vstrDepartment")
+            vstrNames = self.request.get("vstrNames")
+            vstrSurname = self.request.get("vstrSurname")
+            vstrCell = self.request.get("vstrCell")
+            vstrEmail = self.request.get("vstrEmail")
+
+            findRequest = TicketUsers.query(TicketUsers.uid == uid)
+            thisTicketUserList = findRequest.fetch()
+
+            if len(thisTicketUserList) > 0:
+                thisTicketUser = thisTicketUserList[0]
+            else:
+                thisTicketUser = TicketUsers()
+                thisTicketUser.writeUserID(strinput=uid)
+                thisTicketUser.writeNames(strinput=vstrNames)
+                thisTicketUser.writeSurname(strinput=vstrSurname)
+                thisTicketUser.writeCell(strinput=vstrCell)
+                thisTicketUser.writeEmail(strinput=vstrEmail)
+                thisTicketUser.put()
+
+            vstrThisDateTime = datetime.datetime.now()
+            strThisDate = datetime.date(year=vstrThisDateTime.year, month=vstrThisDateTime.month,
+                                        day=vstrThisDateTime.day)
+            strThisTime = datetime.time(hour=vstrThisDateTime.hour, minute=vstrThisDateTime.minute,
+                                        second=vstrThisDateTime.second)
+
+            thisTicket = Tickets()
+            thisTicket.writeUserID(strinput=uid)
+            thisTicket.writeTicketID(strinput=thisTicket.CreateTicketID())
+            thisTicket.writeSubject(strinput=vstrSubject)
+            thisTicket.writeBody(strinput=vstrBody)
+            thisTicket.writeTicketPreferences(strinput=vstrTicketPreference)
+            thisTicket.writeDepartment(strinput=vstrDepartment)
+            thisTicket.writeDateCreated(strinput=strThisDate)
+            thisTicket.writeTimeCreated(strinput=strThisTime)
+            thisTicket.put()
+            self.response.write("Ticket Successfully created")
+
+            # TODO- finish this up once done resolving the account issues
+
+        elif choice == "4":
+            # '&uid=' + struid + '&vstrEmail=' + email + '&access_token=' + accessToken;
+            uid = self.request.get('uid')
+            vstrEmail = self.request.get('vstrEmail')
+            access_token = self.request.get('access_token')
+
+            template = template_env.get_template('templates/contact/sub/address.html')
+            context = {}
+            self.response.write(template.render(context))
 
 
 app = webapp2.WSGIApplication([
