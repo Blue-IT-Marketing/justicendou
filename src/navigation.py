@@ -22,4 +22,3 @@ def navigation(path: str):
         return template.render(context), 200
     else:
         pass
-
