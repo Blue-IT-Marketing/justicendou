@@ -1,4 +1,7 @@
 import os
+import string
+from random import choices
+
 import jinja2
 from google.cloud import ndb
 import datetime
@@ -27,176 +30,158 @@ class Accounts(ndb.Expando):
     last_sign_in_time = ndb.TimeProperty()
     timestamp = ndb.DateTimeProperty()
 
-    def write_last_sign_in_date(self, strinput):
+    def write_last_sign_in_date(self, in_date: datetime.date) -> bool:
         try:
-            if isinstance(strinput, datetime.date):
-                self.last_sign_in_date = strinput
+            if isinstance(in_date, datetime.date):
+                self.last_sign_in_date = in_date
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def write_last_sign_in_time(self, strinput):
+    def write_last_sign_in_time(self, in_time: datetime.time):
         try:
-            if isinstance(strinput, datetime.time):
-                self.last_sign_in_time = strinput
+            if isinstance(in_time, datetime.time):
+                self.last_sign_in_time = in_time
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def write_photo_url(self, strinput):
+    def write_photo_url(self, photo_url: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.photo_url = strinput
+
+            if photo_url is not None:
+                self.photo_url = photo_url
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def write_provider_data(self, strinput):
+    def write_provider_data(self, provider_data: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.provider_data = strinput
+            if provider_data is not None:
+                self.provider_data = provider_data
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def write_access_token(self, strinput):
+    def write_access_token(self, access_token: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.access_token = strinput
+            if access_token is not None:
+                self.access_token = access_token
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def write_verified(self, strinput):
+    def write_verified(self, is_verified: bool):
         try:
-            if strinput in [True, False]:
-                self.verified = strinput
+            if is_verified in [True, False]:
+                self.verified = is_verified
                 return True
             else:
                 return False
-
-        except:
+        except ValueError:
             return False
 
-    def write_verification_code(self, strinput):
+    def write_verification_code(self, verification_code: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.verification_code = strinput
+            if verification_code is not None:
+                self.verification_code = verification_code
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def create_verification_code(self):
-        import random, string
-        try:
-            strVerificationCode = ""
-            for i in range(6):
-                strVerificationCode += random.SystemRandom().choice(string.digits + string.ascii_uppercase)
-            return strVerificationCode
-        except:
-            return None
+    @staticmethod
+    def create_verification_code():
+        return ''.join(choices(string.digits + string.ascii_uppercase, k=6))
 
-    def write_user_id(self, strinput):
+    def write_user_id(self, uid: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.uid = strinput
+            if uid is not None:
+                self.uid = uid
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def writeOrganizationID(self, strinput):
+    def write_organization_id(self, organization_id: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.organization_id = strinput
+            if organization_id is not None:
+                self.organization_id = organization_id
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def writeNames(self, strinput):
+    def write_names(self, names: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.names = strinput
+            if names is not None:
+                self.names = names
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def writeSurname(self, strinput):
+    def write_surname(self, surname: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.surname = strinput
+            if surname is not None:
+                self.surname = surname
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def writeCell(self, strinput):
+    def write_cell(self, cell: str):
         # this is just to test git
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.cell = strinput
+            if cell is not None:
+                self.cell = cell
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def writeTel(self, strinput):
+    def write_tel(self, tel: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.tel = strinput
+            if tel is not None:
+                self.tel = tel
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def writeEmail(self, strinput):
+    def write_email(self, email: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.email = strinput
+            if email is not None:
+                self.email = email
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False
 
-    def writeWebsite(self, strinput):
+    def write_website(self, website: str):
         try:
-            strinput = str(strinput)
-            if strinput != None:
-                self.website = strinput
+            if website is not None:
+                self.website = website
                 return True
             else:
                 return False
-        except:
+        except ValueError:
             return False

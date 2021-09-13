@@ -197,47 +197,47 @@ def route_login_post(route):
         return render_template('templates/authentication/loggedout.html')
 
     elif route == "2":
-        vstrDisplayName = request.args.get('vstrDisplayName')
-        vstrEmail = request.args.get('vstrEmail')
-        vstremailVerified = request.args.get('vstremailVerified')
-        vstrUserID = request.args.get('vstrUserID')
-        vstrPhoneNumber = request.args.get('vstrPhoneNumber')
-        vstrProviderData = request.args.get('vstrProviderData')
-        vstrAccessToken = request.args.get('vstrAccessToken')
+        display_name = request.args.get('display_name')
+        email = request.args.get('email')
+        email_verified = request.args.get('email_verified')
+        uid = request.args.get('uid')
+        cell = request.args.get('cell')
+        provider_data = request.args.get('provider_data')
+        access_token = request.args.get('access_token')
 
-        # decode_token = auth.verify_id_token(vstrAccessToken)
+        # decode_token = auth.verify_id_token(access_token)
         # uid = decode_token['uid']
 
-        findRequest = Accounts.query(Accounts.uid == vstrUserID)
-        thisAccountList = findRequest.fetch()
+        query = Accounts.query(Accounts.uid == uid)
+        account_list = query.fetch()
 
-        if len(thisAccountList) > 0:
-            thisAccount = thisAccountList[0]
-            thisAccount.writeEmail(strinput=vstrEmail)
+        if account_list:
+            account = account_list[0]
+            account.writeEmail(email)
 
         else:
-            findRequest = Accounts.query(Accounts.email == vstrEmail)
-            thisAccountList = findRequest.fetch()
-            if len(thisAccountList) > 0:
-                thisAccount = thisAccountList[0]
-                thisAccount.writeUserID(strinput=vstrUserID)
+            query = Accounts.query(Accounts.email == email)
+            account_list = query.fetch()
+            if account_list:
+                account = account_list[0]
+                account.writeUserID(strinput=uid)
             else:
-                thisAccount = Accounts()
-                thisAccount.writeUserID(strinput=vstrUserID)
-                thisAccount.writeNames(strinput=vstrDisplayName)
-                thisAccount.writeEmail(strinput=vstrEmail)
-                thisAccount.writeProviderData(strinput=vstrProviderData)
+                account = Accounts()
+                account.write_user_id(uid)
+                account.write_names(display_name)
+                account.write_email(email)
+                account.write_provider_data(provider_data)
 
-        if vstremailVerified == "YES":
-            thisAccount.writeVerified(strinput=True)
+        if email_verified == "YES":
+            account.write_verified(True)
         else:
-            thisAccount.writeVerified(strinput=False)
-            thisAccount.writeUserID(strinput=vstrUserID)
-            thisAccount.writeCell(strinput=vstrPhoneNumber)
-            thisAccount.writeProviderData(strinput=vstrProviderData)
+            account.write_verified(False)
+            account.write_user_id(uid)
+            account.write_cell(cell)
+            account.write_provider_data(provider_data)
 
-        thisAccount.writeAccessToken(strinput=vstrAccessToken)
-        thisAccount.put()
+        account.write_access_token(access_token)
+        account.put()
 
         # TODO - Refine this part
 
@@ -324,7 +324,6 @@ def main_router_handler(path: str):
         elif "interests" in route_list:
             find_topics = Interests.query()
             interests_list = find_topics.fetch()
-            context = {'interests_list': interests_list}
             return render_template('templates/dashboard/interests.html', interests_list=interests_list)
 
         elif "createpage" in route_list:
