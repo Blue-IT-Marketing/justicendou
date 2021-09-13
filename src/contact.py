@@ -393,45 +393,45 @@ def default_contact_handler(path: str):
             as soon as possible """, 200
 
         elif choice == "1":
-            # '&uid=' + struid + '&vstrEmail=' + email + '&access_token=' + accessToken;
-            uid = self.request.get('uid')
-            vstrEmail = self.request.get('vstrEmail')
-            access_token = self.request.get('access_token')
+            # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
+            uid = request.args.get('uid')
+            email = request.args.get('email')
+            access_token = request.args.get('access_token')
 
-            findRequest = TicketUsers.query(TicketUsers.uid == uid)
-            thisTicketUserList = findRequest.fetch()
-            if len(thisTicketUserList) > 0:
-                thisTicketUser = thisTicketUserList[0]
+            query = TicketUsers.query(TicketUsers.uid == uid)
+            ticket_user_list = query.fetch()
+            if ticket_user_list:
+                ticket_user = ticket_user_list[0]
             else:
-                thisTicketUser = TicketUsers()
+                ticket_user = TicketUsers()
 
             template = template_env.get_template('templates/contact/sub/subcontact.html')
-            context = {'thisTicketUser': thisTicketUser}
-            self.response.write(template.render(context))
+            context = {'ticket_user': ticket_user}
+            return template.render(context), 200
 
         elif choice == "2":
             # TODO- need to pre load tickets for the current user
-            # '&uid=' + struid + '&vstrEmail=' + email + '&access_token=' + accessToken;
-            uid = self.request.get('uid')
-            vstrEmail = self.request.get('vstrEmail')
-            access_token = self.request.get('access_token')
+            # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
+            uid = request.args.get('uid')
+            email = request.args.get('email')
+            access_token = request.args.get('access_token')
 
-            findRequest = TicketUsers.query(TicketUsers.uid == uid)
-            thisTicketUserList = findRequest.fetch()
-            if len(thisTicketUserList) > 0:
-                thisTicketUser = thisTicketUserList[0]
+            query = TicketUsers.query(TicketUsers.uid == uid)
+            ticket_user_list = query.fetch()
+            if ticket_user_list:
+                ticket_user = ticket_user_list[0]
             else:
-                thisTicketUser = TicketUsers()
+                ticket_user = TicketUsers()
 
-            findRequest = Tickets.query(Tickets.uid == uid)
-            thisTicketsList = findRequest.fetch()
+            query = Tickets.query(Tickets.uid == uid)
+            tickets_list = query.fetch()
 
             template = template_env.get_template('templates/contact/sub/tickets.html')
-            context = {'thisTicketUser': thisTicketUser, 'thisTicketsList': thisTicketsList}
-            self.response.write(template.render(context))
+            context = {'ticket_user': ticket_user, 'tickets_list': tickets_list}
+            return template.render(context), 200
 
         elif choice == "3":
-            # '&vstrEmail=' + email + '&uid=' + struid + '&access_token=' + accessToken;
+            # '&email=' + email + '&uid=' + struid + '&access_token=' + accessToken;
             uid = self.request.get('uid')
             access_token = self.request.get('access_token')
 
@@ -442,21 +442,21 @@ def default_contact_handler(path: str):
             vstrNames = self.request.get("vstrNames")
             vstrSurname = self.request.get("vstrSurname")
             vstrCell = self.request.get("vstrCell")
-            vstrEmail = self.request.get("vstrEmail")
+            email = self.request.get("email")
 
-            findRequest = TicketUsers.query(TicketUsers.uid == uid)
-            thisTicketUserList = findRequest.fetch()
+            query = TicketUsers.query(TicketUsers.uid == uid)
+            ticket_user_list = query.fetch()
 
-            if len(thisTicketUserList) > 0:
-                thisTicketUser = thisTicketUserList[0]
+            if len(ticket_user_list) > 0:
+                ticket_user = ticket_user_list[0]
             else:
-                thisTicketUser = TicketUsers()
-                thisTicketUser.writeUserID(strinput=uid)
-                thisTicketUser.writeNames(strinput=vstrNames)
-                thisTicketUser.writeSurname(strinput=vstrSurname)
-                thisTicketUser.writeCell(strinput=vstrCell)
-                thisTicketUser.writeEmail(strinput=vstrEmail)
-                thisTicketUser.put()
+                ticket_user = TicketUsers()
+                ticket_user.writeUserID(strinput=uid)
+                ticket_user.writeNames(strinput=vstrNames)
+                ticket_user.writeSurname(strinput=vstrSurname)
+                ticket_user.writeCell(strinput=vstrCell)
+                ticket_user.writeEmail(strinput=email)
+                ticket_user.put()
 
             vstrThisDateTime = datetime.datetime.now()
             strThisDate = datetime.date(year=vstrThisDateTime.year, month=vstrThisDateTime.month,
@@ -479,9 +479,9 @@ def default_contact_handler(path: str):
             # TODO- finish this up once done resolving the account issues
 
         elif choice == "4":
-            # '&uid=' + struid + '&vstrEmail=' + email + '&access_token=' + accessToken;
+            # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
             uid = self.request.get('uid')
-            vstrEmail = self.request.get('vstrEmail')
+            email = self.request.get('email')
             access_token = self.request.get('access_token')
 
             template = template_env.get_template('templates/contact/sub/address.html')
