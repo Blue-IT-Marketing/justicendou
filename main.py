@@ -278,21 +278,8 @@ def main_router_handler(path: str):
                 return render_template('dashboard/project.html', this_hire=this_hire)
 
         elif "update-project" in route_list:  # dashboard project updater
-            project_id = request.args.get('project_id')
-            names = request.args.get('names')
-            cell = request.args.get('cell')
-            email = request.args.get('email')
-            website = request.args.get('website')
-            facebook = request.args.get('facebook')
-            twitter = request.args.get('twitter')
-            company = request.args.get('company')
-            freelancing = request.args.get('freelancing')
-            project_type = request.args.get('project-type')
-            project_title = request.args.get('project-title')
-            project_description = request.args.get('project-description')
-            estimated_budget = request.args.get('estimated-budget')
-            start_date = request.args.get('start-date')
-            project_status = request.args.get('project-status')
+            cell, company, email, facebook, freelancing, names, project_description, project_id, project_status, \
+            project_title, project_type, start_date, twitter, website = get_project_details()
 
             start_date = date_string_datetime(start_date)
 
@@ -489,6 +476,25 @@ def main_router_handler(path: str):
             return route_500()
         else:
             return route_home()
+
+
+def get_project_details():
+    project_id = request.args.get('project_id')
+    names = request.args.get('names')
+    cell = request.args.get('cell')
+    email = request.args.get('email')
+    website = request.args.get('website')
+    facebook = request.args.get('facebook')
+    twitter = request.args.get('twitter')
+    company = request.args.get('company')
+    freelancing = request.args.get('freelancing')
+    project_type = request.args.get('project-type')
+    project_title = request.args.get('project-title')
+    project_description = request.args.get('project-description')
+    estimated_budget = request.args.get('estimated-budget')
+    start_date = request.args.get('start-date')
+    project_status = request.args.get('project-status')
+    return cell, company, email, facebook, freelancing, names, project_description, project_id, project_status, project_title, project_type, start_date, twitter, website
 
 
 @main_router_bp.route('/', methods=['GET'])

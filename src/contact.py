@@ -223,12 +223,10 @@ def default_contact_handler(path: str):
                 ticket_user = TicketUsers(uid=uid, names=names, surname=surname, cell=cell, email=email)
                 ticket_user.put()
 
-            _now = datetime.datetime.now()
-            this_date = _now.date()
-            this_time = _now.time()
             ticket_id: str = create_id()
             this_ticket = Tickets(uid=uid, ticket_id=ticket_id, subject=subject, body=body,
                                   ticket_preference=ticket_preference, department=department)
+
             this_ticket.put()
             return "Ticket Successfully created", 200
 

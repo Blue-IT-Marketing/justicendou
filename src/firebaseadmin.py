@@ -27,9 +27,9 @@ def verify_account(uid, access_token) -> bool:
     accounts_list = query.fetch()
     if accounts_list:
         account = accounts_list[0]
-        return account if account.access_token == access_token else None
+        return account if account.access_token == access_token else False
     else:
-        return None
+        return False
 
 
 def check_firebase(uid, access_token) -> bool:

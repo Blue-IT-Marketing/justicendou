@@ -1,6 +1,6 @@
 import os
 import jinja2
-from flask import Blueprint, request
+from flask import Blueprint, request, render_template
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 navigation_loader = Blueprint('navigation_loader', __name__)
