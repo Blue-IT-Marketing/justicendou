@@ -12,7 +12,6 @@ from flask import Blueprint, request, render_template
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 contact_handler_bp = Blueprint('contact_handler', __name__)
-
 ticket_handler_bp = Blueprint('ticket_handler_bp', __name__)
 
 
@@ -150,8 +149,8 @@ class CommentThread(ndb.Model):
     def write_ticket_id(self, ticket_id: str):
         self.ticket_id = ticket_id
 
-    def write_thread_id(self, strinput):
-        self.thread_id = strinput
+    def write_thread_id(self, thread_id: str):
+        self.thread_id = thread_id
 
     @staticmethod
     def create_thread_id():
@@ -174,28 +173,16 @@ def default_contact_handler(path: str):
         return render_template('contact/contact.html'), 200
 
     elif request.method == "POST":
-
         choice = request.args.get('choice')
-
         if choice == "0":
             # '&uid=' + struid + '&access_token=' + accessToken;
             uid = request.args.get('uid')
             access_token = request.args.get('access_token')
 
-            names = request.args.get('names')
-            email = request.args.get('email')
-            cell = request.args.get('cell')
-            subject = request.args.get('subject')
-            message = request.args.get('message')
+            cell, email, message, names, subject = gather_contact_details()
 
-            contact_message = ContactMessages()
-            contact_message.message_reference = uid
-            contact_message.write_names(names=names)
-            contact_message.write_email(email=email)
-            contact_message.write_cell(cell=cell)
-            contact_message.write_subject(subject=subject)
-            contact_message.writeMessage(strinput=message)
-
+            contact_message = ContactMessages(message_reference=uid, names=names, email=email, cell=cell,
+                                              subject=subject, message=message)
             contact_message.put()
             return """ Contact Message Submitted Successfully One of our Representatives will get back to you 
             as soon as possible """, 200
@@ -203,34 +190,16 @@ def default_contact_handler(path: str):
         elif choice == "1":
             # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
             uid = request.args.get('uid')
-            email = request.args.get('email')
-            access_token = request.args.get('access_token')
+            ticket_user = get_ticket_user(uid)
 
-            query = TicketUsers.query(TicketUsers.uid == uid)
-            ticket_user_list = query.fetch()
-            if ticket_user_list:
-                ticket_user = ticket_user_list[0]
-            else:
-                ticket_user = TicketUsers()
-
-            template = template_env.get_template('contact/sub/subcontact.html')
-            context = {'ticket_user': ticket_user}
-            return template.render(context), 200
+            return render_template('contact/sub/subcontact.html', ticket_user=ticket_user), 200
 
         elif choice == "2":
             # TODO- need to pre load tickets for the current user
             # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
             uid = request.args.get('uid')
-            email = request.args.get('email')
-            access_token = request.args.get('access_token')
 
-            query = TicketUsers.query(TicketUsers.uid == uid)
-            ticket_user_list = query.fetch()
-            if ticket_user_list:
-                ticket_user = ticket_user_list[0]
-            else:
-                ticket_user = TicketUsers()
-
+            ticket_user = get_ticket_user(uid)
             query = Tickets.query(Tickets.uid == uid)
             tickets_list = query.fetch()
 
@@ -243,14 +212,7 @@ def default_contact_handler(path: str):
             uid = request.args.get('uid')
             access_token = request.args.get('access_token')
 
-            subject = request.args.get("subject")
-            body = request.args.get("body")
-            ticket_preference = request.args.get("ticket_preference")
-            department = request.args.get("department")
-            names = request.args.get("names")
-            surname = request.args.get("surname")
-            cell = request.args.get("cell")
-            email = request.args.get("email")
+            body, cell, department, email, names, subject, surname, ticket_preference = gather_message_details()
 
             query = TicketUsers.query(TicketUsers.uid == uid)
             ticket_user_list = query.fetch()
@@ -258,21 +220,13 @@ def default_contact_handler(path: str):
             if len(ticket_user_list) > 0:
                 ticket_user = ticket_user_list[0]
             else:
-                ticket_user = TicketUsers()
-                ticket_user.writeUserID(strinput=uid)
-                ticket_user.writeNames(strinput=names)
-                ticket_user.writeSurname(strinput=surname)
-                ticket_user.writeCell(strinput=cell)
-                ticket_user.writeEmail(strinput=email)
+                ticket_user = TicketUsers(uid=uid, names=names, surname=surname, cell=cell, email=email)
                 ticket_user.put()
 
             _now = datetime.datetime.now()
-            this_date = datetime.date(year=_now.year, month=_now.month,
-                                      day=_now.day)
-            this_time = datetime.time(hour=_now.hour, minute=_now.minute,
-                                      second=_now.second)
-            ticket_id: str = "".join(
-                random.choices(string.ascii_lowercase + string.ascii_uppercase + string.digits, k=32))
+            this_date = _now.date()
+            this_time = _now.time()
+            ticket_id: str = create_id()
             this_ticket = Tickets(uid=uid, ticket_id=ticket_id, subject=subject, body=body,
                                   ticket_preference=ticket_preference, department=department)
             this_ticket.put()
@@ -286,9 +240,38 @@ def default_contact_handler(path: str):
             email = request.args.get('email')
             access_token = request.args.get('access_token')
 
-            template = template_env.get_template('contact/sub/address.html')
-            context = {}
-            return template.render(context), 200
+            return render_template('contact/sub/address.html'), 200
+
+
+def gather_contact_details():
+    names = request.args.get('names')
+    email = request.args.get('email')
+    cell = request.args.get('cell')
+    subject = request.args.get('subject')
+    message = request.args.get('message')
+    return cell, email, message, names, subject
+
+
+def gather_message_details():
+    subject = request.args.get("subject")
+    body = request.args.get("body")
+    ticket_preference = request.args.get("ticket_preference")
+    department = request.args.get("department")
+    names = request.args.get("names")
+    surname = request.args.get("surname")
+    cell = request.args.get("cell")
+    email = request.args.get("email")
+    return body, cell, department, email, names, subject, surname, ticket_preference
+
+
+def get_ticket_user(uid):
+    query = TicketUsers.query(TicketUsers.uid == uid)
+    ticket_user_list = query.fetch()
+    if ticket_user_list:
+        ticket_user = ticket_user_list[0]
+    else:
+        ticket_user = TicketUsers()
+    return ticket_user
 
 
 @contact_handler_bp.route('/contact', methods=['POST', 'GET'])
@@ -299,12 +282,8 @@ def return_contact():
 @contact_handler_bp.route('/contact/read/<string:reference>', methods=['GET'])
 def contact_reader(reference: str):
     query = ContactMessages.query(ContactMessages.message_reference == reference)
-    contact_mesages = query.fetch()
-
-    if contact_mesages:
-        contact_message = contact_mesages[0]
-    else:
-        contact_message = ContactMessages()
+    contact_messages = query.fetch()
+    contact_message = contact_messages[0] if contact_messages else ContactMessages()
 
     template = template_env.get_template('contact/readContact.html')
     context = {'contact_message': contact_message}
@@ -341,14 +320,14 @@ def tickets_handler(ticket_id: str):
 
             else:
                 comment_thread = CommentThread()
-                comment_thread.write_thread_id(strinput=comment_thread.create_thread_id())
+                comment_thread.write_thread_id(thread_id=comment_thread.create_thread_id())
                 comment_thread.write_ticket_id(ticket_id=ticket_instance.ticket_id)
-                _this_date = datetime.datetime.now()
-                this_date: datetime.date = datetime.date(year=_this_date.year, month=_this_date.month,
-                                                         day=_this_date.day)
+                _now = datetime.datetime.now()
+                this_date: datetime.date = datetime.date(year=_now.year, month=_now.month,
+                                                         day=_now.day)
 
-                this_time: datetime.time = datetime.time(hour=_this_date.hour, minute=_this_date.minute,
-                                                         second=_this_date.second)
+                this_time: datetime.time = datetime.time(hour=_now.hour, minute=_now.minute,
+                                                         second=_now.second)
 
                 _comment_id: str = create_id()
                 _comment: str = "Welcome to our ticketing system a help desk staff member will attend to you soon"
@@ -360,10 +339,10 @@ def tickets_handler(ticket_id: str):
                 comment_thread.add_comment_id(comment_id=comment_instance.comment_id)
                 comment_thread.put()
 
-            template = template_env.get_template('contact/sub/ticket_instance.html')
-            context = {'ticket_user': ticket_user, 'ticket_instance': ticket_instance, 'comments_list': comments_list,
-                       'comment_thread': comment_thread}
-            return template.render(context), 200
+            template = render_template('contact/sub/ticket_instance.html', ticket_user=ticket_user,
+                                       ticket_instance=ticket_instance, comments_list=comments_list,
+                                       comment_thread=comment_thread)
+            return template, 200
 
     elif request.method == "POST":
         choice = request.args.get("choice")
@@ -382,12 +361,9 @@ def tickets_handler(ticket_id: str):
                                         CommentThread.ticket_id == ticket_id)
             comment_thread_list = query.fetch()
 
-            _this_date = datetime.datetime.now()
-            this_date = datetime.date(year=_this_date.year, month=_this_date.month,
-                                      day=_this_date.day)
-
-            this_time = datetime.time(hour=_this_date.hour, minute=_this_date.minute,
-                                      second=_this_date.second)
+            _now = datetime.datetime.now()
+            this_date = _now.date()
+            this_time = _now.time()
 
             if comment_thread_list:
                 comment_thread = comment_thread_list[0]
@@ -403,9 +379,8 @@ def tickets_handler(ticket_id: str):
                 query = Comments.query(Comments.thread_id == comment_thread.thread_id)
                 comments_list = query.fetch()
                 comments_list.reverse()
-                template = template_env.get_template('contact/sub/AutoUpdate.html')
-                context = {'comments_list': comments_list}
-                return template.render(context), 200
+
+                return render_template('contact/sub/AutoUpdate.html', comments_list=comments_list), 200
 
         elif choice == "1":
             # '&uid=' + uid + '&email=' + email + '&access_token=' + accessToken
@@ -434,10 +409,10 @@ def tickets_handler(ticket_id: str):
                             comments_list.append(comments_list[0])
                     comments_list.reverse()
 
-                    template = template_env.get_template('contact/sub/AutoUpdate.html')
-                    context = {'ticket_user': ticket_user, 'ticket_instance': ticket_instance,
-                               'comments_list': comments_list, 'comment_thread': comment_thread}
-                    return template.render(context), 200
+                    template = render_template('contact/sub/AutoUpdate.html', ticket_user=ticket_user,
+                                               ticket_instance=ticket_instance, comments_list=comments_list,
+                                               comment_thread=comment_thread)
+                    return template, 200
 
 
 def return_ticket_list(ticket_id, uid):
