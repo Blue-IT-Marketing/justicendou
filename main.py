@@ -321,8 +321,8 @@ def main_router_handler(path: str):
         elif "createposts" in route_list:
             return render_template('dashboard/createposts.html')
         elif "subjectfromtopicid" in route_list:
-            topicid = request.args.get('topicid')
-            find_subjects = Interests.query(Interests.topic_id == topicid)
+            topic_id = request.args.get('topic_id')
+            find_subjects = Interests.query(Interests.topic_id == topic_id)
             this_interests_list = find_subjects.fetch()
             if this_interests_list:
                 this_interest = this_interests_list[0]
@@ -331,16 +331,16 @@ def main_router_handler(path: str):
                 return this_interest.subjects, 200
 
         elif "addsubjectstotopicid" in route_list:
-            topicid = request.args.get('topicid')
+            topic_id = request.args.get('topic_id')
             subjects_list = request.args.get('subjects-list')
-            find_subjects = Interests.query(Interests.topic_id == topicid)
+            find_subjects = Interests.query(Interests.topic_id == topic_id)
             this_interests_list = find_subjects.fetch()
             if this_interests_list:
                 this_interest = this_interests_list[0]
             else:
                 this_interest = Interests()
 
-            this_interest.write_topic_id()
+            this_interest.write_topic_id(topic_id=topic_id)
             subjects_list = subjects_list.split(this_interest._sep)
             for subject in subjects_list:
                 this_interest.write_subjects(subject=subject)
@@ -349,13 +349,13 @@ def main_router_handler(path: str):
             return "completed adding subjects", 200
 
         elif "removesubjectstopicid" in route_list:
-            topicid = request.args.get('topicid')
+            topic_id = request.args.get('topic_id')
             subjects_list = request.args.get('subjects-list')
-            find_subjects = Interests.query(Interests.topic_id == topicid)
+            find_subjects = Interests.query(Interests.topic_id == topic_id)
             this_interests_list = find_subjects.fetch()
             if this_interests_list:
                 this_interest = this_interests_list[0]
-                temp_subjects_list = this_interest.subjects.split(this_interest._sep)
+                temp_subjects_list = this_interest.subjects.split(this_interest.sep)
                 subjects_list = subjects_list.split(":")
                 for subject in subjects_list:
                     if subject in temp_subjects_list:
@@ -371,17 +371,17 @@ def main_router_handler(path: str):
                 return "subjects removed", 200
 
         elif "createtopic" in route_list:
-            topicid = request.args.get('topicid')
-            topiclabel = request.args.get('topiclabel')
-            find_topic = Interests.query(Interests.topic == topiclabel)
+            topic_id = request.args.get('topic_id')
+            topic_label = request.args.get('topic_label')
+            find_topic = Interests.query(Interests.topic == topic_label)
             this_topics_list = find_topic.fetch()
 
             if len(this_topics_list) > 0:
                 return "This topic is already present", 200
             else:
                 this_interest = Interests()
-                this_interest.write_topic_id()
-                this_interest.write_topic(topic=topiclabel)
+                this_interest.write_topic_id(topic_id=topic_id)
+                this_interest.write_topic(topic=topic_label)
                 this_interest.put()
                 return "Topic successfully created", 200
 

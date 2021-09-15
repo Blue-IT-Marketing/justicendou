@@ -35,6 +35,10 @@ class Interests(ndb.Expando):
 
     topic_active = ndb.BooleanProperty(default=True)
 
+    @property
+    def sep(self):
+        return self._sep
+
     def write_topic_id(self, topic_id: str):
         try:
             if topic_id is not None:
