@@ -494,7 +494,8 @@ def get_project_details():
     estimated_budget = request.args.get('estimated-budget')
     start_date = request.args.get('start-date')
     project_status = request.args.get('project-status')
-    return cell, company, email, facebook, freelancing, names, project_description, project_id, project_status, project_title, project_type, start_date, twitter, website
+    return cell, company, email, facebook, freelancing, names, project_description, project_id, project_status, \
+           project_title, project_type, start_date, twitter, website
 
 
 @main_router_bp.route('/', methods=['GET'])
