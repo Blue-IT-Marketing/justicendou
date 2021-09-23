@@ -7,7 +7,6 @@ let attractor_limit = 4;
 function setup()
     {
         createCanvas(1600,600);
-
         for (let i = 0; i < particle_limit; i++)
             {
                 particles.push(new Particle(400,300));

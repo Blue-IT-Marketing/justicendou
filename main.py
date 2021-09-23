@@ -64,33 +64,6 @@ def route_blog():
     return render_template("blog/home.html")
 
 
-def route_algorithms():
-    return render_template("algorithms/algos.html")
-
-
-def route_strange():
-    return render_template("algorithms/strange/strange.html")
-
-
-def route_perlin():
-    return render_template("algorithms/perlin/perlin.html")
-
-
-def route_life():
-    return render_template("algorithms/gameoflife/life.html")
-
-
-def route_maze():
-    return render_template("algorithms/maze/maze.html")
-
-
-def route_path():
-    return render_template("algorithms/pathfinder/path.html")
-
-
-def route_matter():
-    return render_template("algorithms/matter/matter.html")
-
 
 def route_dashboard():
     """ get correct user details"""
@@ -430,36 +403,6 @@ def main_router_handler(path: str):
 
         elif "blog" in route_list or "blog.html" in route_list:
             return route_blog()
-
-        elif "strange" in route_list and "algorithms" in route_list:
-            return route_strange()
-
-        elif "perlin" in route_list and "algorithms" in route_list:
-            return route_perlin()
-
-        elif "matrix" in route_list and "algorithms" in route_list:
-            return route_matrix()
-
-        elif "gameoflife" in route_list and "algorithms" in route_list:
-            return route_life()
-
-        elif "maze" in route_list and "algorithms" in route_list:
-            return route_maze()
-
-        elif "path" in route_list and "algorithms" in route_list:
-            return route_path()
-
-        elif "matter" in route_list and "algorithms" in route_list:
-            return route_matter()
-
-        elif "plinko" in route_list and "algorithms" in route_list:
-            return route_plinko()
-
-        elif "mazesolver" in route_list and "algorithms" in route_list:
-            return route_maze_solver()
-
-        elif "algorithms" in route_list or "algorithms.html" in route_list:
-            return route_algorithms()
 
         elif "dashboard" in route_list or "dashboard.html" in route_list:
             return route_dashboard()

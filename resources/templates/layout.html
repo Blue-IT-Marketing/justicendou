@@ -31,12 +31,10 @@
 <!-- jQuery 2.2.3 -->
 <script src="/static/plugins/jQuery/jquery-2.2.3.min.js"></script>
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({
-          google_ad_client: "ca-pub-7790567144101692",
-          enable_page_level_ads: true
-     });
-</script>
+
+{% block header_scripts %}
+    {#    include header_scripts here #}
+{% endblock header_scripts %}
 
 </head>
 <body class="hold-transition skin-blue sidebar-mini" id="MyBody" >
@@ -68,5 +66,8 @@
 <script src="/static/dist/js/pages/loaders.js"></script>
 <script defer async src="/static/dist/js/pages/index.js"></script>
  <!--<script src="/static/dist/js/serviceworker/register-sw.js"></script>-->
+{% block custom_scripts %}
+    {#  block for custom scripts  #}
+{% endblock custom_scripts %}
 </body>
 </html>
