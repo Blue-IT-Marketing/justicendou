@@ -13,6 +13,7 @@ def create_app(config=Config):
         from src.services import services_handler_bp
         from src.social import social_handler_bp
         from src.algorithms import algorithms_handler_bp
+        from src.games import games_handler_bp
         from main import main_router_bp
 
         app.register_blueprint(blog_handler_bp)
@@ -25,5 +26,6 @@ def create_app(config=Config):
         app.register_blueprint(social_handler_bp)
         app.register_blueprint(main_router_bp)
         app.register_blueprint(algorithms_handler_bp)
+        app.register_blueprint(games_handler_bp)
 
         return app

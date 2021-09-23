@@ -77,40 +77,6 @@ def route_dashboard():
         return render_template("lockscreen.html", login_url=login_url)
 
 
-def route_games():
-    return render_template("games/games.html")
-
-
-def route_tetris():
-    return render_template("games/tetris/tetris.html")
-
-
-def route_pacman():
-    return render_template("games/pacman/pacman.html")
-
-
-def route_chess():
-    return render_template("games/garbo/chess.html")
-
-
-def route_checkers():
-    return render_template("games/checkers/checkers.html")
-
-
-def route_ping_pong():
-    return render_template("games/pingpong/pingpong.html")
-
-
-def route_matrix():
-    return render_template("games/matrix/matrix.html")
-
-
-def route_snake():
-    return render_template("games/snake/snake.html")
-
-
-def route_plinko():
-    return render_template("algorithms/plinko/plinko.html")
 
 
 def route_maze_solver():
@@ -360,20 +326,6 @@ def main_router_handler(path: str):
         elif is_login_route(route=route_list):
             _route = request.args.get("route_list")
             return route_login_post(route=_route)
-        elif "games" in route_list:
-            _route = request.args.get('route_list')
-            if route_list == "tetris":
-                return route_tetris()
-            elif route_list == "pacman":
-                return route_pacman()
-            elif route_list == "chess":
-                return route_chess()
-            elif route_list == "checkers":
-                return route_checkers()
-            elif route_list == "pingpong":
-                return route_ping_pong()
-            elif route_list == "matrix":
-                return route_matrix()
 
         elif "dashboard" in route_list:
             _route = request.args.get('route_list')
@@ -406,13 +358,6 @@ def main_router_handler(path: str):
 
         elif "dashboard" in route_list or "dashboard.html" in route_list:
             return route_dashboard()
-
-        elif "games" in route_list or "games.html" in route_list:
-            return route_games()
-        elif "matrix" in route_list:
-            return route_matrix()
-        elif "snake" in route_list:
-            return route_snake()
 
         elif "500" in route_list:
             return route_500()
