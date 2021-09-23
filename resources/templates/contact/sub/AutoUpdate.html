@@ -9,7 +9,7 @@
           </div>
 
           <div class="direct-chat-text">
-            {{ thisComment.strComment }}
+            {{ thisComment.comment }}
           </div>
           <!-- /.direct-chat-text -->
         </div>
@@ -17,10 +17,10 @@
         <!-- Message to the right -->
         <div class="direct-chat-msg right">
           <div class="direct-chat-info clearfix">
-            <span class="direct-chat-timestamp pull-left">{{ thisComment.strCommentDate }} {{ thisComment.strCommentTime }}</span>
+            <span class="direct-chat-timestamp pull-left">{{ thisComment.datetime_created }} </span>
           </div>
           <div class="direct-chat-text">
-            {{ thisComment.strComment }}
+            {{ thisComment.comment }}
           </div>
           <!-- /.direct-chat-text -->
         </div>
@@ -28,7 +28,7 @@
   {%  endfor %}
   </div>
 {%  if thisTicket is defined %}
-<input type="hidden" class="hidden" id="strTicketID" value="{{ thisTicket.strTicketID }}">
-<input type="hidden" class="hidden" id="strThreadID" value="{{ thisThread.strThreadID }}">
-<input type="hidden" class="hidden" id="strUserID" value="{{ thisTicket.strUserID }}">
+<input type="hidden" class="hidden" id="strTicketID" value="{{ thisTicket.ticket_id }}">
+<input type="hidden" class="hidden" id="strThreadID" value="{{ thisThread.thread_id }}">
+<input type="hidden" class="hidden" id="strUserID" value="{{ thisTicket.uid }}">
 {% endif %}

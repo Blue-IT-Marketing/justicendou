@@ -64,7 +64,6 @@ def route_blog():
     return render_template("blog/home.html")
 
 
-
 def route_dashboard():
     """ get correct user details"""
     user = Accounts()
@@ -75,8 +74,6 @@ def route_dashboard():
     else:
         login_url = url_for('login_url')
         return render_template("lockscreen.html", login_url=login_url)
-
-
 
 
 def route_maze_solver():
