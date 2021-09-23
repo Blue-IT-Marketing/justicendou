@@ -1,13 +1,17 @@
 import os
 import jinja2
 from flask import Blueprint, request, render_template
-
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 algorithms_handler_bp = Blueprint('algorithms_handler', __name__)
 
 
 def route_algorithms():
+    """
+        **route_algorithms**
+    :return:
+    """
+    # Load specific algos specific variables here
     return render_template("algorithms/algos.html")
 
 
@@ -70,10 +74,6 @@ def algorithms_handler(path: str):
         return route_plinko()
     elif path == "mazesolver":
         return route_maze_solver()
-
-
-def route_algorithms():
-    return render_template("algorithms/algos.html")
 
 
 @algorithms_handler_bp.route('/algorithms', methods=["GET"])
