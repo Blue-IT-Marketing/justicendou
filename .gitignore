@@ -1,9 +1,3 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
-
 # Other files and folders
 .settings/
 
@@ -18,6 +12,7 @@ bin-release/
 /static/build
 
 app.yaml
+.env
 # Executables
 *.swf
 *.air
