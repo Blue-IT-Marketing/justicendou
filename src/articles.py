@@ -1,11 +1,13 @@
 import datetime
 import json
 import logging
+import os
 import random
 import string
 from typing import Optional
 
 import requests
+from decouple import config
 from google.cloud import ndb
 from google.cloud.ndb.exceptions import BadValueError
 
@@ -24,7 +26,7 @@ this_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking"
 
 this_page_size = 50
 
-apiKey = '41e896a0a1c94b61903408fae1a49471'
+apiKey = config('articles_api_key') or os.getenv('articles_api_key')
 
 
 class Interests(ndb.Expando):
