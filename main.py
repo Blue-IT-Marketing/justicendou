@@ -1,5 +1,6 @@
 import datetime
-from typing import List
+from datetime import date
+from typing import List, Union
 import jinja2
 # import firebase_admin
 # from firebase_admin import credentials
@@ -151,35 +152,33 @@ def route_500():
     return render_template('500.html')
 
 
-def date_string_datetime(date_string):
-    try:
-        date_string = str(date_string)
-        try:
-            date_list = date_string.split("\\")
-            my_year = int(date_list[0])
-            my_month = int(date_list[1])
-            my_day = int(date_list[2])
-        except:
-            date_list = date_string.split("-")
+def date_string_datetime(date_str: Union[str, date]) -> date:
+    if isinstance(date_str, date):
+        return date_str
 
-            if len(date_list) == 3:
-                my_year = int(date_list[0])
-                my_month = int(date_list[1])
-                my_day = int(date_list[2])
-            else:
-                this_date = datetime.datetime.now()
-                this_date = this_date.date()
-                my_year = this_date.year
-                my_month = this_date.month
-                my_day = this_date.day
+    if not isinstance(date_str, str):
+        raise ValueError('Date format invalid')
 
-        this_date = datetime.date(year=my_year, month=my_month, day=my_day)
+    if not ("/" in date_str or "-" in date_str):
+        raise ValueError('Date format invalid')
 
-        return this_date
+    date_list: List[str] = date_str.split("/") if "/" in date_str else date_str.split("-")
+    if len(date_list) != 3:
+        raise ValueError("Date Format invalid")
 
+    year: int = int(date_list[0])
+    month: int = int(date_list[1])
+    day: int = int(date_list[2])
 
-    except Exception as e:
-        raise e
+    if 0 < month > 12:
+        raise ValueError("Date Format Invalid")
+    if 0 < day > 31:
+        raise ValueError("Date Format invalid")
+    if year < 1990:
+        # Not interested in anything that old
+        raise ValueError("Date Format invalid")
+
+    return date(year=year, month=month, day=day)
 
 
 def dashboard_handler():
