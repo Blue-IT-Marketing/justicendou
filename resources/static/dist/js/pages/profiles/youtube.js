@@ -9,7 +9,7 @@ function my_youtube_channels(){
 
 
 function youtube_search(){
-
+    //TODO Move youtube search to back-end
     let self = this;
     this.topics = ["HDMI Over IP", "Networking", "Home Networking","Home Server Builds","Javascript","Jinja Templating","Google App Engine","Firebase","Firebase Functions",
     "Cloud Functions","SpaceX","Elon Musk","REACT","REACT FLUX","RaspberryPI","Angular","CCTV","Serverless Applications","Istio","kubernettes","Tensorflow","Deep Learning","AI","Neural Networks"];

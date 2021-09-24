@@ -85,7 +85,7 @@ class Accounts(ndb.Expando):
 
     def write_verified(self, is_verified: bool):
         try:
-            if is_verified in [True, False]:
+            if isinstance(is_verified, bool):
                 self.verified = is_verified
                 return True
             else:
