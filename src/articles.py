@@ -10,6 +10,7 @@ from google.cloud import ndb
 
 from src.contact import create_id
 from src.fetch_utils import async_get_request
+from src.use_context import use_context
 
 default_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking", "Hackers", "Penetration Testing",
                   "Algorithms", "Botnets",
@@ -144,21 +145,25 @@ class Articles(ndb.Model):
 
     # Search methods
     @staticmethod
+    @use_context
     def get_articles_by_topic(topic):
         article_query = Articles.query(Articles.topic == topic).order(Articles.date_created).fetch(limit=1000)
         return [article.to_dict() for article in article_query]
 
     @staticmethod
+    @use_context
     def get_articles_by_date_topic_(topic, article_date: date) -> List[dict]:
         article_query = Articles.query(Articles.topic == topic).order(Articles.date_created).fetch(limit=1000)
         return [article.to_dict() for article in article_query]
 
     @staticmethod
+    @use_context
     def get_all_articles_by_date(by_date: date) -> List[dict]:
         article_query = Articles.query(Articles.date_created == by_date).order(Articles.date_created).fetch(limit=1000)
         return [article.to_dict() for article in article_query]
 
     @staticmethod
+    @use_context
     def get_article_by_link(link_slug: str):
         article_instance: Articles = Articles.query(Articles.article_link == link_slug).get()
         if isinstance(article_instance, Articles) and article_instance.article_link:
@@ -184,9 +189,18 @@ def article(topic: str, article_date: str, title_slug: str) -> tuple:
     return render_template('blog/articles.html', article=article_data), 200
 
 
+hacking_topics: List[str] = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking",
+                             "Penetration Testing Algorithms", "Botnets", "Botnet Mining", "Hackers",
+                             "Penetration Testing", "DDOS", "Networking", "State Sponsored Hacking"]
+
+
 def route_articles():
     default_subjects: List[str] = ['Hacking', 'Mathematics', 'Networking', 'Programming', 'Science', 'Philosophy']
-    return render_template("blog/blog.html", subjects=sorted(default_subjects))
+    article_list: List[dict] = Articles.get_articles_by_topic(topic=hacking_topics[0])
+    for topic in hacking_topics[1:]:
+        article_list += Articles.get_articles_by_topic(topic=topic)
+    return render_template("blog/blog.html", subjects=sorted(default_subjects), article_list=article_list,
+                           selected_subject='hacking'), 200
 
 
 @articles_route_bp.route('/articles', methods=['GET'])

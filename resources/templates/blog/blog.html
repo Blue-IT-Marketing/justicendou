@@ -17,11 +17,19 @@
                         </div>
                         <ul class="list-group">
                             {%  for subject in subjects %}
-                                <li class="list-group-item">
-                                    <a href="/articles/subject/{{ subject.lower() }}">
-                                        <strong>{{ subject }}</strong>
-                                    </a>
-                                </li>
+                                {% if subject.lower() == selected_subject.lower() %}
+                                    <li class="list-group-item-info">
+                                        <a href="/articles/subject/{{ subject.lower() }}">
+                                            <strong>{{ subject }}</strong>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="list-group-item">
+                                        <a href="/articles/subject/{{ subject.lower() }}">
+                                            <strong>{{ subject }}</strong>
+                                        </a>
+                                    </li>
+                                {% endif %}
                             {% endfor %}
                         </ul>
                     </div>

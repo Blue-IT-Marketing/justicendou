@@ -27,3 +27,6 @@ class Config:
         self.BASE_URL: str = ""
         self.APP_ID: str = ""
         self.SEP: str = "#"
+
+
+config_instance: Config = Config()
