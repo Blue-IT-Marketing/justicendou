@@ -76,9 +76,6 @@ def route_dashboard():
         return render_template("lockscreen.html", login_url=login_url)
 
 
-def route_maze_solver():
-    return render_template("algorithms/mazepath/mazepath.html")
-
 
 def route_404():
     return render_template('404.html')
