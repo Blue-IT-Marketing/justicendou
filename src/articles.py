@@ -153,7 +153,8 @@ class Articles(ndb.Model):
     @staticmethod
     @use_context
     def get_articles_by_date_topic_(topic, article_date: date) -> List[dict]:
-        article_query = Articles.query(Articles.topic == topic).order(Articles.date_created).fetch(limit=1000)
+        article_query = Articles.query(
+            Articles.topic == topic, Articles.date_created == article_date).order(Articles.date_created).fetch(limit=1000)
         return [_article.to_dict() for _article in article_query]
 
     @staticmethod
