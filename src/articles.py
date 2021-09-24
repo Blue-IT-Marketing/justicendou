@@ -4,6 +4,7 @@ import os
 from typing import Optional, List, Coroutine
 import requests
 from decouple import config
+from flask import Blueprint
 from google.cloud import ndb
 from google.cloud.ndb.exceptions import BadValueError
 
@@ -59,6 +60,7 @@ class Articles(ndb.Model):
     topic = ndb.StringProperty()
     url = ndb.StringProperty()
     title = ndb.StringProperty()
+    article_link = ndb.StringProperty()
     urlToImage = ndb.StringProperty()
     description = ndb.StringProperty()
     date_created = ndb.DateProperty(auto_now_add=True)
@@ -110,8 +112,9 @@ class Articles(ndb.Model):
     def cron_daily_topics(self) -> None:
         response = [self.compile_save_article(articles, topic) for topic, articles in self.get_articles()]
 
+    @staticmethod
     @ndb.tasklet
-    def compile_save_article(self, articles, topic) -> ndb.Key:
+    def compile_save_article(articles, topic) -> ndb.Key:
         """
         **compile_save_article**
             given the articles save them under the specified topic and await key
@@ -119,15 +122,24 @@ class Articles(ndb.Model):
         :param topic:
         :return:
         """
-        article = articles['articles']
+        _article = articles['articles']
         article_instance: Articles = Articles()
         article_instance.topic = topic
-        article_instance.url = article.get('url')
-        article_instance.title = article.get('title')
-        article_instance.urlToImage = article.get('urlToImage')
-        article_instance.description = article.get('description')
+        article_instance.url = _article.get('url')
+        article_instance.title = _article.get('title')
+        link_slug: str = Articles.create_unique_slug_from_topic_title(topic=topic, title=_article.get('title'))
+        article_instance.article_link = link_slug
+        article_instance.urlToImage = _article.get('urlToImage')
+
+        article_instance.description = _article.get('description')
         article_instance.article_reference = create_id()
         return article_instance.put_async().get_result()
+
+    @staticmethod
+    def create_unique_slug_from_topic_title(topic, title) -> str:
+        topic_slug = "".join(topic.split(" "))
+        title_slug = "".join(title.split(" "))
+        return f"{topic_slug}/{datetime.now().date()}/{title_slug}"
 
     # Search methods
     @staticmethod
@@ -145,3 +157,15 @@ class Articles(ndb.Model):
         article_query = Articles.query(Articles.date_created == by_date).order(Articles.date_created).fetch(limit=1000)
         return [article.to_dict() for article in article_query]
 
+
+articles_route_bp = Blueprint('articles_route', __name__)
+
+
+@articles_route_bp.route('/article/<string:path>', methods=['GET'])
+def article(article: str) -> tuple:
+    """
+
+    :param article:
+    :return:
+    """
+    pass
