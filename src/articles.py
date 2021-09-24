@@ -11,7 +11,7 @@ from google.cloud.ndb.exceptions import BadValueError
 from src.contact import create_id
 from src.fetch_utils import async_get_request
 
-this_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking", "Hackers", "Penetration Testing",
+default_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking", "Hackers", "Penetration Testing",
                "Algorithms", "Botnets",
                "Crypto Mining", "New Crypto Coins", "Crypto Coins", "DDOS", "Networking", "State Sponsored Hacking",
                "State Sponsored Malware",
@@ -36,7 +36,7 @@ class Interests(ndb.Model):
 
     @staticmethod
     def add_default_topics(self):
-        for topic in this_topics:
+        for topic in default_topics:
             interest_instance = Interests.query(Interests.topic == topic).get()
             if not isinstance(interest_instance, Interests) or not interest_instance.topic:
                 interest_instance = Interests(topic_id=create_id(), topic=topic, topic_active=True)
@@ -72,7 +72,7 @@ class Articles(ndb.Model):
 
         """
         import random
-        return asyncio.run(Articles.fetch_articles_by_topic(topic=random.choice(this_topics)))
+        return asyncio.run(Articles.fetch_articles_by_topic(topic=random.choice(default_topics)))
 
     @staticmethod
     async def fetch_articles_by_topic(topic: str) -> Optional[dict]:
@@ -97,16 +97,15 @@ class Articles(ndb.Model):
         :param topic:
         :return:
         """
-        articles_url = 'https://newsapi.org/v2/everything?q='
+        base_url = 'https://newsapi.org/v2/everything?q='
         my_date = datetime.now().date()
         formatted_date: str = f'{my_date.year}-{my_date.month}-{my_date.day}'
-        my_articles_url = articles_url + topic + "&language=en" + "&from=" + formatted_date + "&apiKey=" + apiKey
-        return my_articles_url
+        return f'{base_url}{topic}&language=en&from={formatted_date}&apiKey={apiKey}'
 
     def get_articles(self) -> List[tuple]:
-        _articles_cron: List[Coroutine] = [self.fetch_articles_by_topic(topic=topic) for topic in this_topics]
+        _articles_cron: List[Coroutine] = [self.fetch_articles_by_topic(topic=topic) for topic in default_topics]
         responses = asyncio.run(asyncio.gather(*_articles_cron))
-        return [(this_topics[idx], _response.result()) for idx, _response in enumerate(responses)]
+        return [(default_topics[idx], _response.result()) for idx, _response in enumerate(responses)]
 
     @ndb.toplevel
     def cron_daily_topics(self) -> None:
