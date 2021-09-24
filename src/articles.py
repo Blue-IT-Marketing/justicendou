@@ -177,6 +177,7 @@ articles_route_bp = Blueprint('articles_route', __name__)
 @articles_route_bp.route('/article/<string:topic>/<string:article_date>/<string:title_slug>', methods=['GET'])
 def article(topic: str, article_date: str, title_slug: str) -> tuple:
     """
+        **article**
 
     :param topic:
     :param article_date:
@@ -195,6 +196,10 @@ hacking_topics: List[str] = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Lin
 
 
 def route_articles():
+    """
+        **route_articles**
+    :return:
+    """
     default_subjects: List[str] = ['Hacking', 'Mathematics', 'Networking', 'Programming', 'Science', 'Philosophy']
     article_list: List[dict] = Articles.get_articles_by_topic(topic=hacking_topics[0])
     for topic in hacking_topics[1:]:

@@ -27,6 +27,8 @@ class Config:
         self.BASE_URL: str = ""
         self.APP_ID: str = ""
         self.SEP: str = "#"
+        self.IS_PRODUCTION: bool = False
+        self.PROJECT = 'justice-ndou'
 
 
 config_instance: Config = Config()
