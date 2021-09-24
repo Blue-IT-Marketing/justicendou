@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content-wrapper">
+            <section class="content-header">
+              <h1 class="header-title"> Articles </h1>
+                <small>Tech Related Articles by interest from around the internet</small>
+              <ol class="breadcrumb">
+                <li class="active"><a href="/"><i class="glyphicon glyphicon-dashboard"></i> Home</a></li>
+              </ol>
+              </section>
+            <!-- Main content -->
+            <section class="content">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="box-primary">
+                            <h3 class="header-title">Interests</h3>
+                        </div>
+                        <ul class="list-group">
+                            {%  for subject in subjects %}
+                                <li class="list-group-item">
+                                    <a href="/articles/subject/{{ subject.lower() }}">
+                                        <strong>{{ subject }}</strong>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-9">
+
+                    </div>
+                </div>
+            </section>
+  </div>
+
+
+{% endblock content %}

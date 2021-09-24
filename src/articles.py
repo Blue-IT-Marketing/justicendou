@@ -1,28 +1,30 @@
 import asyncio
-from datetime import datetime, date
 import os
+from datetime import datetime, date
 from typing import Optional, List, Coroutine
+
 import requests
 from decouple import config
-from flask import Blueprint
+from flask import Blueprint, render_template
 from google.cloud import ndb
-from google.cloud.ndb.exceptions import BadValueError
 
 from src.contact import create_id
 from src.fetch_utils import async_get_request
 
 default_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking", "Hackers", "Penetration Testing",
-               "Algorithms", "Botnets",
-               "Crypto Mining", "New Crypto Coins", "Crypto Coins", "DDOS", "Networking", "State Sponsored Hacking",
-               "State Sponsored Malware",
-               "Mathematics", "Mathematics in Programing", "Numerical Algorithms", "Graph Theory", "Cryptography",
-               "Numerical Analysis", "Signal Processing", "Fourier Transforms", "Laplace Transforms", "Combinatorial",
-               "Theory of Everything", "Quantum Mechanics", "Python", "Programming", "Algorithms", "Google App Engine",
-               "Javascript", "Angular", "React", "Typescript", "HTML5",
-               "CSS3", "Jquery", "Server Side Rendering", "NODEJS", "NODE", "NPM", "Jinja2", "Jinja Templating",
-               "Physics", "Nano Technology", "Space Exploration", "SpaceX", "Advanced Physics", "Moon", "Mars",
-               "Astronomy",
-               "Astrophysics", "Chemical Engineering"]
+                  "Algorithms", "Botnets",
+                  "Crypto Mining", "New Crypto Coins", "Crypto Coins", "DDOS", "Networking", "State Sponsored Hacking",
+                  "State Sponsored Malware",
+                  "Mathematics", "Mathematics in Programing", "Numerical Algorithms", "Graph Theory", "Cryptography",
+                  "Numerical Analysis", "Signal Processing", "Fourier Transforms", "Laplace Transforms",
+                  "Combinatorial",
+                  "Theory of Everything", "Quantum Mechanics", "Python", "Programming", "Algorithms",
+                  "Google App Engine",
+                  "Javascript", "Angular", "React", "Typescript", "HTML5",
+                  "CSS3", "Jquery", "Server Side Rendering", "NODEJS", "NODE", "NPM", "Jinja2", "Jinja Templating",
+                  "Physics", "Nano Technology", "Space Exploration", "SpaceX", "Advanced Physics", "Moon", "Mars",
+                  "Astronomy",
+                  "Astrophysics", "Chemical Engineering"]
 
 this_page_size = 50
 
@@ -156,15 +158,37 @@ class Articles(ndb.Model):
         article_query = Articles.query(Articles.date_created == by_date).order(Articles.date_created).fetch(limit=1000)
         return [article.to_dict() for article in article_query]
 
+    @staticmethod
+    def get_article_by_link(link_slug: str):
+        article_instance: Articles = Articles.query(Articles.article_link == link_slug).get()
+        if isinstance(article_instance, Articles) and article_instance.article_link:
+            return article_instance.to_dict()
+        return None
+
 
 articles_route_bp = Blueprint('articles_route', __name__)
 
 
-@articles_route_bp.route('/article/<string:path>', methods=['GET'])
-def article(article: str) -> tuple:
+@articles_route_bp.route('/article/<string:topic>/<string:article_date>/<string:title_slug>', methods=['GET'])
+def article(topic: str, article_date: str, title_slug: str) -> tuple:
     """
 
-    :param article:
+    :param topic:
+    :param article_date:
+    :param title_slug
     :return:
     """
-    pass
+
+    link_slug: str = f'{topic}/{datetime.now().date()}/{title_slug}'
+    article_data: Optional[dict] = Articles.get_article_by_link(link_slug=link_slug)
+    return render_template('blog/articles.html', article=article_data), 200
+
+
+def route_articles():
+    default_subjects: List[str] = ['Hacking', 'Mathematics', 'Networking', 'Programming', 'Science', 'Philosophy']
+    return render_template("blog/blog.html", subjects=sorted(default_subjects))
+
+
+@articles_route_bp.route('/articles', methods=['GET'])
+def articles():
+    return route_articles()

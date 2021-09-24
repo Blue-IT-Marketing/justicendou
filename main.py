@@ -9,7 +9,7 @@ import jinja2
 from flask import Blueprint, make_response, render_template, url_for, request
 
 from src.accounts import Accounts
-from src.articles import Articles, this_topics, Interests
+from src.articles import Articles, default_topics, Interests
 from src.services import HireMe
 
 main_router_bp = Blueprint('main_router_handler', __name__)
@@ -30,12 +30,7 @@ def route_robots():
 
 
 def route_home():
-    import random
-    this_articles = Articles()
-    # this_articles.save_topics()
-
-    topic = random.choice(this_topics)
-    articles = this_articles.fetch_articles_by_topic(topic=topic)
+    articles = Articles.fetch_random_articles()
     print(f'articles : {articles}')
     if articles is not None:
         articles = articles['articles']
@@ -60,10 +55,6 @@ def route_contact():
     return render_template('contact/contact.html')
 
 
-def route_blog():
-    return render_template("blog/home.html")
-
-
 def route_dashboard():
     """ get correct user details"""
     user = Accounts()
@@ -74,7 +65,6 @@ def route_dashboard():
     else:
         login_url = url_for('login_url')
         return render_template("lockscreen.html", login_url=login_url)
-
 
 
 def route_404():
@@ -306,9 +296,9 @@ def main_router_handler(path: str):
             topic_id = request.args.get('topic_id')
             topic_label = request.args.get('topic_label')
             find_topic = Interests.query(Interests.topic == topic_label)
-            this_topics_list = find_topic.fetch()
+            default_topics_list = find_topic.fetch()
 
-            if len(this_topics_list) > 0:
+            if len(default_topics_list) > 0:
                 return "This topic is already present", 200
             else:
                 this_interest = Interests()
@@ -347,8 +337,6 @@ def main_router_handler(path: str):
         elif "contact" in route_list or "contact.html" in route_list:
             return route_contact()
 
-        elif "blog" in route_list or "blog.html" in route_list:
-            return route_blog()
 
         elif "dashboard" in route_list or "dashboard.html" in route_list:
             return route_dashboard()

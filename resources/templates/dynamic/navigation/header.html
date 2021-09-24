@@ -40,14 +40,14 @@
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="dist/img/justice.jpg" id="strUserImageID" class="user-image" alt="User Image">
+              <img src="{{ url_for('static', filename='dist/img/justice.jpg')}}" id="strUserImageID" class="user-image" alt="User Image">
               <span class="hidden-xs" id="strUserNameID"></span>
             </a>
             <!-- DROP DOWN MENU -->
             <ul class="dropdown-menu">
               <!-- User image -->
               <li class="user-header">
-                <img src="dist/img/justice.jpg" id="strMainUserImageID" class="img-circle" alt="User Image">
+                <img src="{{ url_for('static', filename='dist/img/justice.jpg')}}" id="strMainUserImageID" class="img-circle" alt="User Image">
               </li>
               <!-- Menu Footer-->
               <li class="user-footer">
@@ -61,8 +61,3 @@
       </div>
     </nav>
 </header>
-
-{#<script src="{ url_for('static', filename='dist/js/firebase.js')}"></script>#}
-{#<script src="{ url_for('static', filename='dist/js/pages/utiities/utilities.js')}"></script>#}
-{#<script src="{ url_for('static', filename='dist/js/pages/authentication/header.js')}"></script>#}
-
