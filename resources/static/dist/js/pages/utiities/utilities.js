@@ -36,7 +36,7 @@ function validatePassword(password) {
 
 function validateUsername(username) {
     let re = /^\w+$/;
-    return res.test(username);
+    return re.test(username);
 }
 
 function isNumber(n) {
@@ -181,7 +181,7 @@ function return_date_string(){
 
     return this.date;
 }
-
+//Deprecated news api will run from the backend
 let news_api_data = function (){
     this.date;
     this.apiKey = "41e896a0a1c94b61903408fae1a49471";

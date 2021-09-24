@@ -35,7 +35,7 @@ def route_home():
     # this_articles.save_topics()
 
     topic = random.choice(this_topics)
-    articles = this_articles.fetch_topic(topic=topic)
+    articles = this_articles.fetch_articles_by_topic(topic=topic)
     print(f'articles : {articles}')
     if articles is not None:
         articles = articles['articles']
