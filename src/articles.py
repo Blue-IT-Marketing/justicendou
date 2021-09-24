@@ -38,7 +38,7 @@ class Interests(ndb.Model):
     topic_active = ndb.BooleanProperty(default=True)
 
     @staticmethod
-    def add_default_topics(self):
+    def add_default_topics():
         for topic in default_topics:
             interest_instance = Interests.query(Interests.topic == topic).get()
             if not isinstance(interest_instance, Interests) or not interest_instance.topic:
@@ -112,7 +112,7 @@ class Articles(ndb.Model):
 
     @ndb.toplevel
     def cron_daily_topics(self) -> None:
-        response = [self.compile_save_article(articles, topic) for topic, articles in self.get_articles()]
+        [self.compile_save_article(_articles, topic) for topic, _articles in self.get_articles()]
 
     @staticmethod
     @ndb.tasklet
@@ -148,19 +148,19 @@ class Articles(ndb.Model):
     @use_context
     def get_articles_by_topic(topic):
         article_query = Articles.query(Articles.topic == topic).order(Articles.date_created).fetch(limit=1000)
-        return [article.to_dict() for article in article_query]
+        return [_article.to_dict() for _article in article_query]
 
     @staticmethod
     @use_context
     def get_articles_by_date_topic_(topic, article_date: date) -> List[dict]:
         article_query = Articles.query(Articles.topic == topic).order(Articles.date_created).fetch(limit=1000)
-        return [article.to_dict() for article in article_query]
+        return [_article.to_dict() for _article in article_query]
 
     @staticmethod
     @use_context
     def get_all_articles_by_date(by_date: date) -> List[dict]:
         article_query = Articles.query(Articles.date_created == by_date).order(Articles.date_created).fetch(limit=1000)
-        return [article.to_dict() for article in article_query]
+        return [_article.to_dict() for _article in article_query]
 
     @staticmethod
     @use_context
@@ -185,7 +185,7 @@ def article(topic: str, article_date: str, title_slug: str) -> tuple:
     :return:
     """
 
-    link_slug: str = f'{topic}/{datetime.now().date()}/{title_slug}'
+    link_slug: str = f'{topic}/{article_date}/{title_slug}'
     article_data: Optional[dict] = Articles.get_article_by_link(link_slug=link_slug)
     return render_template('blog/articles.html', article=article_data), 200
 
