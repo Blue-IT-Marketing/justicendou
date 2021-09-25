@@ -60,6 +60,8 @@ def route_dashboard():
     # TODO add authentication for dashboard then display dashboard
     return render_template("lockscreen.html", login_url='/login')
 
+def route_github_profile():
+    return render_template("justice-ndou/github.html")
 
 def route_404():
     return render_template('404.html')
@@ -333,6 +335,8 @@ def main_router_handler(path: str):
 
         elif "dashboard" in route_list or "dashboard.html" in route_list:
             return route_dashboard()
+        elif 'gtihub-profile':
+            return route_github_profile()
 
         elif "500" in route_list:
             return route_500()
