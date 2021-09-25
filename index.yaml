@@ -1,0 +1,5 @@
+indexes:
+- kind: Articles
+  properties:
+  - name: topic
+  - name: date_created

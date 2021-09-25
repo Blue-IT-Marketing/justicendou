@@ -19,7 +19,7 @@ from typing import Callable, Optional
 
 if is_development():
     # NOTE: Local development service key is saved on local drive
-    credential_path = "C:\\gcp_credentials\\heroku.json"
+    credential_path = "C:\\gcp_credentials\\justice-ndou.json"
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
 

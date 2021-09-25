@@ -16,6 +16,8 @@ def create_app(config=Config):
         from src.games import games_handler_bp
         from main import main_router_bp
 
+        from src.cron import cron_route_bp
+
         app.register_blueprint(blog_handler_bp)
         app.register_blueprint(contact_handler_bp)
         app.register_blueprint(ticket_handler_bp)
@@ -27,5 +29,6 @@ def create_app(config=Config):
         app.register_blueprint(algorithms_handler_bp)
         app.register_blueprint(games_handler_bp)
         app.register_blueprint(articles_route_bp)
+        app.register_blueprint(cron_route_bp)
 
         return app

@@ -10,7 +10,7 @@ from google.cloud import ndb
 
 from src.contact import create_id
 from src.fetch_utils import async_get_request
-from src.use_context import use_context
+from src.use_context import use_context, get_client
 
 default_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacking", "Hackers", "Penetration Testing",
                   "Algorithms", "Botnets",
@@ -107,16 +107,23 @@ class Articles(ndb.Model):
 
     def get_articles(self) -> List[tuple]:
         _articles_cron: List[Coroutine] = [self.fetch_articles_by_topic(topic=topic) for topic in default_topics]
-        responses = asyncio.run(asyncio.gather(*_articles_cron))
-        return [(default_topics[idx], _response.result()) for idx, _response in enumerate(responses)]
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        responses = loop.run_until_complete(asyncio.gather(*_articles_cron))
+        loop.close()
+        return [(default_topics[idx], _response) for idx, _response in enumerate(responses)]
 
+    @use_context
     @ndb.toplevel
     def cron_daily_topics(self) -> None:
         [self.compile_save_article(_articles, topic) for topic, _articles in self.get_articles()]
 
     @staticmethod
     @ndb.tasklet
-    def compile_save_article(articles, topic) -> ndb.Key:
+    def compile_save_article(articles, topic) -> Optional[ndb.Key]:
         """
         **compile_save_article**
             given the articles save them under the specified topic and await key
@@ -124,18 +131,29 @@ class Articles(ndb.Model):
         :param topic:
         :return:
         """
-        _article = articles['articles']
-        article_instance: Articles = Articles()
-        article_instance.topic = topic
-        article_instance.url = _article.get('url')
-        article_instance.title = _article.get('title')
-        link_slug: str = Articles.create_unique_slug_from_topic_title(topic=topic, title=_article.get('title'))
-        article_instance.article_link = link_slug
-        article_instance.urlToImage = _article.get('urlToImage')
+        if not articles:
+            return
 
-        article_instance.description = _article.get('description')
-        article_instance.article_reference = create_id()
-        return article_instance.put_async().get_result()
+        _articles = articles['articles']
+
+        for _article in _articles:
+            print(_article)
+            link_slug: str = Articles.create_unique_slug_from_topic_title(topic=topic, title=_article.get('title'))
+            article_instance: Articles = Articles.query(Articles.article_link == link_slug).get()
+            if isinstance(article_instance, Articles) and article_instance.article_link:
+                print('article found returning')
+                return
+            article_instance: Articles = Articles()
+            article_instance.topic = topic
+            article_instance.url = _article.get('url')
+            article_instance.title = _article.get('title')
+            article_instance.article_link = link_slug
+            article_instance.urlToImage = _article.get('urlToImage')
+
+            article_instance.description = _article.get('description')
+            article_instance.article_reference = create_id()
+            article_instance.put()
+        return
 
     @staticmethod
     def create_unique_slug_from_topic_title(topic, title) -> str:
