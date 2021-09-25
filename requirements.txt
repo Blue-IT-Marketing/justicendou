@@ -3,5 +3,14 @@ Flask~=1.1.4
 requests~=2.25.1
 aiohttp~=3.7.4.post0
 python-decouple
+google-api-core
+google-auth
 google-cloud
+google-cloud-core
+google-cloud-ndb==1.10.2
+google-cloud-pubsub
+google-cloud-tasks
+googleapis-common-protos
+grpc-google-iam-v1
+grpcio
 gunicorn==20.1.0
