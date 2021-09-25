@@ -57,14 +57,8 @@ def route_contact():
 
 def route_dashboard():
     """ get correct user details"""
-    user = Accounts()
-    if user.is_current_user_admin():
-        # Update this Note:
-        logout_url = url_for('user_logout')
-        return render_template("dashboard/dashboard.html", logout_url=logout_url)
-    else:
-        login_url = url_for('login_url')
-        return render_template("lockscreen.html", login_url=login_url)
+    # TODO add authentication for dashboard then display dashboard
+    return render_template("lockscreen.html", login_url='/login')
 
 
 def route_404():
