@@ -2,14 +2,10 @@
 .settings/
 
 # development
-/node_modules
-/lib
 /env
 /.vscode
 /.idea
-/static/plugins
-/static/openssl
-/static/build
+
 
 app.yaml
 .env

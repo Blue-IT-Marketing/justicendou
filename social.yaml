@@ -1,4 +1,0 @@
-handlers:
-- url: /social/.*
-  secure: always
-  script: social.app

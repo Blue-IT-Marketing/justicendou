@@ -1,4 +1,0 @@
-handlers:
-- url: /profiles/.*
-  secure: always
-  script: profiles.app

@@ -1,7 +1,0 @@
-handlers:
-- url: /blog/.*
-  secure: always
-  script: blog.app
-- url: /topics/.*
-  secure: always
-  script: blog.app
