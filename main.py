@@ -337,7 +337,6 @@ def main_router_handler(path: str):
         elif "contact" in route_list or "contact.html" in route_list:
             return route_contact()
 
-
         elif "dashboard" in route_list or "dashboard.html" in route_list:
             return route_dashboard()
 
