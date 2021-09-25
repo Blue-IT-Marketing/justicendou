@@ -26,7 +26,10 @@ if is_development():
 def get_client() -> ndb.Client:
     if is_cloud():
         # NOTE: hosted in Heroku service key should be saved as environment variable in heroku
-        app_credentials = json.loads(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'))
+        app_creds = os.environ.get('GOOGLE_APP_CREDENTIALS')
+        print(app_creds)
+        app_credentials = json.loads(app_creds)
+
         credentials = service_account.Credentials.from_service_account_info(info=app_credentials)
         ndb_client: ndb.Client = ndb.Client(namespace="main", project=config_instance.PROJECT, credentials=credentials)
     else:
