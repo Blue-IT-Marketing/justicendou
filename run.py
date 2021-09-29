@@ -1,3 +1,6 @@
+"""
+Main Entry Point for the application
+"""
 import os
 from loader import create_app
 from config import Config
