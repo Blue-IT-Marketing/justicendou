@@ -29,7 +29,7 @@ default_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacki
 
 this_page_size = 50
 
-apiKey = config('articles_api_key') or os.getenv('articles_api_key')
+
 
 
 class Interests(ndb.Model):
@@ -86,15 +86,16 @@ class Articles(ndb.Model):
             headers = {'Content-Type': 'application/json'}
             my_articles_url = Articles.return_articles_url(topic)
             result, status_code = await async_get_request(_url=my_articles_url, headers=headers)
+            print(f'result : {result}')
+            print(f'status code : {status_code}')
             return result if status_code == 200 else None
-
         except requests.ConnectionError:
             return None
         except requests.Timeout:
             return None
 
     @staticmethod
-    def return_articles_url(topic):
+    def return_articles_url(topic: str) -> str:
         """
             **return_articles_url**
         :param topic:
@@ -103,7 +104,8 @@ class Articles(ndb.Model):
         base_url = 'https://newsapi.org/v2/everything?q='
         my_date = datetime.now().date()
         formatted_date: str = f'{my_date.year}-{my_date.month}-{my_date.day}'
-        return f'{base_url}{topic}&language=en&from={formatted_date}&apiKey={apiKey}'
+        api_key: str = config('articles_api_key') or os.getenv('articles_api_key')
+        return f'{base_url}{topic}&language=en&from={formatted_date}&apiKey={api_key}'
 
     def get_articles(self) -> List[tuple]:
         _articles_cron: List[Coroutine] = [self.fetch_articles_by_topic(topic=topic) for topic in default_topics]
@@ -123,21 +125,22 @@ class Articles(ndb.Model):
 
     @staticmethod
     @ndb.tasklet
-    def compile_save_article(articles, topic) -> Optional[ndb.Key]:
+    def compile_save_article(articles_dict: Optional[dict], topic: str) -> None:
         """
         **compile_save_article**
             given the articles save them under the specified topic and await key
-        :param articles:
+        :param articles_dict:
         :param topic:
         :return:
         """
-        if not articles:
+        if not articles_dict:
             return
 
-        _articles = articles['articles']
+        _articles = articles_dict['articles']
+        print(f'_articles : {_articles}')
 
         for _article in _articles:
-            print(_article)
+            print('saving article')
             link_slug: str = Articles.create_unique_slug_from_topic_title(topic=topic, title=_article.get('title'))
             article_instance: Articles = Articles.query(Articles.article_link == link_slug).get()
             if isinstance(article_instance, Articles) and article_instance.article_link:
@@ -152,7 +155,7 @@ class Articles(ndb.Model):
 
             article_instance.description = _article.get('description')
             article_instance.article_reference = create_id()
-            article_instance.put()
+            article_instance.put_async().get_result()
         return
 
     @staticmethod

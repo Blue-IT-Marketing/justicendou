@@ -24,6 +24,7 @@ def route_sitemap():
 
 
 def route_robots():
+    """.env"""
     response = make_response(render_template('sitemap/robots.txt'))
     response.headers["Content-Type"] = "text/plain"
     return response, 200
@@ -60,8 +61,10 @@ def route_dashboard():
     # TODO add authentication for dashboard then display dashboard
     return render_template("lockscreen.html", login_url='/login')
 
+
 def route_github_profile():
     return render_template("justice-ndou/github.html")
+
 
 def route_404():
     return render_template('404.html')
