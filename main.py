@@ -11,6 +11,7 @@ from flask import Blueprint, make_response, render_template, url_for, request
 from src.accounts import Accounts
 from src.articles import Articles, default_topics, Interests
 from src.services import HireMe
+from utils.utils import date_string_to_date
 
 main_router_bp = Blueprint('main_router_handler', __name__)
 
@@ -72,35 +73,6 @@ def route_404():
 
 def route_500():
     return render_template('500.html')
-
-
-def date_string_datetime(date_str: Union[str, date]) -> date:
-    if isinstance(date_str, date):
-        return date_str
-
-    if not isinstance(date_str, str):
-        raise ValueError('Date format invalid')
-
-    if not ("/" in date_str or "-" in date_str):
-        raise ValueError('Date format invalid')
-
-    date_list: List[str] = date_str.split("/") if "/" in date_str else date_str.split("-")
-    if len(date_list) != 3:
-        raise ValueError("Date Format invalid")
-
-    year: int = int(date_list[0])
-    month: int = int(date_list[1])
-    day: int = int(date_list[2])
-
-    if 0 < month > 12:
-        raise ValueError("Date Format Invalid")
-    if 0 < day > 31:
-        raise ValueError("Date Format invalid")
-    if year < 1990:
-        # Not interested in anything that old
-        raise ValueError("Date Format invalid")
-
-    return date(year=year, month=month, day=day)
 
 
 def dashboard_handler():
@@ -202,7 +174,7 @@ def main_router_handler(path: str):
             cell, company, email, facebook, freelancing, names, project_description, project_id, project_status, \
             project_title, project_type, start_date, twitter, website = get_project_details()
 
-            start_date = date_string_datetime(start_date)
+            start_date = date_string_to_date(start_date)
 
             find_project = HireMe.query(HireMe.project_id == project_id)
             this_project_list = find_project.fetch()
