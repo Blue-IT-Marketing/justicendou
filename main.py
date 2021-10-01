@@ -12,7 +12,6 @@ from src.accounts import Accounts
 from src.articles import Articles, default_topics, Interests
 from src.services import HireMe
 from utils.utils import date_string_to_date
-
 main_router_bp = Blueprint('main_router_handler', __name__)
 
 
@@ -35,33 +34,51 @@ def route_robots():
 def route_home():
     articles = Articles.fetch_random_articles()
     print(f'articles : {articles}')
+    context = dict(title='Justice Ndou Software Development Profile Web Application',
+                   description='Justice Ndou is a web application developer, experienced in python and node.js back '
+                               'end development and also develops REST API''s i am also available to work on '
+                               'freelance projects')
     if articles:
         articles = articles['articles']
-        return render_template('index.html', articles=articles), 200
+        context.update(articles=articles)
+        return render_template('index.html', **context), 200
 
-    return render_template('index.html'), 200
+    return render_template('index.html', **context), 200
 
 
 def route_login():
-    return render_template('authentication/login.html'), 200
+    context = dict(title='Justice Ndou Profile | Admin Login',
+                   description='Admin only Login Page for Justice Ndou Profile Web Application')
+    return render_template('authentication/login.html', **context), 200
 
 
 def route_logout():
-    return render_template('authentication/logout.html'), 200
+    context = dict(title='Justice Ndou Profile | Admin Logout',
+                   description='Admin only Logout Page for Justice Ndou Profile Web Application')
+    return render_template('authentication/logout.html', **context), 200
 
 
 def route_about():
-    return render_template('about.html'), 200
+    context = dict(title='Justice Ndou Profile | About Page',
+                   description='About Justice Ndou - More information on who is Justice Ndou, '
+                               'what he does and he is busy with at the moment')
+    return render_template('about.html', **context), 200
 
 
 def route_contact():
-    return render_template('contact/contact.html')
+    context = dict(title='Justice Ndou Profile | Contact Page',
+                   description='Contact Justice Ndou for web development purposes, '
+                               'through our contact form social media accounts, cell or email address')
+    return render_template('contact/contact.html', **context), 200
 
 
 def route_dashboard():
     """ get correct user details"""
     # TODO add authentication for dashboard then display dashboard
-    return render_template("lockscreen.html", login_url='/login')
+    context = dict(title='Justice Ndou Profile | Dashboard Page',
+                   description='Contacting Justice Ndou',
+                   login_url='/login')
+    return render_template("lockscreen.html", **context), 200
 
 
 def route_github_profile():
