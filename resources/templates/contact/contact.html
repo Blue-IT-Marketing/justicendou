@@ -124,5 +124,8 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="/static/dist/js/pages/contact/contacts.js"></script>
+
 {% endblock content %}
+{% block custom_scripts %}
+    <script src="{{ url_for('static', filename='dist/js/pages/contact/contacts.js') }}"></script>
+{% endblock custom_scripts %}
