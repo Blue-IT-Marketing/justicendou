@@ -31,12 +31,16 @@ default_topics = ["CyberAttacks", "Hacking Tools", "Linux", "Kali Linux", "Hacki
 this_page_size = 50
 
 
-
-
 class Interests(ndb.Model):
+
     topic_id = ndb.StringProperty()
     topic = ndb.StringProperty()
     topic_active = ndb.BooleanProperty(default=True)
+
+    @property
+    def sep(self) -> str:
+        """subject list separator"""
+        return ","
 
     @staticmethod
     def add_default_topics():

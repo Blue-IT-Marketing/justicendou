@@ -227,21 +227,7 @@ def main_router_handler(path: str):
                                 message='')), 200
 
         elif "addsubjectstotopicid" in route_list:
-            topic_id = request.args.get('topic_id')
-            subjects_list = request.args.get('subjects-list')
-            find_subjects = Interests.query(Interests.topic_id == topic_id)
-            this_interests_list = find_subjects.fetch()
-            if this_interests_list:
-                this_interest = this_interests_list[0]
-            else:
-                this_interest = Interests()
-
-            this_interest.write_topic_id(topic_id=topic_id)
-            subjects_list = subjects_list.split(this_interest._sep)
-            for subject in subjects_list:
-                this_interest.write_subjects(subject=subject)
-
-            this_interest.put()
+            add_subjects_to_topics()
             return "completed adding subjects", 200
 
         elif "removesubjectstopicid" in route_list:
@@ -319,6 +305,22 @@ def main_router_handler(path: str):
             return route_500()
         else:
             return route_home()
+
+@use_context
+@handle_view_errors
+def add_subjects_to_topics():
+    # TODO insure that data is being passed in JSON format
+    topic_id = request.args.get('topic_id')
+    subjects_list = request.args.get('subjects-list')
+
+    this_interest = Interests.query(Interests.topic_id == topic_id).get(0)
+    if not isinstance(this_interest, Interests) and Interests.topic_id:
+        return jsonify(dict(status=False, message='error: topic not found'))
+    this_interest.write_topic_id(topic_id=topic_id)
+    subjects_list = subjects_list.split(this_interest.sep)
+    for subject in subjects_list:
+        this_interest.write_subjects(subject=subject)
+    this_interest.put()
 
 
 @use_context
