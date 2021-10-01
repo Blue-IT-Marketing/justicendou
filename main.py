@@ -12,6 +12,7 @@ from src.accounts import Accounts
 from src.articles import Articles, default_topics, Interests
 from src.services import HireMe
 from utils.utils import date_string_to_date
+
 main_router_bp = Blueprint('main_router_handler', __name__)
 
 
@@ -82,19 +83,30 @@ def route_dashboard():
 
 
 def route_github_profile():
-    return render_template("justice-ndou/github.html")
+    # TODO - load github page here through github version api
+    context = dict(title='Justice Ndou Github Profile Page',
+                   description='Justice Ndou Personal Github Profile, and also Open Source Projects i am '
+                               'currently busy with')
+    return render_template("justice-ndou/github.html", **context), 200
 
 
 def route_404():
-    return render_template('404.html')
+    context = dict(title="Justice Ndou Profile : 404 Error Page",
+                   description="Unfortunately the Page you are looking for was not found")
+    return render_template('404.html', **context), 404
 
 
 def route_500():
-    return render_template('500.html')
+    context = dict(title="Justice Ndou Profile : 500 Error Page",
+                   description="General Server Error")
+    return render_template('500.html', **context), 500
 
 
 def dashboard_handler():
-    return render_template('dashboard/dashboard.html')
+    context = dict(title="Justice Ndou Profile | Dashboard Page",
+                   description="Admin Only Dashboard Page if you are not Me or haven't Hired Me as a freelancer "
+                               "then dont visit this page")
+    return render_template('dashboard/dashboard.html', **context), 200
 
 
 def route_login_post(route):
@@ -353,8 +365,8 @@ def get_project_details():
     estimated_budget = request.args.get('estimated-budget')
     start_date = request.args.get('start-date')
     project_status = request.args.get('project-status')
-    return (cell, company, email, facebook, freelancing, names, project_description, project_id, project_status, 
-           project_title, project_type, start_date, twitter, website)
+    return (cell, company, email, facebook, freelancing, names, project_description, project_id, project_status,
+            project_title, project_type, start_date, twitter, website)
 
 
 @main_router_bp.route('/', methods=['GET'])
