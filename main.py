@@ -194,13 +194,13 @@ def main_router_handler(path: str):
 
         elif "get-project" in route_list:  # dashboard project get
             this_hire = get_project_details()
-            return render_template('dashboard/project.html', this_hire=this_hire)
+            return render_template('dashboard/project.html', this_hire=this_hire.to_dict())
 
         elif "update-project" in route_list:  # dashboard project updater
             project_key, project_instance = create_update_project()
             if isinstance(project_key, ndb.Key):
                 return jsonify(dict(status=True,
-                                    payload=dict(project_key=project_key, project_instance=project_instance),
+                                    payload=dict(project_key=project_key, project_instance=project_instance.to_dict()),
                                     message='successfully updated project')), status_codes.successfully_updated_code
             _message: str = 'project not found: unable to update project'
             return jsonify(dict(status=False,
@@ -210,8 +210,7 @@ def main_router_handler(path: str):
             return render_template('dashboard/messages.html')
 
         elif "interests" in route_list:
-            find_topics = Interests.query()
-            interests_list = find_topics.fetch()
+            interests_list = [interest.to_dict() for interest in get_articles_interests()]
             return render_template('dashboard/interests.html', interests_list=interests_list)
 
         elif "createpage" in route_list:
@@ -326,9 +325,14 @@ def main_router_handler(path: str):
 
 @use_context
 @handle_view_errors
+def get_articles_interests() -> List[Interests]:
+    return Interests.query().fetch()
+
+
+@use_context
+@handle_view_errors
 def get_completed_projects() -> List[HireMe]:
-    this_hires_list = HireMe.query(HireMe.project_status != "completed").fetch()
-    return this_hires_list
+    return HireMe.query(HireMe.project_status != "completed").fetch()
 
 
 @use_context
@@ -343,7 +347,7 @@ def get_project_details() -> HireMe:
 @handle_view_errors
 def create_update_project() -> tuple:
     (cell, company, email, facebook, freelancing, names, project_description, project_id, project_status,
-     project_title, project_type, start_date, twitter, website) = get_project_details()
+     project_title, project_type, start_date, twitter, website) = get_project_arg_details()
     start_date = date_string_to_date(start_date)
     this_project = HireMe.query(HireMe.project_id == project_id).get()
     if not isinstance(this_project, HireMe) and HireMe.project_id:
@@ -365,7 +369,7 @@ def create_update_project() -> tuple:
     return this_project.put(), this_project.to_dict()
 
 
-def get_project_details():
+def get_project_arg_details():
     project_id = request.args.get('project_id')
     names = request.args.get('names')
     cell = request.args.get('cell')
