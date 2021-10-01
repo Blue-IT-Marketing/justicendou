@@ -9,6 +9,7 @@ from flask import Blueprint, render_template
 from google.cloud import ndb
 
 from src.contact import create_id
+from src.exception_handlers import handle_view_errors
 from src.fetch_utils import async_get_request
 from src.use_context import use_context, get_client
 
@@ -174,25 +175,30 @@ class Articles(ndb.Model):
     # Search methods
     @staticmethod
     @use_context
+    @handle_view_errors
     def get_articles_by_topic(topic):
         article_query = Articles.query(Articles.topic == topic).order(Articles.date_created).fetch(limit=1000)
         return [_article.to_dict() for _article in article_query]
 
     @staticmethod
     @use_context
+    @handle_view_errors
     def get_articles_by_date_topic_(topic, article_date: date) -> List[dict]:
         article_query = Articles.query(
-            Articles.topic == topic, Articles.date_created == article_date).order(Articles.date_created).fetch(limit=1000)
+            Articles.topic == topic,
+            Articles.date_created == article_date).order(Articles.date_created).fetch(limit=1000)
         return [_article.to_dict() for _article in article_query]
 
     @staticmethod
     @use_context
+    @handle_view_errors
     def get_all_articles_by_date(by_date: date) -> List[dict]:
         article_query = Articles.query(Articles.date_created == by_date).order(Articles.date_created).fetch(limit=1000)
         return [_article.to_dict() for _article in article_query]
 
     @staticmethod
     @use_context
+    @handle_view_errors
     def get_article_by_link(link_slug: str):
         article_instance: Articles = Articles.query(Articles.article_link == link_slug).get()
         if isinstance(article_instance, Articles) and article_instance.article_link:
