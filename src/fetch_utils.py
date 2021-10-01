@@ -18,4 +18,4 @@ async def async_get_request(_url: str, headers: dict) -> tuple:
                 json_data: dict = await response.json()
                 return json_data, response.status
         except aiohttp.ClientConnectorError:
-            return None, 406 # remote data error
+            return None, 406  # remote data error
