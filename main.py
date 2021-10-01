@@ -12,7 +12,7 @@ from google.cloud import ndb
 from src.accounts import Accounts
 from src.articles import Articles, default_topics, Interests
 from src.exception_handlers import handle_view_errors
-from src.exceptions import status_codes
+from src.exceptions import status_codes, InputError, DataServiceError
 from src.services import HireMe
 from src.use_context import use_context
 from utils.utils import date_string_to_date, create_id
@@ -213,44 +213,27 @@ def main_router_handler(path: str):
             interests_list = [interest.to_dict() for interest in get_articles_interests()]
             return render_template('dashboard/interests.html', interests_list=interests_list)
 
-        elif "createpage" in route_list:
+        elif "create-page" in route_list:
             return render_template('dashboard/createpage.html')
 
-        elif "createposts" in route_list:
+        elif "create-posts" in route_list:
             return render_template('dashboard/createposts.html')
 
-        elif "subjectfromtopicid" in route_list:
+        elif "subjects-from-topic" in route_list:
             topic_id = request.args.get('topic_id')
             _interests = [interest.to_dict() for interest in get_articles_interests() if interest.topic_id == topic_id]
             return jsonify(dict(status=True,
                                 payload=_interests,
                                 message='')), 200
 
-        elif "addsubjectstotopicid" in route_list:
-            add_subjects_to_topics()
-            return "completed adding subjects", 200
+        elif "add-subjects-to-topic" in route_list:
+            return dict(status=True,
+                        payload=add_subjects_to_topics().to_dict(),
+                        message='subjects successfully updated on topic'), status_codes.successfully_updated_code
 
-        elif "removesubjectstopicid" in route_list:
-            topic_id = request.args.get('topic_id')
-            subjects_list = request.args.get('subjects-list')
-            find_subjects = Interests.query(Interests.topic_id == topic_id)
-            this_interests_list = find_subjects.fetch()
-            if this_interests_list:
-                this_interest = this_interests_list[0]
-                temp_subjects_list = this_interest.subjects.split(this_interest.sep)
-                subjects_list = subjects_list.split(":")
-                for subject in subjects_list:
-                    if subject in temp_subjects_list:
-                        temp_subjects_list.remove(subject)
-                this_interest.subjects = ""
-                for subject in temp_subjects_list:
-                    if this_interest.subjects == "":
-                        this_interest.subjects = subject
-                    else:
-                        this_interest.subjects += ':' + subject
-
-                this_interest.put()
-                return "subjects removed", 200
+        elif "remove-subjects-from-topics" in route_list:
+            remove_subjects_from_topic()
+            return "subjects removed", 200
 
         elif "createtopic" in route_list:
             topic_id = request.args.get('topic_id')
@@ -306,21 +289,41 @@ def main_router_handler(path: str):
         else:
             return route_home()
 
+
 @use_context
 @handle_view_errors
-def add_subjects_to_topics():
+def remove_subject_from_topic():
+    topic_id = request.args.get('topic_id')
+    subject = request.args.get('subject')
+    _interest = Interests.query(Interests.topic_id == topic_id).fetch()
+    if not (isinstance(_interest, Interests) and Interests.topic_id):
+        return jsonify(dict(status=False, message='topic not found')), status_codes.data_not_found_code
+    _subjects_list = _interest.subjects.split(Interests().sep)
+    _interest.subjects = f"{Interests.sep}".join([_subject for _subject in _subjects_list
+                                                  if subject not in _interest.subjects.split(Interests().sep)])
+    key: ndb.Key = _interest.put()
+    if not isinstance(key, ndb.Key):
+        raise DataServiceError(description='Database Error: unable to update database')
+    return jsonify(status=True,
+                   payload=_interest.to_dict(),
+                   message='subject successfully removed'), status_codes.successfully_updated_code
+
+
+@use_context
+@handle_view_errors
+def add_subjects_to_topics() -> Interests:
     # TODO insure that data is being passed in JSON format
     topic_id = request.args.get('topic_id')
     subjects_list = request.args.get('subjects-list')
+    if not topic_id:
+        raise InputError(description='topic_id is required')
 
-    this_interest = Interests.query(Interests.topic_id == topic_id).get(0)
+    this_interest = Interests.query(Interests.topic_id == topic_id).get()
     if not isinstance(this_interest, Interests) and Interests.topic_id:
         return jsonify(dict(status=False, message='error: topic not found'))
-    this_interest.write_topic_id(topic_id=topic_id)
-    subjects_list = subjects_list.split(this_interest.sep)
-    for subject in subjects_list:
-        this_interest.write_subjects(subject=subject)
+    this_interest.subjects = subjects_list
     this_interest.put()
+    return this_interest
 
 
 @use_context

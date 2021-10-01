@@ -35,6 +35,7 @@ class Interests(ndb.Model):
 
     topic_id = ndb.StringProperty()
     topic = ndb.StringProperty()
+    subjects = ndb.StringProperty()
     topic_active = ndb.BooleanProperty(default=True)
 
     @property
