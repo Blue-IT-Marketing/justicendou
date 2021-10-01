@@ -1,8 +1,6 @@
-import logging
 import os
 import jinja2
 from flask import Blueprint
-import datetime
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 profiles_bp = Blueprint('profiles', __name__)

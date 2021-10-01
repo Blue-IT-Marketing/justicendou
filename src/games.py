@@ -30,6 +30,7 @@ def route_checkers():
 def route_ping_pong():
     return render_template("games/pingpong/pingpong.html")
 
+
 def route_snake():
     return render_template("games/snake/snake.html")
 
