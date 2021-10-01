@@ -6,12 +6,13 @@ import jinja2
 # from firebase_admin import credentials
 # cred = credentials.Certificate('firebase/service_account.json')
 # default_app = firebase_admin.initialize_app(cred)
-from flask import Blueprint, make_response, render_template, url_for, request
+from flask import Blueprint, make_response, render_template, url_for, request, jsonify
 from google.cloud import ndb
 
 from src.accounts import Accounts
 from src.articles import Articles, default_topics, Interests
 from src.exception_handlers import handle_view_errors
+from src.exceptions import status_codes
 from src.services import HireMe
 from src.use_context import use_context
 from utils.utils import date_string_to_date, create_id
@@ -188,18 +189,22 @@ def main_router_handler(path: str):
     route_list: List[str] = get_route_list(path=path)
     if request.method == 'POST':
         if "hireme" in route_list:
-            this_hires_list = HireMe.query(HireMe.project_status != "completed").fetch()
+            this_hires_list = get_completed_projects()
             return render_template('dashboard/hireme.html', this_hires_list=this_hires_list)
 
         elif "get-project" in route_list:  # dashboard project get
-            project_id = request.args.get('project_id')
-            this_hire = HireMe.query(HireMe.project_id == project_id).get()
+            this_hire = get_project_details()
             return render_template('dashboard/project.html', this_hire=this_hire)
 
         elif "update-project" in route_list:  # dashboard project updater
-            create_update_project()
-
-            return "project successfully updated", 200
+            project_key, project_instance = create_update_project()
+            if isinstance(project_key, ndb.Key):
+                return jsonify(dict(status=True,
+                                    payload=dict(project_key=project_key, project_instance=project_instance),
+                                    message='successfully updated project')), status_codes.successfully_updated_code
+            _message: str = 'project not found: unable to update project'
+            return jsonify(dict(status=False,
+                                message=_message)), status_codes.data_not_found_code
 
         elif "messages" in route_list:
             return render_template('dashboard/messages.html')
@@ -321,7 +326,22 @@ def main_router_handler(path: str):
 
 @use_context
 @handle_view_errors
-def create_update_project() -> ndb.Key:
+def get_completed_projects() -> List[HireMe]:
+    this_hires_list = HireMe.query(HireMe.project_status != "completed").fetch()
+    return this_hires_list
+
+
+@use_context
+@handle_view_errors
+def get_project_details() -> HireMe:
+    project_id = request.args.get('project_id')
+    this_hire = HireMe.query(HireMe.project_id == project_id).get()
+    return HireMe.query(HireMe.project_id == project_id).get()
+
+
+@use_context
+@handle_view_errors
+def create_update_project() -> tuple:
     (cell, company, email, facebook, freelancing, names, project_description, project_id, project_status,
      project_title, project_type, start_date, twitter, website) = get_project_details()
     start_date = date_string_to_date(start_date)
@@ -342,7 +362,7 @@ def create_update_project() -> ndb.Key:
     this_project.project_description = project_description
     this_project.start_date = start_date
     this_project.project_status = project_status
-    return this_project.put()
+    return this_project.put(), this_project.to_dict()
 
 
 def get_project_details():
