@@ -232,23 +232,10 @@ def main_router_handler(path: str):
                         message='subjects successfully updated on topic'), status_codes.successfully_updated_code
 
         elif "remove-subjects-from-topics" in route_list:
-            remove_subjects_from_topic()
-            return "subjects removed", 200
+            return remove_subject_from_topic()
 
-        elif "createtopic" in route_list:
-            topic_id = request.args.get('topic_id')
-            topic_label = request.args.get('topic_label')
-            find_topic = Interests.query(Interests.topic == topic_label)
-            default_topics_list = find_topic.fetch()
-
-            if len(default_topics_list) > 0:
-                return "This topic is already present", 200
-            else:
-                this_interest = Interests()
-                this_interest.write_topic_id(topic_id=topic_id)
-                this_interest.write_topic(topic=topic_label)
-                this_interest.put()
-                return "Topic successfully created", 200
+        elif "create-topic" in route_list:
+            return create_topic()
 
         elif is_login_route(route=route_list):
             _route = request.args.get("route_list")
@@ -288,6 +275,26 @@ def main_router_handler(path: str):
             return route_500()
         else:
             return route_home()
+
+
+@use_context
+@handle_view_errors
+def create_topic():
+    topic_id = request.args.get('topic_id')
+    topic_label = request.args.get('topic_label')
+    find_topic = Interests.query(Interests.topic == topic_label)
+    default_topics_list = find_topic.fetch()
+
+    if len(default_topics_list) > 0:
+        return "This topic is already present", 200
+    else:
+        this_interest = Interests()
+        this_interest.write_topic_id(topic_id=topic_id)
+        this_interest.write_topic(topic=topic_label)
+        this_interest.put()
+        return jsonify(dict(status=True,
+                            payload=this_interest.to_dict(),
+                            message='successfully created topic')), status_codes.successfully_updated_code
 
 
 @use_context
