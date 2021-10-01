@@ -7,10 +7,13 @@ import jinja2
 # cred = credentials.Certificate('firebase/service_account.json')
 # default_app = firebase_admin.initialize_app(cred)
 from flask import Blueprint, make_response, render_template, url_for, request
+from google.cloud import ndb
 
 from src.accounts import Accounts
 from src.articles import Articles, default_topics, Interests
+from src.exception_handlers import handle_view_errors
 from src.services import HireMe
+from src.use_context import use_context
 from utils.utils import date_string_to_date, create_id
 
 main_router_bp = Blueprint('main_router_handler', __name__)
@@ -194,30 +197,7 @@ def main_router_handler(path: str):
             return render_template('dashboard/project.html', this_hire=this_hire)
 
         elif "update-project" in route_list:  # dashboard project updater
-            (cell, company, email, facebook, freelancing, names, project_description, project_id, project_status,
-             project_title, project_type, start_date, twitter, website) = get_project_details()
-
-            start_date = date_string_to_date(start_date)
-
-            this_project = HireMe.query(HireMe.project_id == project_id).get()
-            if not isinstance(this_project, HireMe) and HireMe.project_id:
-                this_project = HireMe()
-                this_project.project_id = create_id()
-
-            this_project.names = names
-            this_project.cell = cell
-            this_project.email = email
-            this_project.website = website
-            this_project.facebook = facebook
-            this_project.twitter = twitter
-            this_project.company = company
-            this_project.freelancing = freelancing
-            this_project.project_type = project_type
-            this_project.project_title = project_title
-            this_project.project_description = project_description
-            this_project.start_date = start_date
-            this_project.project_status = project_status
-            this_project.put()
+            create_update_project()
 
             return "project successfully updated", 200
 
@@ -337,6 +317,32 @@ def main_router_handler(path: str):
             return route_500()
         else:
             return route_home()
+
+
+@use_context
+@handle_view_errors
+def create_update_project() -> ndb.Key:
+    (cell, company, email, facebook, freelancing, names, project_description, project_id, project_status,
+     project_title, project_type, start_date, twitter, website) = get_project_details()
+    start_date = date_string_to_date(start_date)
+    this_project = HireMe.query(HireMe.project_id == project_id).get()
+    if not isinstance(this_project, HireMe) and HireMe.project_id:
+        this_project = HireMe()
+        this_project.project_id = create_id()
+    this_project.names = names
+    this_project.cell = cell
+    this_project.email = email
+    this_project.website = website
+    this_project.facebook = facebook
+    this_project.twitter = twitter
+    this_project.company = company
+    this_project.freelancing = freelancing
+    this_project.project_type = project_type
+    this_project.project_title = project_title
+    this_project.project_description = project_description
+    this_project.start_date = start_date
+    this_project.project_status = project_status
+    return this_project.put()
 
 
 def get_project_details():
