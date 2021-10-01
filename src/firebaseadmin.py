@@ -17,19 +17,18 @@
 import logging
 
 
-def verify_account(uid, access_token) -> bool:
+def verify_account(uid: str, access_token: str) -> bool:
     """
- 
+        **verify_account**
+            verifies user logging
     """
-
     from accounts import Accounts
-    query = Accounts.query(Accounts.uid == uid)
-    accounts_list = query.fetch()
-    if accounts_list:
-        account = accounts_list[0]
-        return account if account.access_token == access_token else False
-    else:
+    if not uid:
         return False
+    if not access_token:
+        return False
+    account_instance = Accounts.query(Accounts.uid == uid).get()
+    return isinstance(account_instance, Accounts) and account_instance.access_token == access_token
 
 
 def check_firebase(uid, access_token) -> bool:
