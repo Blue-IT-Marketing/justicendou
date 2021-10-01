@@ -11,7 +11,7 @@ from flask import Blueprint, make_response, render_template, url_for, request
 from src.accounts import Accounts
 from src.articles import Articles, default_topics, Interests
 from src.services import HireMe
-from utils.utils import date_string_to_date
+from utils.utils import date_string_to_date, create_id
 
 main_router_bp = Blueprint('main_router_handler', __name__)
 
@@ -185,47 +185,38 @@ def main_router_handler(path: str):
     route_list: List[str] = get_route_list(path=path)
     if request.method == 'POST':
         if "hireme" in route_list:
-            find_hires = HireMe.query(HireMe.project_status != "completed")
-            this_hires_list = find_hires.fetch()
+            this_hires_list = HireMe.query(HireMe.project_status != "completed").fetch()
             return render_template('dashboard/hireme.html', this_hires_list=this_hires_list)
 
         elif "get-project" in route_list:  # dashboard project get
             project_id = request.args.get('project_id')
-            find_hires = HireMe.query(HireMe.project_id == project_id)
-            this_hires_list = find_hires.fetch()
-            if this_hires_list:
-                this_hire = this_hires_list[0]
-                return render_template('dashboard/project.html', this_hire=this_hire)
-            else:
-                this_hire = HireMe()
-                return render_template('dashboard/project.html', this_hire=this_hire)
+            this_hire = HireMe.query(HireMe.project_id == project_id).get()
+            return render_template('dashboard/project.html', this_hire=this_hire)
 
         elif "update-project" in route_list:  # dashboard project updater
-            cell, company, email, facebook, freelancing, names, project_description, project_id, project_status, \
-            project_title, project_type, start_date, twitter, website = get_project_details()
+            (cell, company, email, facebook, freelancing, names, project_description, project_id, project_status,
+             project_title, project_type, start_date, twitter, website) = get_project_details()
 
             start_date = date_string_to_date(start_date)
 
-            find_project = HireMe.query(HireMe.project_id == project_id)
-            this_project_list = find_project.fetch()
-            if this_project_list:
-                this_project = this_project_list[0]
-            else:
+            this_project = HireMe.query(HireMe.project_id == project_id).get()
+            if not isinstance(this_project, HireMe) and HireMe.project_id:
                 this_project = HireMe()
+                this_project.project_id = create_id()
 
-            this_project.write_names(names=names)
-            this_project.write_cell(cell=cell)
-            this_project.write_email(email=email)
-            this_project.write_website(website=website)
-            this_project.write_facebook(facebook=facebook)
-            this_project.write_twitter(twitter=twitter)
-            this_project.write_company(company=company)
-            this_project.write_freelancing(freelancing=freelancing)
-            this_project.write_project_type(project_type=project_type)
-            this_project.write_project_title(project_title=project_title)
-            this_project.write_project_description(project_description=project_description)
-            this_project.write_start_date(start_date=start_date)
-            this_project.set_project_status(status=project_status)
+            this_project.names = names
+            this_project.cell = cell
+            this_project.email = email
+            this_project.website = website
+            this_project.facebook = facebook
+            this_project.twitter = twitter
+            this_project.company = company
+            this_project.freelancing = freelancing
+            this_project.project_type = project_type
+            this_project.project_title = project_title
+            this_project.project_description = project_description
+            this_project.start_date = start_date
+            this_project.project_status = project_status
             this_project.put()
 
             return "project successfully updated", 200
@@ -340,9 +331,8 @@ def main_router_handler(path: str):
 
         elif "dashboard" in route_list or "dashboard.html" in route_list:
             return route_dashboard()
-        elif 'gtihub-profile':
+        elif 'github-profile' in route_list:
             return route_github_profile()
-
         elif "500" in route_list:
             return route_500()
         else:
