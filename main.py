@@ -218,15 +218,13 @@ def main_router_handler(path: str):
 
         elif "createposts" in route_list:
             return render_template('dashboard/createposts.html')
+
         elif "subjectfromtopicid" in route_list:
             topic_id = request.args.get('topic_id')
-            find_subjects = Interests.query(Interests.topic_id == topic_id)
-            this_interests_list = find_subjects.fetch()
-            if this_interests_list:
-                this_interest = this_interests_list[0]
-                # this_subjects_list = this_interest.subjects.split(this_interest._sep)
-                # logging.info(this_subjects_list)
-                return this_interest.subjects, 200
+            _interests = [interest.to_dict() for interest in get_articles_interests() if interest.topic_id == topic_id]
+            return jsonify(dict(status=True,
+                                payload=_interests,
+                                message='')), 200
 
         elif "addsubjectstotopicid" in route_list:
             topic_id = request.args.get('topic_id')
