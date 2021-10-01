@@ -120,8 +120,14 @@ class Articles(ndb.Model):
 
     @use_context
     @ndb.toplevel
-    def cron_daily_topics(self) -> None:
+    def cron_daily_topics(self) -> tuple:
+        """
+        **cron_daily_topics**
+            runs cron jobs to save daily articles for each topic
+        :return tuple
+        """
         [self.compile_save_article(_articles, topic) for topic, _articles in self.get_articles()]
+        return 'OK', 200
 
     @staticmethod
     @ndb.tasklet
@@ -155,7 +161,8 @@ class Articles(ndb.Model):
 
             article_instance.description = _article.get('description')
             article_instance.article_reference = create_id()
-            article_instance.put_async().get_result()
+            key: ndb.Key = article_instance.put_async().get_result()
+            # Log results here
         return
 
     @staticmethod
