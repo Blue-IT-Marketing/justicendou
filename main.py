@@ -280,21 +280,18 @@ def main_router_handler(path: str):
 @use_context
 @handle_view_errors
 def create_topic():
-    topic_id = request.args.get('topic_id')
-    topic_label = request.args.get('topic_label')
-    find_topic = Interests.query(Interests.topic == topic_label)
-    default_topics_list = find_topic.fetch()
+    topic = request.args.get('topic')
+    topic_instance = Interests.query(Interests.topic == topic.lower().strip()).get()
+    if isinstance(topic_instance, Interests):
+        return jsonify(dict(status=False, message='topic already present')), status_codes.status_ok_code
 
-    if len(default_topics_list) > 0:
-        return "This topic is already present", 200
-    else:
-        this_interest = Interests()
-        this_interest.write_topic_id(topic_id=topic_id)
-        this_interest.write_topic(topic=topic_label)
-        this_interest.put()
-        return jsonify(dict(status=True,
-                            payload=this_interest.to_dict(),
-                            message='successfully created topic')), status_codes.successfully_updated_code
+    this_interest = Interests()
+    this_interest.topic_id = create_id()
+    this_interest.topic = topic
+    this_interest.put()
+    return jsonify(dict(status=True,
+                        payload=this_interest.to_dict(),
+                        message='successfully created topic')), status_codes.successfully_updated_code
 
 
 @use_context
