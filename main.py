@@ -126,49 +126,42 @@ def route_login_post(route):
         return render_template('authentication/loggedout.html')
 
     elif route == "2":
-        display_name = request.args.get('display_name')
-        email = request.args.get('email')
-        email_verified = request.args.get('email_verified')
-        uid = request.args.get('uid')
-        cell = request.args.get('cell')
-        provider_data = request.args.get('provider_data')
-        access_token = request.args.get('access_token')
-
+        access_token, cell, display_name, email, email_verified, provider_data, uid = get_user_args()
         # decode_token = auth.verify_id_token(access_token)
         # uid = decode_token['uid']
-
-        query = Accounts.query(Accounts.uid == uid)
-        account_list = query.fetch()
-
-        if account_list:
-            account = account_list[0]
-            account.write_email(email)
-
-        else:
-            query = Accounts.query(Accounts.email == email)
-            account_list = query.fetch()
-            if account_list:
-                account = account_list[0]
-                account.writeUserID(strinput=uid)
-            else:
-                account = Accounts()
-                account.write_user_id(uid)
-                account.write_names(display_name)
-                account.write_email(email)
-                account.write_provider_data(provider_data)
-
-        if email_verified == "YES":
-            account.write_verified(True)
-        else:
-            account.write_verified(False)
-            account.write_user_id(uid)
-            account.write_cell(cell)
-            account.write_provider_data(provider_data)
-
-        account.write_access_token(access_token)
-        account.put()
+        return update_or_create_account(access_token, cell, display_name, email, email_verified, provider_data, uid)
 
         # TODO - Refine this part
+
+
+@use_context
+@handle_view_errors
+def update_or_create_account(access_token, cell, display_name, email, email_verified, provider_data, uid) -> tuple:
+    account = Accounts.query(Accounts.uid == uid).get()
+    if not isinstance(account, Accounts) or not account.uid:
+        account = Accounts()
+        account.uid = uid
+        account.email = email
+    account.access_token = access_token
+    account.cell = cell
+    account.names = display_name
+    account.email_verified = email_verified
+    account.provider_data = provider_data
+    key: ndb.Key = account.put()
+    if not isinstance(key, ndb.Key):
+        raise DataServiceError(description='unable to create or update account')
+    return jsonify(status=True, payload=account.to_dict(), message='Account successfully created')
+
+
+def get_user_args():
+    display_name = request.args.get('display_name')
+    email = request.args.get('email')
+    email_verified = request.args.get('email_verified')
+    uid = request.args.get('uid')
+    cell = request.args.get('cell')
+    provider_data = request.args.get('provider_data')
+    access_token = request.args.get('access_token')
+    return access_token, cell, display_name, email, email_verified, provider_data, uid
 
 
 def get_route_list(path: str) -> List[str]: return path.lower().split("/")
