@@ -1,16 +1,14 @@
-import datetime
-from datetime import date
-from typing import List, Union
-import jinja2
+from typing import List
+
 # import firebase_admin
 # from firebase_admin import credentials
 # cred = credentials.Certificate('firebase/service_account.json')
 # default_app = firebase_admin.initialize_app(cred)
-from flask import Blueprint, make_response, render_template, url_for, request, jsonify
+from flask import Blueprint, make_response, render_template, request, jsonify
 from google.cloud import ndb
 
 from src.accounts import Accounts
-from src.articles import Articles, default_topics, Interests
+from src.articles import Articles, Interests
 from src.exception_handlers import handle_view_errors
 from src.exceptions import status_codes, InputError, DataServiceError
 from src.services import HireMe
