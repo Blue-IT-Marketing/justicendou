@@ -8,17 +8,18 @@ profiles_bp = Blueprint('profiles', __name__)
 
 @profiles_bp.route('/profiles/<string:path>', methods=['GET'])
 def profiles(path: str):
+    """profile routes"""
     if path == "software-projects":
         template = template_env.get_template(
             'justice-ndou/personal-profile/software-projects/software-projects.html')
-        context = {}
+        context = dict()
     elif path == "linkedin":
         template = template_env.get_template('justice-ndou/personal-profile/linkedin-profile/linkedin.html')
-        context = {}
+        context = dict()
 
     elif path == "services":
         template = template_env.get_template('justice-ndou/personal-profile/services/services.html')
-        context = {}
+        context = dict()
     else:
         return
 
