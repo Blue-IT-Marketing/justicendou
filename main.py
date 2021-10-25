@@ -135,6 +135,10 @@ def route_login_post(route):
 @use_context
 @handle_view_errors
 def update_or_create_account(access_token, cell, display_name, email, email_verified, provider_data, uid) -> tuple:
+    """
+    **update_or_create_account**
+        update an existing user account or create a new one
+    """
     account = Accounts.query(Accounts.uid == uid).get()
     if not isinstance(account, Accounts) or not account.uid:
         account = Accounts()
@@ -152,6 +156,7 @@ def update_or_create_account(access_token, cell, display_name, email, email_veri
 
 
 def get_user_args():
+    """ **get_user_args** fetches user arguments from arguments"""
     display_name = request.args.get('display_name')
     email = request.args.get('email')
     email_verified = request.args.get('email_verified')

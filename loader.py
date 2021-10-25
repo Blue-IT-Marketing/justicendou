@@ -2,7 +2,11 @@ from flask import Flask
 from config import Config
 
 
-def create_app(config=Config):
+def create_app(config=Config) -> Flask:
+    """
+    :param config: configuration settings
+    :return: Flask Application
+    """
     app = Flask(__name__, template_folder='resources/templates', static_folder='resources/static')
 
     with app.app_context():
