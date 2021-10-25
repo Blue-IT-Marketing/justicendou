@@ -92,6 +92,9 @@ class TicketUsers(ndb.Model):
     email = ndb.StringProperty()
     website = ndb.StringProperty()
 
+    def __bool__(self) -> bool:
+        return bool(self.uid)
+
 
 class StaffMembers(ndb.Model):
     uid = ndb.StringProperty()
@@ -214,12 +217,8 @@ def default_contact_handler(path: str):
 
             body, cell, department, email, names, subject, surname, ticket_preference = gather_message_details()
 
-            query = TicketUsers.query(TicketUsers.uid == uid)
-            ticket_user_list = query.fetch()
-
-            if len(ticket_user_list) > 0:
-                ticket_user = ticket_user_list[0]
-            else:
+            ticket_user = TicketUsers.query(TicketUsers.uid == uid).get()
+            if not isinstance(ticket_user, TicketUsers) or not bool(ticket_user):
                 ticket_user = TicketUsers(uid=uid, names=names, surname=surname, cell=cell, email=email)
                 ticket_user.put()
 
