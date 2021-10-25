@@ -159,6 +159,9 @@ class CommentThread(ndb.Model):
     def create_thread_id():
         return "".join(random.choices(string.digits + string.ascii_lowercase, k=32))
 
+    def __bool__(self) -> bool:
+        return bool(self.ticket_id)
+
 
 class Comments(ndb.Model):
     author_id = ndb.StringProperty()
@@ -354,16 +357,15 @@ def tickets_handler(ticket_id: str):
             thread_id = request.args.get("thread_id")
             uid = request.args.get("uid")
 
-            query = CommentThread.query(CommentThread.thread_id == thread_id,
-                                        CommentThread.ticket_id == ticket_id)
-            comment_thread_list = query.fetch()
+            comment_thread = CommentThread.query(CommentThread.thread_id == thread_id,
+                                                      CommentThread.ticket_id == ticket_id).fetch()
+
 
             _now = datetime.datetime.now()
             this_date = _now.date()
             this_time = _now.time()
 
-            if comment_thread_list:
-                comment_thread = comment_thread_list[0]
+            if isinstance(comment_thread, CommentThread) and bool(comment_thread):
                 _comment_id: str = create_id()
 
                 comment_instance = Comments(thread_id=comment_thread.thread_id, author_id=uid,
