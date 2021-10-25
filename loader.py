@@ -4,6 +4,8 @@ from config import Config
 
 def create_app(config=Config) -> Flask:
     """
+        **create_app**
+            creates and returns a flask app
     :param config: configuration settings
     :return: Flask Application
     """
