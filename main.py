@@ -319,7 +319,7 @@ def add_subjects_to_topics() -> Interests:
         raise InputError(description='topic_id is required')
 
     this_interest = Interests.query(Interests.topic_id == topic_id).get()
-    if not isinstance(this_interest, Interests) and Interests.topic_id:
+    if not isinstance(this_interest, Interests) or not bool(Interests.topic_id):
         return jsonify(dict(status=False, message='error: topic not found'))
     this_interest.subjects = subjects_list
     this_interest.put()
