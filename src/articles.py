@@ -32,7 +32,10 @@ this_page_size = 50
 
 
 class Interests(ndb.Model):
-
+    """
+    **Interests**
+        A Class for keeping track of Interests by Topic
+    """
     topic_id = ndb.StringProperty()
     topic = ndb.StringProperty()
     subjects = ndb.StringProperty()
@@ -45,6 +48,10 @@ class Interests(ndb.Model):
 
     @staticmethod
     def add_default_topics():
+        """
+            **add_default_topics**
+                Add default topics to topics database
+        """
         for topic in default_topics:
             interest_instance = Interests.query(Interests.topic == topic).get()
             if not isinstance(interest_instance, Interests) or not interest_instance.topic:
