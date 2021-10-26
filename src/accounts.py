@@ -45,4 +45,9 @@ class Accounts(ndb.Expando):
                 will be true if user is admin
         :return:
         """
-        return self.uid == config_instance.ADMIN_UID
+        return self.uid == config_instance.ADMIN_UID and not self.suspended
+
+    @property
+    def user_details(self) -> dict:
+        return dict(names=self.names, surname=self.surname, cell=self.cell, tel=self.tel,
+                    email=self.email, website=self.website)
