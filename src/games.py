@@ -8,53 +8,52 @@ games_handler_bp = Blueprint('games_handler', __name__)
 
 
 def route_games():
-    return render_template("games/games.html")
+    """load game specific resources here"""
+    return render_template("games/games.html"), 200
 
 
 def route_tetris():
-    return render_template("games/tetris/tetris.html")
+    """load game specific resources here"""
+    return render_template("games/tetris/tetris.html"), 200
 
 
 def route_pacman():
-    return render_template("games/pacman/pacman.html")
+    """load game specific resources here"""
+    return render_template("games/pacman/pacman.html"), 200
 
 
 def route_chess():
-    return render_template("games/garbo/chess.html")
+    """load game specific resources here"""
+    return render_template("games/garbo/chess.html"), 200
 
 
 def route_checkers():
-    return render_template("games/checkers/checkers.html")
+    """load game specific resources here"""
+    return render_template("games/checkers/checkers.html"), 200
 
 
 def route_ping_pong():
-    return render_template("games/pingpong/pingpong.html")
+    """load game specific resources here"""
+    return render_template("games/pingpong/pingpong.html"), 200
 
 
 def route_snake():
-    return render_template("games/snake/snake.html")
+    """load game specific resources here"""
+    return render_template("games/snake/snake.html"), 200
 
 
 @games_handler_bp.route('/games', methods=['GET'])
 def games():
+    """load game specific resources here"""
     return route_games()
 
 
 @games_handler_bp.route('/games/<string:path>', methods=['GET'])
-def games_router(path: str):
+def games_router(path: str) -> tuple:
     """
-
-    :return:
+        **games_router**
+            routes game requests by path and load the relevant template for the game
+    :return: tuple
     """
-    if path == 'tetris':
-        return route_tetris()
-    elif path == 'pacman':
-        return route_pacman()
-    elif path == 'chess':
-        return route_chess()
-    elif path == 'checkers':
-        return route_checkers()
-    elif path == 'pingpong':
-        return route_ping_pong()
-    elif path == 'snake':
-        return route_snake()
+    return dict(tetris=route_tetris, pacman=route_pacman, chess=route_chess, checkers=route_checkers,
+                pingpong=route_ping_pong, snake=route_snake).get(path)()
