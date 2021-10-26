@@ -63,7 +63,7 @@ def algorithms_handler(path: str):
                                   maze=route_maze, path=route_path,
                                   plinko=route_plinko, mazesolver=route_maze_solver)
 
-    return algorithm_lookup[path]
+    return algorithm_lookup[path]()
 
 
 @algorithms_handler_bp.route('/algorithms', methods=["GET"])
