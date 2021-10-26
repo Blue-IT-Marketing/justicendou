@@ -73,6 +73,10 @@ class Interests(ndb.Model):
 
 
 class Articles(ndb.Model):
+    """
+        **Class Articles**
+            this model stores articles
+    """
     article_reference = ndb.StringProperty()
     topic = ndb.StringProperty()
     url = ndb.StringProperty()
