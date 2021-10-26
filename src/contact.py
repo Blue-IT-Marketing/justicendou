@@ -1,7 +1,7 @@
 import os
 import random
 import string
-from typing import List
+from typing import List, Optional
 
 import jinja2
 import datetime
@@ -190,28 +190,20 @@ def default_contact_handler(path: str):
             contact_message = ContactMessages(message_reference=uid, names=names, email=email, cell=cell,
                                               subject=subject, message=message)
             contact_message.put()
-            return """ Contact Message Submitted Successfully One of our Representatives will get back to you 
-            as soon as possible """, 200
+            return """Contact Message Submitted Successfully One of our Representatives will get back to you 
+            as soon as possible""", 200
 
         elif choice == "1":
-            # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
-            uid = request.args.get('uid')
-            ticket_user = get_ticket_user(uid)
-
-            return render_template('contact/sub/subcontact.html', ticket_user=ticket_user), 200
+            uid: str = request.args.get('uid')
+            return render_template('contact/sub/subcontact.html', ticket_user=get_ticket_user(uid)), 200
 
         elif choice == "2":
             # TODO- need to pre load tickets for the current user
             # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
             uid = request.args.get('uid')
-
-            ticket_user = get_ticket_user(uid)
-            query = Tickets.query(Tickets.uid == uid)
-            tickets_list = query.fetch()
-
             template = template_env.get_template('contact/sub/tickets.html')
-            context = {'ticket_user': ticket_user, 'tickets_list': tickets_list}
-            return template.render(context), 200
+            return template.render(dict(ticket_user=get_ticket_user(uid),
+                                        tickets_list=Tickets.query(Tickets.uid == uid).fetch())), 200
 
         elif choice == "3":
             # '&email=' + email + '&uid=' + struid + '&access_token=' + accessToken;
@@ -264,14 +256,15 @@ def gather_message_details():
     return body, cell, department, email, names, subject, surname, ticket_preference
 
 
-def get_ticket_user(uid):
-    query = TicketUsers.query(TicketUsers.uid == uid)
-    ticket_user_list = query.fetch()
-    if ticket_user_list:
-        ticket_user = ticket_user_list[0]
-    else:
-        ticket_user = TicketUsers()
-    return ticket_user
+def get_ticket_user(uid) -> Optional[TicketUsers]:
+    """
+        **get_ticket_user**
+            given uid return Ticket User
+    :param uid:
+    :return:
+    """
+    ticket_user = TicketUsers.query(TicketUsers.uid == uid).get()
+    return ticket_user if isinstance(ticket_user, TicketUsers) and bool(ticket_user.uid) else None
 
 
 @contact_handler_bp.route('/contact', methods=['POST', 'GET'])
