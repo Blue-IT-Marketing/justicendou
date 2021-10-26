@@ -29,6 +29,7 @@ class Config:
         self.SEP: str = "#"
         self.IS_PRODUCTION: bool = False
         self.PROJECT = 'justice-ndou'
+        self.ADMIN_UID: str = ''
 
 
 config_instance: Config = Config()
