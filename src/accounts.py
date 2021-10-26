@@ -47,6 +47,17 @@ class Accounts(ndb.Expando):
         return dict(names=self.names, surname=self.surname, cell=self.cell, tel=self.tel,
                     email=self.email, website=self.website)
 
+    def verify_code(self, code: str) -> bool:
+        """
+            **verify_code**
+                verifies verification and returns the result
+                also has a side effect of modifying the verified property
+        :param code:
+        :return:
+        """
+        self.verified = self.verification_code == code
+        return self.verified
+
     def __bool__(self) -> bool:
         return bool(self.uid)
 
