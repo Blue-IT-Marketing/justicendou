@@ -51,3 +51,9 @@ class Accounts(ndb.Expando):
     def user_details(self) -> dict:
         return dict(names=self.names, surname=self.surname, cell=self.cell, tel=self.tel,
                     email=self.email, website=self.website)
+
+    def __bool__(self) -> bool:
+        return bool(self.uid)
+
+    def __str__(self) -> str:
+        return f"{self.user_details}"
