@@ -19,7 +19,7 @@ services_handler_bp = Blueprint('services_handler', __name__)
 class ProjectMessages(ndb.Model):
     """
         ** Class ProjectMessages **
-
+            messages relating to projects
     """
     project_id = ndb.StringProperty()
     subject = ndb.StringProperty()
@@ -288,19 +288,8 @@ def this_services_handler(path: str):
 
         if route == "request-this-status":
             project_id = request.args.get('project_id')
-            this_project_query = HireMe.query(HireMe.project_id == project_id)
-            this_project_list = this_project_query.fetch()
-
-            if this_project_list:
-                this_project = this_project_list[0]
-
-                template = template_env.get_template(
-                    'justice-ndou/personal-profile/services/status-response.html')
-                context = {'thisproject': this_project}
-                return template.render(context), 200
-            else:
+            this_project = HireMe.query(HireMe.project_id == project_id).get()
+            if not isinstance(this_project, HireMe) or not bool(this_project.project_id):
                 this_project = HireMe()
-                template = template_env.get_template(
-                    'justice-ndou/personal-profile/services/status-response.html')
-                context = {'thisproject': this_project}
-                return template.render(context), 200
+            template = template_env.get_template('justice-ndou/personal-profile/services/status-response.html')
+            return template.render(dict(thisproject=this_project.to_dict())), 200
