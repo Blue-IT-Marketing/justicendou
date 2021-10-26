@@ -53,15 +53,16 @@ class Interests(ndb.Model):
                 Add default topics to topics database
         """
         for topic in default_topics:
-            interest_instance = Interests.query(Interests.topic == topic).get()
+            interest_instance = Interests.query(Interests.topic.lower() == topic.lower()).get()
             if not isinstance(interest_instance, Interests) or not interest_instance.topic:
                 interest_instance = Interests(topic_id=create_id(), topic=topic, topic_active=True)
                 interest_instance.put()
 
     @staticmethod
-    def add_topic(topic) -> ndb.Key:
+    def add_topic(topic: str) -> ndb.Key:
+        """add a specific topic to database"""
         if topic:
-            interest_instance = Interests.query(Interests.topic == topic).get()
+            interest_instance = Interests.query(Interests.topic.lower() == topic.lower()).get()
             if not isinstance(interest_instance, Interests) or not interest_instance.topic:
                 interest_instance = Interests(topic_id=create_id(), topic=topic, topic_active=True)
                 return interest_instance.put()
