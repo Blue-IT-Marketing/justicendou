@@ -16,15 +16,23 @@ services_handler_bp = Blueprint('services_handler', __name__)
 
 
 class ProjectMessages(ndb.Model):
+    """
+        ** Class ProjectMessages **
+
+    """
     project_id = ndb.StringProperty()
     subject = ndb.StringProperty()
     message = ndb.StringProperty()
     message_type = ndb.StringProperty(default="email")  # sms
     date_sent = ndb.DateProperty(auto_now_add=True)
     time_sent = ndb.TimeProperty(auto_now_add=True)
-    response = ndb.StringProperty()
-    date_responded = ndb.DateProperty()
-    time_responded = ndb.TimeProperty()
+    response = ndb.StringProperty(default=None)
+    date_responded = ndb.DateProperty(auto_now=True)
+    time_responded = ndb.TimeProperty(auto_now=True)
+
+    @property
+    def response_sent(self) -> bool:
+        return bool(self.response)
 
     def write_project_id(self, projectid):
         self.project_id = projectid
