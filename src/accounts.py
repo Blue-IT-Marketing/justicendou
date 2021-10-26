@@ -1,12 +1,7 @@
 import os
-import string
-from random import choices
 
 import jinja2
 from google.cloud import ndb
-import datetime
-
-from google.cloud.ndb.exceptions import BadValueError
 
 from config import config_instance
 
