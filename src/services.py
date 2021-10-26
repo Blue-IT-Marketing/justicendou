@@ -10,6 +10,8 @@ from flask import Blueprint, request
 from google.cloud import ndb
 from google.cloud.ndb.exceptions import BadValueError
 
+from src.exceptions import InputError
+
 template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
 
 services_handler_bp = Blueprint('services_handler', __name__)
@@ -179,49 +181,8 @@ class HireMe(ndb.Model):
 def services_handler():
     route = request.args.get('route')
     if route == "hireme":
-        names = request.args.get('names')
-        cell = request.args.get('cell')
-        email = request.args.get('email')
-        website = request.args.get('website')
-        facebook = request.args.get('myfacebook')
-        twitter = request.args.get('mytwitter')
-        company = request.args.get('company')
-        freelancing = request.args.get('freelancing')
-        project_type = request.args.get('projecttype')
-        project_title = request.args.get('projecttitle')
-        project_description = request.args.get('projectdescription')
-
-        logging.info("services handler received all variables")
-
-        # //TODO- please do error corrections within the browser using javascript
-
-        this_hire_me = HireMe()
-
-        if not this_hire_me.write_names(names=names):
-            return "Please enter correct Names"
-        elif not this_hire_me.write_cell(cell=cell):
-            return "Please enter a valid cell phone Number"
-        elif not this_hire_me.write_email(email=email):
-            return "Please enter a valid email address"
-        elif not this_hire_me.write_website(website=website):
-            return "Please enter a valid website address"
-        elif not this_hire_me.write_company(company=company):
-            return "Please enter a valid company name"
-        elif not this_hire_me.write_project_type(project_type=project_type):
-            return "Please enter a valid project type"
-        elif not this_hire_me.write_project_title(project_title=project_title):
-            return "Please enter a valid project title"
-        elif not this_hire_me.write_project_description(project_description=project_description):
-            return "Please enter a valid project description"
-
-        else:
-            this_hire_me.write_facebook(facebook=facebook)
-            this_hire_me.write_twitter(twitter=twitter)
-            this_hire_me.write_freelancing(freelancing=freelancing)
-            this_hire_me.write_project_id(project_id=this_hire_me.create_id())
-            this_hire_me.put()
-
-            return "Successfully created your project with project code : " + this_hire_me.project_id
+        args = dict(get_hireme_args())
+        return "Successfully created your project with project code : " + create_hireme_model(args).project_id
 
     elif route == "get-hireme-requests":
 
@@ -232,6 +193,78 @@ def services_handler():
             "justice-ndou/personal-profile/services/hireme-list.html")
         context = {'thishiremelist': this_hireme_list}
         return template.render(context)
+
+
+def get_hireme_args():
+    """
+        **get_hireme_args**
+
+
+
+    :return:
+    """
+    # TODO check for errors here
+
+    names = request.args.get('names')
+    if not names:
+        raise InputError(description='names cannot be Null')
+    cell = request.args.get('cell')
+    if not cell:
+        raise InputError(description='Cell cannot be Null')
+    email = request.args.get('email')
+    if not email:
+        raise InputError(description='Email cannot be Null')
+
+    website = request.args.get('website')
+    if not website:
+        raise InputError(description='Website cannot be Null')
+
+    facebook = request.args.get('myfacebook')
+    if not facebook:
+        raise InputError(description='Facebook cannot be Null')
+    twitter = request.args.get('mytwitter')
+    if not twitter:
+        raise InputError(description='Twitter cannot be Null')
+
+    company = request.args.get('company')
+    if not company:
+        raise InputError(description='Company cannot be Null')
+
+    freelancing = request.args.get('freelancing')
+    if not freelancing:
+        raise InputError(description='Freelancing cannot be Null')
+
+    project_type = request.args.get('projecttype')
+    if not project_type:
+        raise InputError(description='project type cannot be Null')
+
+    project_title = request.args.get('projecttitle')
+    if not project_title:
+        raise InputError(description='Project Title cannot be Null')
+
+    project_description = request.args.get('projectdescription')
+    if not project_description:
+        raise InputError(description='ProjectDescription cannot be Null')
+
+    return cell, company, email, facebook, freelancing, names, project_description, project_title, \
+           project_type, twitter, website
+
+
+def create_hireme_model(args):
+    this_hire_me = HireMe()
+    this_hire_me.names = args.get('names')
+    this_hire_me.cell = args.get('cell')
+    this_hire_me.email = args.get('email')
+    this_hire_me.website = args.get('website')
+    this_hire_me.facebook = args.get('facebook')
+    this_hire_me.twitter = args.get('twitter')
+    this_hire_me.company = args.get('company')
+    this_hire_me.freelancing = args.get('freelancing')
+    this_hire_me.project_type = args.get('project_type')
+    this_hire_me.project_title = args.get('project_title')
+    this_hire_me.project_description = args.get('project_description')
+    key = this_hire_me.put()
+    return this_hire_me
 
 
 @services_handler_bp.route('/services/<string:path>', methods=['POST', 'GET'])
