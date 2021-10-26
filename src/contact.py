@@ -231,6 +231,11 @@ def default_contact_handler(path: str):
 
 
 def gather_contact_details():
+    """
+        **gather_contact_details**
+            obtains contact details from request. args
+    :return:
+    """
     names = request.args.get('names')
     email = request.args.get('email')
     cell = request.args.get('cell')
@@ -240,6 +245,11 @@ def gather_contact_details():
 
 
 def gather_message_details():
+    """
+        **gather_message_details**
+            obtains and returns message details from args
+    :return:
+    """
     subject = request.args.get("subject")
     body = request.args.get("body")
     ticket_preference = request.args.get("ticket_preference")
