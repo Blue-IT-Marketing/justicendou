@@ -279,13 +279,13 @@ def return_contact():
 
 @contact_handler_bp.route('/contact/read/<string:reference>', methods=['GET'])
 def contact_reader(reference: str):
-    query = ContactMessages.query(ContactMessages.message_reference == reference)
-    contact_messages = query.fetch()
-    contact_message = contact_messages[0] if contact_messages else ContactMessages()
+    """ **contact_reader**
+        reads a contact from database using a reference
 
+    """
     template = template_env.get_template('contact/readContact.html')
-    context = {'contact_message': contact_message}
-    return template.render(context), 200
+    return template.render(dict(contact_message=ContactMessages.query(
+        ContactMessages.message_reference == reference).get())), 200
 
 
 @contact_handler_bp.route('/contact/tickets/<string:ticket_id>', methods=['POST', 'GET'])
@@ -356,8 +356,7 @@ def tickets_handler(ticket_id: str):
             uid = request.args.get("uid")
 
             comment_thread = CommentThread.query(CommentThread.thread_id == thread_id,
-                                                      CommentThread.ticket_id == ticket_id).fetch()
-
+                                                 CommentThread.ticket_id == ticket_id).fetch()
 
             _now = datetime.datetime.now()
             this_date = _now.date()
