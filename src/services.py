@@ -268,12 +268,11 @@ def this_services_handler(path: str):
         """
             Note get the uid from the firebase script on the user end and then use that as a uid
         """
-        # TODO- just show the hireme form
-        do_hire_template = "justice-ndou/personal-profile/services/dohire.html"
-        status_template = "justice-ndou/personal-profile/services/status.html"
-        return dict(dohire=template_env.get_template(do_hire_template),
-                    request_status=template_env.get_template(status_template))\
-                   .get(path.replace("-", "_")).render(dict()), 200
+        do_hire_template = template_env.get_template("justice-ndou/personal-profile/services/dohire.html")
+        status_template = template_env.get_template("justice-ndou/personal-profile/services/status.html")
+        # NOTE this will return the correct template depending on path
+        return dict(dohire=do_hire_template,
+                    request_status=status_template).get(path.replace("-", "_")).render(dict()), 200
 
     elif request.method == "POST":
         route = request.args.get('route')
