@@ -188,10 +188,8 @@ def services_handler():
         this_find_requests = HireMe.query(HireMe.project_status != "completed")
         this_hireme_list = this_find_requests.fetch()
 
-        template = template_env.get_template(
-            "justice-ndou/personal-profile/services/hireme-list.html")
-        context = {'thishiremelist': this_hireme_list}
-        return template.render(context)
+        template = template_env.get_template("justice-ndou/personal-profile/services/hireme-list.html")
+        return template.render(dict(thishiremelist=this_hireme_list))
 
 
 def get_hireme_args():
@@ -202,8 +200,6 @@ def get_hireme_args():
 
     :return:
     """
-    # TODO check for errors here
-
     names = request.args.get('names')
     if not names:
         raise InputError(description='names cannot be Null')
@@ -273,15 +269,11 @@ def this_services_handler(path: str):
             Note get the uid from the firebase script on the user end and then use that as a uid
         """
         # TODO- just show the hireme form
-        if path == "dohire":
-            template = template_env.get_template("justice-ndou/personal-profile/services/dohire.html")
-            context = {}
-            return template.render(context), 200
-
-        elif path == "request-status":
-            template = template_env.get_template("justice-ndou/personal-profile/services/status.html")
-            context = {}
-            return template.render(context), 200
+        do_hire_template = "justice-ndou/personal-profile/services/dohire.html"
+        status_template = "justice-ndou/personal-profile/services/status.html"
+        return dict(dohire=template_env.get_template(do_hire_template),
+                    request_status=template_env.get_template(status_template))\
+                   .get(path.replace("-", "_")).render(dict()), 200
 
     elif request.method == "POST":
         route = request.args.get('route')
