@@ -206,7 +206,6 @@ def default_contact_handler(path: str):
                                         tickets_list=Tickets.query(Tickets.uid == uid).fetch())), 200
 
         elif choice == "3":
-            # '&email=' + email + '&uid=' + struid + '&access_token=' + accessToken;
             uid = request.args.get('uid')
             access_token = request.args.get('access_token')
 
@@ -214,24 +213,20 @@ def default_contact_handler(path: str):
 
             ticket_user = TicketUsers.query(TicketUsers.uid == uid).get()
             if not isinstance(ticket_user, TicketUsers) or not bool(ticket_user):
-                ticket_user = TicketUsers(uid=uid, names=names, surname=surname, cell=cell, email=email)
-                ticket_user.put()
+                key = TicketUsers(uid=uid, names=names, surname=surname, cell=cell, email=email).put()
 
-            ticket_id: str = create_id()
-            this_ticket = Tickets(uid=uid, ticket_id=ticket_id, subject=subject, body=body,
-                                  ticket_preference=ticket_preference, department=department)
+            key = Tickets(uid=uid, ticket_id=create_id(), subject=subject, body=body,
+                          ticket_preference=ticket_preference, department=department).put()
 
-            this_ticket.put()
             return "Ticket Successfully created", 200
 
             # TODO- finish this up once done resolving the account issues
 
         elif choice == "4":
-            # '&uid=' + struid + '&email=' + email + '&access_token=' + accessToken;
             uid = request.args.get('uid')
             email = request.args.get('email')
             access_token = request.args.get('access_token')
-
+            # TODO finish this
             return render_template('contact/sub/address.html'), 200
 
 
