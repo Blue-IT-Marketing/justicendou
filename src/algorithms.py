@@ -12,43 +12,43 @@ def route_algorithms():
     :return:
     """
     # Load specific algos specific variables here
-    return render_template("algorithms/algos.html")
+    return render_template("algorithms/algos.html"), 200
 
 
 def route_strange():
-    return render_template("algorithms/strange/strange.html")
+    return render_template("algorithms/strange/strange.html"), 200
 
 
 def route_perlin():
-    return render_template("algorithms/perlin/perlin.html")
+    return render_template("algorithms/perlin/perlin.html"), 200
 
 
 def route_life():
-    return render_template("algorithms/gameoflife/life.html")
+    return render_template("algorithms/gameoflife/life.html"), 200
 
 
 def route_maze():
-    return render_template("algorithms/maze/maze.html")
+    return render_template("algorithms/maze/maze.html"), 200
 
 
 def route_path():
-    return render_template("algorithms/pathfinder/path.html")
+    return render_template("algorithms/pathfinder/path.html"), 200
 
 
 def route_matter():
-    return render_template("algorithms/matter/matter.html")
+    return render_template("algorithms/matter/matter.html"), 200
 
 
 def route_matrix():
-    return render_template("games/matrix/matrix.html")
+    return render_template("games/matrix/matrix.html"), 200
 
 
 def route_plinko():
-    return render_template("algorithms/plinko/plinko.html")
+    return render_template("algorithms/plinko/plinko.html"), 200
 
 
 def route_maze_solver():
-    return render_template("algorithms/mazepath/mazepath.html")
+    return render_template("algorithms/mazepath/mazepath.html"), 200
 
 
 @algorithms_handler_bp.route('/algorithms/<string:path>', methods=['GET'])
@@ -58,22 +58,12 @@ def algorithms_handler(path: str):
     :param path:
     :return:
     """
-    if path == "strange":
-        return route_strange()
-    elif path == "perlin":
-        return route_perlin()
-    elif path == "matrix":
-        return route_matrix()
-    elif path == "gameoflife":
-        return route_life()
-    elif path == "maze":
-        return route_maze()
-    elif path == "path":
-        return route_path()
-    elif path == "plinko":
-        return route_plinko()
-    elif path == "mazesolver":
-        return route_maze_solver()
+    algorithm_lookup: dict = dict(strange=route_strange, perlin=route_perlin,
+                                  matrix=route_matrix, gameoflife=route_life,
+                                  maze=route_maze, path=route_path,
+                                  plinko=route_plinko, mazesolver=route_maze_solver)
+
+    return algorithm_lookup[path]
 
 
 @algorithms_handler_bp.route('/algorithms', methods=["GET"])
