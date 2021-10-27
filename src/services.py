@@ -1,10 +1,7 @@
+import datetime
 import os
-import random
-import string
 
 import jinja2
-import datetime
-
 from flask import Blueprint, request
 from google.cloud import ndb
 from google.cloud.ndb.exceptions import BadValueError
