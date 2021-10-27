@@ -110,71 +110,6 @@ class HireMe(ndb.Model):
         """
         pass
 
-    def write_estimated_budget(self, estimated_budget):
-        estimated_budget = str(estimated_budget)
-        if estimated_budget.isdigit() and int(estimated_budget) > 0:
-            self.estimated_budget = int(estimated_budget)
-        else:
-            raise BadValueError()
-
-    def write_start_date(self, start_date):
-        if isinstance(start_date, datetime.date):
-            self.start_date = start_date
-            return True
-        else:
-            raise BadValueError()
-
-    def set_project_status(self, status):
-        status = str(status)
-        if status in ["created", "read", "started", "milestone", "completed"]:
-            self.project_status = status
-            return True
-        else:
-            return False
-
-    def write_project_id(self, project_id):
-        self.project_id = project_id
-
-    @staticmethod
-    def create_id():
-        return "".join(random.choices(string.digits + string.ascii_uppercase, k=64))
-
-    def write_userid(self, uid: str):
-        self.uid = uid
-
-    def write_names(self, names):
-        self.names = names.strip().lower()
-
-    def write_cell(self, cell):
-        self.cell = cell
-
-    def write_email(self, email):
-        self.email = email
-
-    def write_website(self, website):
-        self.website = website
-
-    def write_facebook(self, facebook):
-        self.facebook = facebook
-
-    def write_twitter(self, twitter):
-        self.twitter = twitter
-
-    def write_company(self, company):
-        self.company = company
-
-    def write_freelancing(self, freelancing):
-        self.freelancing = freelancing
-
-    def write_project_type(self, project_type):
-        self.project_type = project_type
-
-    def write_project_title(self, project_title):
-        self.project_title = project_title
-
-    def write_project_description(self, project_description):
-        self.project_description = project_description
-
 
 @services_handler_bp.route('/services', methods=['GET', 'POST'])
 def services_handler():
@@ -184,7 +119,6 @@ def services_handler():
         return "Successfully created your project with project code : " + create_hireme_model(args).project_id
 
     elif route == "get-hireme-requests":
-
         this_find_requests = HireMe.query(HireMe.project_status != "completed")
         this_hireme_list = this_find_requests.fetch()
 
@@ -196,9 +130,7 @@ def get_hireme_args():
     """
         **get_hireme_args**
 
-
-
-    :return:
+        :return:
     """
     names = request.args.get('names')
     if not names:
@@ -246,6 +178,11 @@ def get_hireme_args():
 
 
 def create_hireme_model(args):
+    """
+        **create_hireme_mnodel**
+
+    """
+
     this_hire_me = HireMe()
     this_hire_me.names = args.get('names')
     this_hire_me.cell = args.get('cell')
