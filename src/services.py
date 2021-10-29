@@ -1,6 +1,5 @@
 import datetime
 import os
-
 import jinja2
 from flask import Blueprint, request
 from google.cloud import ndb
