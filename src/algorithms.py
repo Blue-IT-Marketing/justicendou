@@ -16,26 +16,32 @@ def route_algorithms():
 
 
 def route_strange():
+    """load strange attractors settings here """
     return render_template("algorithms/strange/strange.html"), 200
 
 
 def route_perlin():
+    """load perlin settings here"""
     return render_template("algorithms/perlin/perlin.html"), 200
 
 
 def route_life():
+    """load game of life settings here"""
     return render_template("algorithms/gameoflife/life.html"), 200
 
 
 def route_maze():
+    """load maze settings here"""
     return render_template("algorithms/maze/maze.html"), 200
 
 
 def route_path():
+    """load routing algo settings here"""
     return render_template("algorithms/pathfinder/path.html"), 200
 
 
 def route_matter():
+    """load matter settings here"""
     return render_template("algorithms/matter/matter.html"), 200
 
 
