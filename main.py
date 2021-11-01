@@ -242,6 +242,14 @@ def main_router_handler(path: str):
             return route_dashboard()
 
     elif request.method == 'GET':
+        # use lookup dict instead of if statements
+        get_lookup: dict = dict(logout=route_logout,
+                                sitemap=route_sitemap,
+                                about=route_about,
+                                contact=route_contact,
+                                dashboard=route_dashboard,
+                                github_profile=route_github_profile)
+
         if "index" in route_list or "index.html" in route_list:
             return route_home()
         elif is_login_route(route=route_list):
