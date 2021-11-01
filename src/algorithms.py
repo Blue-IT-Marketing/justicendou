@@ -54,22 +54,25 @@ def route_plinko():
 
 
 def route_maze_solver():
+    """ 
+        **route_maze_solver**
+            
+    """
     return render_template("algorithms/mazepath/mazepath.html"), 200
 
 
 @algorithms_handler_bp.route('/algorithms/<string:path>', methods=['GET'])
 def algorithms_handler(path: str):
     """
+    **algorithms_handler**
 
     :param path:
     :return:
     """
-    algorithm_lookup: dict = dict(strange=route_strange, perlin=route_perlin,
-                                  matrix=route_matrix, gameoflife=route_life,
-                                  maze=route_maze, path=route_path,
-                                  plinko=route_plinko, mazesolver=route_maze_solver)
-
-    return algorithm_lookup[path]()
+    return dict(strange=route_strange, perlin=route_perlin,
+    matrix=route_matrix, gameoflife=route_life,
+    maze=route_maze, path=route_path,
+    plinko=route_plinko, mazesolver=route_maze_solver)[path]()
 
 
 @algorithms_handler_bp.route('/algorithms', methods=["GET"])

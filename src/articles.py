@@ -60,7 +60,10 @@ class Interests(ndb.Model):
 
     @staticmethod
     def add_topic(topic: str) -> ndb.Key:
-        """add a specific topic to database"""
+        """
+            **add_topic**
+                add a specific topic to database
+        """
         if topic:
             interest_instance = Interests.query(Interests.topic.lower() == topic.lower()).get()
             if not isinstance(interest_instance, Interests) or not interest_instance.topic:
@@ -69,6 +72,10 @@ class Interests(ndb.Model):
 
     @staticmethod
     def get_all_topics() -> List[dict]:
+        """
+        **get_all_topics**
+
+        """
         return [topic.to_dict() for topic in Interests.query().fetch()]
 
 
@@ -104,8 +111,6 @@ class Articles(ndb.Model):
             headers = {'Content-Type': 'application/json'}
             my_articles_url = Articles.return_articles_url(topic)
             result, status_code = await async_get_request(_url=my_articles_url, headers=headers)
-            print(f'result : {result}')
-            print(f'status code : {status_code}')
             return result if status_code == 200 else None
         except requests.ConnectionError:
             return None
@@ -126,6 +131,10 @@ class Articles(ndb.Model):
         return f'{base_url}{topic}&language=en&from={formatted_date}&apiKey={api_key}'
 
     def get_articles(self) -> List[tuple]:
+        """
+            **get_articles**
+
+        """
         _articles_cron: List[Coroutine] = [self.fetch_articles_by_topic(topic=topic) for topic in default_topics]
         try:
             loop = asyncio.get_event_loop()
