@@ -381,6 +381,11 @@ def create_update_project() -> tuple:
 
 
 def get_project_arg_details():
+    """
+        **get_project_arg_details**
+            obtains project details from arguments and then returns them
+    :return:
+    """
     project_id = request.args.get('project_id')
     names = request.args.get('names')
     cell = request.args.get('cell')
