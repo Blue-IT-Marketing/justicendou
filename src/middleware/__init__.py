@@ -1,6 +1,8 @@
 from flask import request, redirect
 
 def first_request():
-    print('first request called')
-    if request.host_url.lower().startswith('https://justice-ndou.herokuapp.com/'):
-        redirect(request.host_url.lower().replace('https://justice-ndou.herokuapp.com/', 'https://justice-ndou.site/')), 301
+    heroku_url: str = 'https://justice-ndou.herokuapp.com/'
+    registered_domain: str = 'https://justice-ndou.herokuapp.com/'
+
+    if request.host_url.lower().startswith(heroku_url):
+        return redirect(request.host_url.lower().replace(heroku_url, registered_domain)), 301
