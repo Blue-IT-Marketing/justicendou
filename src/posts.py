@@ -3,6 +3,7 @@ from google.cloud import ndb
 
 class Posts(ndb.Model):
     """
+    **Class Posts**
         this is for the blog
     """
     _summary_len: int = 36
