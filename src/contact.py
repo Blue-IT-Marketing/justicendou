@@ -16,6 +16,9 @@ ticket_handler_bp = Blueprint('ticket_handler_bp', __name__)
 
 
 class ContactMessages(ndb.Model):
+    """
+    
+    """
     message_reference = ndb.StringProperty()
     names = ndb.StringProperty()
     email = ndb.StringProperty()
