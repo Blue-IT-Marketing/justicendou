@@ -2,6 +2,7 @@
     Send My Personal Tweets in my own profile
 
 """
+import time
 from typing import List
 
 import decouple
@@ -110,9 +111,9 @@ class TweeterFollowBot(TweeterAuth):
             user.unfollow()
 
 
-
 if __name__ == '__main__':
     i = 0
     while i < 50:
-        TweeterProfile().un_follow_all()
+        TweeterFollowBot().un_follow_all()
+        time.sleep(i*10)
         i += 1
