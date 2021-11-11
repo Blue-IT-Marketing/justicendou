@@ -59,3 +59,30 @@ class TweeterProfile:
         """
         api.update_with_media(media_path, tweet)
 
+
+
+class TweetMessages:
+    """
+        **Tweet Messages**
+    """
+    def __init__(self) -> None:
+        self.tweet_messages: list = []
+
+    def add_tweet_message(self, tweet_message: str) -> None:
+        """
+            Add tweet message
+        """
+        self.tweet_messages.append(tweet_message)
+
+    def get_tweet_message(self) -> str:
+        """
+            Get tweet message
+        """
+        return self.tweet_messages[0]
+
+    def remove_tweet_message(self) -> None:
+        """
+            Remove tweet message
+        """
+        self.tweet_messages.pop(0)    
+
