@@ -2,13 +2,54 @@
     Send My Personal Tweets in my own profile
 
 """
-import os
-from typing import Optional
+from typing import List
+
+import decouple
 
 import tweepy
 
 
-class TweeterProfile:
+class TweetFeed:
+    """
+        Tweeter Messages
+    """
+    def __init__(self):
+        self.tweeter_handle: str = ''
+        self.tweet_id: str = ''
+        self.tweet: str = ''
+
+
+class TweeterAuth:
+    """
+        Authenticate with tweeter
+    """
+    def __init__(self) -> None:
+        self.api_key: str = decouple.config('tweeter_api_key')
+        self.api_key_secret: str = decouple.config('tweeter_api_secret')
+        self.access_token: str = decouple.config('tweeter_access_token')
+        self.access_token_secret: str = decouple.config('tweeter_access_token_secret')
+        self.bearer_token: str = decouple.config('tweeter_bearer_token')
+
+    def oauth2(self):
+        auth = tweepy.OAuthHandler(consumer_key=self.api_key, consumer_secret=self.api_key_secret)
+        auth.set_access_token(self.access_token, self.access_token_secret)
+        return auth
+
+
+class TweeterSearch(TweeterAuth):
+    """
+        Searches Tweeter and returns a list of results
+    """
+    def __init__(self):
+        super().__init__()
+        self.api: tweepy.API = tweepy.API(self.oauth2())
+        self.result_limit: int = 100
+
+    def search(self, search_term: str) -> list:
+        return [_tweet for _tweet in tweepy.Cursor(self.api.search_tweets, q=search_term).items(self.result_limit)]
+
+
+class TweeterProfile(TweeterAuth):
     """
         **Tweeter Profile**
             a tweeter bot to manage my tweeter profile
@@ -16,75 +57,62 @@ class TweeterProfile:
     """
 
     def __init__(self) -> None:
-        self.api_key: str = os.getenv('tweeter_api_key')
-        self.access_token: str = os.getenv('tweeter_access_token')
-        self.api: Optional[tweepy.API] = None
+        # initialize and authenticate with tweeter
+        super().__init__()
+        self.api: tweepy.API = tweepy.API(self.oauth2())
 
-    def authenticate(self) -> None:
-        """
-            Authenticate with Twitter API
-        """
-        auth = tweepy.OAuthHandler(self.api_key, self.access_token)
-        self.api = tweepy.API(auth)
-
-    def follow_back(self) -> None:
-        """
-            Follow back users who follow you
-        """
-        for follower in tweepy.Cursor(self.api.followers).items():
-            if not follower.following:
-                follower.follow()
-
-    def un_follow_non_followers(self) -> None:
-        """
-            Unfollow non-followers
-        """
-        for user in tweepy.Cursor(self.api.friends).items():
-            if not user.following:
-                user.unfollow()
-
-    def un_follow_all(self) -> None:
-        """
-            Unfollow all users
-        """
-        for user in tweepy.Cursor(self.api.friends).items():
-            user.unfollow()
-
-    def send_tweet(self, tweet: str) -> None:
-        """
-            Send tweet
-        """
-        self.api.update_status(tweet)
+    def update_status(self, _tweet: str) -> None:
+        """creates a status update on tweeter"""
+        self.api.update_status(status=_tweet)
 
     def send_tweet_with_media(self, tweet: str, media_path: str) -> None:
         """
             Send tweet with media
         """
-        self.api.update_with_media(media_path, tweet)
+        self.api.update_status_with_media(status=tweet, media_path=media_path)
 
 
-class TweetMessages:
+class TweeterFollowBot(TweeterAuth):
     """
-        **Tweet Messages**
+        **TweeterFollowBot**
+            Twitter follow bot uses a strategy to maximise user follows
     """
+    def __init__(self):
+        """"""
+        super().__init__()
+        self.api: tweepy.API = tweepy.API(self.oauth2())
 
-    def __init__(self) -> None:
-        self.tweet_messages: list = []
+    def follow_back(self) -> None:
+        """
+            Follow a user who follows you
+        """
+        for follower in self.api.get_followers():
+            if follower.following:
+                follower.follow()
 
-    def add_tweet_message(self, tweet_message: str) -> None:
+    def un_follow_non_followers(self) -> None:
         """
-            Add tweet message
+            Unfollow non-followers
+            followers
         """
-        self.tweet_messages.append(tweet_message)
+        for _follower in self.api.get_followers():
+            if not _follower.following:
+                _follower.unfollow()
 
-    def get_tweet_message(self) -> str:
+    def un_follow_all(self) -> None:
         """
-            Get tweet message
+            Unfollow all users
+            friends are users i follow
         """
-        return self.tweet_messages[0]
+        _friend_list = self.api.get_friends()
+        for user in _friend_list:
+            print(user)
+            user.unfollow()
 
-    def remove_tweet_message(self) -> None:
-        """
-            Remove tweet message
-        """
-        self.tweet_messages.pop(0)
+
+
+if __name__ == '__main__':
+    i = 0
+    while i < 50:
+        TweeterProfile().un_follow_all()
+        i += 1
