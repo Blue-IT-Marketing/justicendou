@@ -8,6 +8,7 @@ import tweepy
 class TweeterProfile:
     """
         **Tweeter Profile**
+            a tweeter bot to manage my tweeter profile
 
     """
     def __init__(self) -> None:
