@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, date, time
 import os
 import jinja2
 from flask import Blueprint, request
@@ -77,22 +77,22 @@ class ProjectMessages(ndb.Model):
 
 
 class HireMe(ndb.Model):
-    uid = ndb.StringProperty()
-    project_id = ndb.StringProperty()
-    names = ndb.StringProperty()
-    cell = ndb.StringProperty()
-    email = ndb.StringProperty()
-    website = ndb.StringProperty()
-    facebook = ndb.StringProperty()
-    twitter = ndb.StringProperty()
-    company = ndb.StringProperty()
-    freelancing = ndb.StringProperty()
-    project_type = ndb.StringProperty()
-    project_title = ndb.StringProperty()
-    project_description = ndb.StringProperty()
-    estimated_budget = ndb.IntegerProperty(default=50)
-    start_date = ndb.DateProperty(auto_now_add=True)
-    project_status = ndb.StringProperty(default="created")  # read, started, milestone, completed
+    uid: str = ndb.StringProperty()
+    project_id: str = ndb.StringProperty()
+    names: str = ndb.StringProperty()
+    cell: str = ndb.StringProperty()
+    email: str = ndb.StringProperty()
+    website: str = ndb.StringProperty()
+    facebook: str = ndb.StringProperty()
+    twitter: str = ndb.StringProperty()
+    company: str = ndb.StringProperty()
+    freelancing: str = ndb.StringProperty()
+    project_type: str = ndb.StringProperty()
+    project_title: str = ndb.StringProperty()
+    project_description: str = ndb.StringProperty()
+    estimated_budget: int = ndb.IntegerProperty(default=50)
+    start_date: date = ndb.DateProperty(auto_now_add=True)
+    project_status: str = ndb.StringProperty(default="created")  # read, started, milestone, completed
 
     def send_email(self, message):
         """

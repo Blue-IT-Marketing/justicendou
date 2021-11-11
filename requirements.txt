@@ -15,3 +15,4 @@ googleapis-common-protos
 grpc-google-iam-v1
 grpcio
 gunicorn==20.1.0
+tweepy
