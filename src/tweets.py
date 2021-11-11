@@ -2,6 +2,9 @@
     Send My Personal Tweets in my own profile
 
 """
+import os
+from typing import Optional
+
 import tweepy
 
 
@@ -11,60 +14,60 @@ class TweeterProfile:
             a tweeter bot to manage my tweeter profile
 
     """
+
     def __init__(self) -> None:
         self.api_key: str = os.getenv('tweeter_api_key')
         self.access_token: str = os.getenv('tweeter_access_token')
+        self.api: Optional[tweepy.API] = None
 
     def authenticate(self) -> None:
         """
             Authenticate with Twitter API
         """
         auth = tweepy.OAuthHandler(self.api_key, self.access_token)
-        api = tweepy.API(auth)
-        return api
+        self.api = tweepy.API(auth)
 
-    def follow_back(self, api: tweepy.API) -> None:
+    def follow_back(self) -> None:
         """
             Follow back users who follow you
         """
-        for follower in tweepy.Cursor(api.followers).items():
+        for follower in tweepy.Cursor(self.api.followers).items():
             if not follower.following:
                 follower.follow()
 
-    
-    def un_follow_non_followers(self, api: tweepy.API) -> None:
+    def un_follow_non_followers(self) -> None:
         """
             Unfollow non-followers
         """
-        for user in tweepy.Cursor(api.friends).items():
+        for user in tweepy.Cursor(self.api.friends).items():
             if not user.following:
                 user.unfollow()
 
-    def un_follow_all(self, api: tweepy.API) -> None:
+    def un_follow_all(self) -> None:
         """
             Unfollow all users
         """
-        for user in tweepy.Cursor(api.friends).items():
+        for user in tweepy.Cursor(self.api.friends).items():
             user.unfollow()
 
-    def send_tweet(self, api: tweepy.API, tweet: str) -> None:
+    def send_tweet(self, tweet: str) -> None:
         """
             Send tweet
         """
-        api.update_status(tweet)
+        self.api.update_status(tweet)
 
-    def send_tweet_with_media(self, api: tweepy.API, tweet: str, media_path: str) -> None:
+    def send_tweet_with_media(self, tweet: str, media_path: str) -> None:
         """
             Send tweet with media
         """
-        api.update_with_media(media_path, tweet)
-
+        self.api.update_with_media(media_path, tweet)
 
 
 class TweetMessages:
     """
         **Tweet Messages**
     """
+
     def __init__(self) -> None:
         self.tweet_messages: list = []
 
@@ -84,5 +87,4 @@ class TweetMessages:
         """
             Remove tweet message
         """
-        self.tweet_messages.pop(0)    
-
+        self.tweet_messages.pop(0)
