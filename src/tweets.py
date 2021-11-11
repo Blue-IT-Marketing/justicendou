@@ -3,10 +3,7 @@
 
 """
 import time
-from typing import List
-
 import decouple
-
 import tweepy
 
 
