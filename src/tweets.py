@@ -4,7 +4,7 @@
 """
 import json
 import time
-from typing import List
+from typing import List, Dict
 
 import decouple
 import tweepy
@@ -40,6 +40,8 @@ class TweeterAuth:
 class TweeterSearch(TweeterAuth):
     """
         Searches Tweeter and returns a list of results
+
+        ** Tweet Dict **
         {'created_at': 'Fri Nov 12 08:04:29 +0000 2021',
         'id': 1459069573878235159,
         'id_str': '1459069573878235159',
@@ -119,7 +121,8 @@ class TweeterSearch(TweeterAuth):
         self.api: tweepy.API = tweepy.API(self.oauth2())
         self.result_limit: int = 100
 
-    def search(self, search_term: str) -> list:
+    def search(self, search_term: str) -> List[dict]:
+        """returns a list of tweets from tweeter, matching the search term"""
         return [_tweet for _tweet in tweepy.Cursor(self.api.search_tweets, q=search_term).items(self.result_limit)]
 
 
@@ -127,7 +130,6 @@ class TweeterProfile(TweeterAuth):
     """
         **Tweeter Profile**
             a tweeter bot to manage my tweeter profile
-
     """
 
     def __init__(self) -> None:
