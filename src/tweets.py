@@ -3,6 +3,8 @@
 
 """
 import time
+from typing import List
+
 import decouple
 import tweepy
 
@@ -80,32 +82,27 @@ class TweeterFollowBot(TweeterAuth):
         super().__init__()
         self.api: tweepy.API = tweepy.API(self.oauth2())
 
-    def follow_back(self) -> None:
+    def follow_back(self) -> list:
         """
             Follow a user who follows you
         """
-        for follower in self.api.get_followers():
-            if follower.following:
-                follower.follow()
+        return [follower.unfollow() for follower in self.api.get_followers() if follower.following]
 
-    def un_follow_non_followers(self) -> None:
+    def un_follow_non_followers(self) -> list:
         """
             Unfollow non-followers
             followers
+            :return unfollowed users
         """
-        for _follower in self.api.get_followers():
-            if not _follower.following:
-                _follower.unfollow()
+        return [_follower.unfollow() for _follower in self.api.get_followers() if not _follower.following]
 
-    def un_follow_all(self) -> None:
+    def un_follow_all(self) -> list:
         """
+
             Unfollow all users
             friends are users i follow
         """
-        _friend_list = self.api.get_friends()
-        for user in _friend_list:
-            print(user)
-            user.unfollow()
+        return [_user.unfollow() for _user in self.api.get_friends()]
 
 
 if __name__ == '__main__':
